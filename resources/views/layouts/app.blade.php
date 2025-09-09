@@ -126,6 +126,14 @@
         });
     @endif
 
+    @if(session('register_success'))
+        toastr.success("{{ session('register_success') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+    @endif
+    
     @if(session('error'))
         toastr.error("{{ session('error') }}", "Lỗi", {
             positionClass: "toast-bottom-right",

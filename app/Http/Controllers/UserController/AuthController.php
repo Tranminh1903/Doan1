@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\UserController;
 
-use App\Models\User;
+use App\Models\UserModels\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +34,7 @@ class AuthController extends Controller
         ]);
         Auth::login($user);
         $request->session()->regenerate(); 
-        return redirect()->route('/login.form');
+        return redirect()->route('home')->with('register_success', 'Đăng ký tài khoản thành công!');
     }
     public function showLogin(): View
     {

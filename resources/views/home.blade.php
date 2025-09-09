@@ -96,7 +96,6 @@
             </div>
 
             {{-- Phim thứ 2 --}}
-
             <div class="card mb-4">
                 <div class="row g-0">
                     <div class="col-md-2">
@@ -107,7 +106,6 @@
                             <h5 class="card-title mb-2">Giam Cầm Quỷ Dữ <span class="badge bg-secondary">T16</span></h5>
                             <p class="card-text mb-2"><small class="text-muted">Giam Cầm Quỷ Dữ - 1h33' | Drama, Thriller, Horror </small></p>
                             <p class="card-text mb-2"><small class="text-muted"><b>2D phụ đề tiếng Anh</b>  </small></p>
-
                             {{-- Suất chiếu--}}
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach (['08:50','09:30','10:30','11:15','12:00'] as $time)
