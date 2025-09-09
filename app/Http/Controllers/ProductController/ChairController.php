@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UserController;
 
 use App\Models\Chair;
 use Illuminate\Http\Request;
