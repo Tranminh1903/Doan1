@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@yield('title', 'Movie Tickets')</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+  <style>
+  .movie-card img {
+    aspect-ratio: 3/4; object-fit: cover;
+  }
+  .hero {
+    background:#0d1117 url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+    color:#fff; border-radius:1rem
+  }
+  .hero-overlay {
+    backdrop-filter:brightness(.6); border-radius:1rem
+  }
+  a{text-decoration:none}
+  .banner-wrapper { 
+    max-height: 720px; overflow: hidden; 
+  }
+  .banner-img { 
+    aspect-ratio: 16 / 6; object-fit: cover; transform: scale(1); transition: transform 4s ease; 
+  }
+  .carousel-item.active .banner-img { transform: scale(1.06); }
+  .banner-overlay{
+    position:absolute; inset:0; content:"";
+    background: linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.45) 80%);
+  }  
+  .banner-caption{
+    position:absolute; left:1rem; bottom:1rem; right:1rem;
+    color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6);
+    transform: translateY(10px); opacity:0; transition: all .5s ease;
+  }
+  .carousel-item.active .banner-caption{ transform: translateY(0); opacity:1; }
+  .banner-caption h5{
+    font-weight:700; letter-spacing:.3px;
+    background: rgba(0,0,0,.35); display:inline-block; padding:.25rem .5rem; border-radius:.5rem;
+  }
+  .banner-caption p{
+    background: rgba(0,0,0,.25); display:inline-block; padding:.2rem .5rem; border-radius:.5rem; margin-top:.25rem;
+  }
+
+  </style>
+</head>
+<body>
+
+{{-- Giao diện khi chưa đăng nhập --}}
+@guest
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url('/') }}">🎬 DuManMinh Cinema</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+    <div id="nav" class="collapse navbar-collapse">
+
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
+      </ul>
+
+      @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-primary" href="{{ route('login.form') }}">Đăng nhập</a>
+          <a class="btn btn-outline-primary" href="{{ route('register.form') }}">Đăng ký</a>
+        </div>
+      @endif
+
+    </div>
+  </div>
+</nav>
+@endguest
+
+{{-- Giao diện khi đăng nhập thành công --}}
+@auth
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url('/') }}">🎬 DuManMinh Cinema</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        <p class="mb-0">Xin chào, <b>{{ auth()->user()->username }}</b></p>
+        <a class="btn btn-outline-primary">Xem hồ sơ</a>
+        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</nav>
+@endauth
+
+
+<main class="container my-4">
+  @yield('content')
+</main>
+
+<footer class="border-top py-4">
+  <div class="container small text-muted">&copy; {{ date('Y') }} DuManMinh Cinema</div>
+</footer>
+
+{{-- Import thư viện --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+{{-- Thông báo đăng nhập thành công --}}
+<script>
+    @if(session('success'))
+        toastr.success("{{ session('success') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+        toastr.success("{{ session('success') }}", "Chào mừng khách hàng đã trở lại", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000, 
+            progressBar: true,
+        });
+    @endif
+
+    @if(session('error'))
+        toastr.error("{{ session('error') }}", "Lỗi", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif
+</script>
+</body>
+</html>
