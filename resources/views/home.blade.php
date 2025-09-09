@@ -8,11 +8,11 @@
 
     @php
       $banners = $banners ?? [
-        ['img'=>asset('storage/app/public/pictures/poster_fastfurious.jpg'),
+        ['img'=>asset('storage/app/public/pictures/fastfurious.jpg'),
         'url'=>url('/promo/member-day'), 'title'=>'Member Day', 'desc'=>'X2 điểm thưởng'],
-        ['img'=>asset('storage/app/public/pictures/poster_giamcamquydu.jpg'),
+        ['img'=>asset('storage/app/public/pictures/giamcamquydu.jpg'),
         'url'=>url('/promo/combo'), 'title'=>'Combo Bắp Nước', 'desc'=>'Chỉ từ 49K'],
-        ['img'=>asset('storage/app/public/pictures/poster_hocduongnoiloan.jpg'),
+        ['img'=>asset('storage/app/public/pictures/hocduongnoiloan.jpg'),
         'url'=>url('/promo/early-bird'), 'title'=>'Early Bird', 'desc'=>'Đặt sớm -20%'],
       ];
     @endphp
@@ -123,7 +123,7 @@
               <div class="card mb-4">
                 <div class="row g-0">
                     <div class="col-md-2">
-                        <img src="{{ asset('storage/pictures/hocduongnoiloan.jpg') }}" alt="Ảnh demo" class="img-fluid rounded-start h-100 w-100 object-fit-cover">
+                        <img src="{{ asset('storage/pictures/hocduongnoiloan.jpg') }}" alt="Hocduongnoiloan" class="img-fluid rounded-start h-100 w-100 object-fit-cover">
                     </div>
                     <div class="col-md-10">
                         <div class="card-body ms-3">
