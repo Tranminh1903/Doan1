@@ -2,25 +2,20 @@
 
 namespace App\Models\UserModels;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Customer extends User
 {
-    // Chỉ lấy các bản ghi role = 'user'
-    protected static function booted()
+    //
+    protected $table = 'customers';
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    protected $keyType = 'int';
+    protected $fillable = ['user_id','customer_point'];
+    //
+    public function user()
     {
-        static::addGlobalScope('only_user', fn($q) => $q->where('role', 'user'));
-    }
-
-    /** Customer has many Orders */
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class, 'customer_id'); // FK -> users.id
-    }
-
-    /** Customer has many CustomerPromotions */
-    public function customerPromotions(): HasMany
-    {
-        return $this->hasMany(CustomerPromotion::class, 'customer_id'); // FK -> users.id
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

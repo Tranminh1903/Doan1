@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\UserController;
 
-use App\Models\User;
+use App\Models\UserModels\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -11,35 +11,40 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
+
     /** GET /register */
     public function showRegister()
     {
         return view('register');
     }
+
     /** POST /register */
     public function register(Request $request)
     {
         $data = $request->validate([
             'username'  => ['required','string','max:20'],
             'email'     => ['required','email','max:60','unique:users,email'],
-            'phone'     => ['nullable','string','max:50'],
-            'password'  => ['required', Password::min(5)->numbers(), 'confirmed'],
+            'password'  => ['required', Password::min(5)->numbers()],
         ]);
         $user = User::create([
             'username'  => $data['username'],
             'email'     => $data['email'],
             'password'  => Hash::make($data['password']),
-            'phone'     => $data['phone'] ?? null,
             'role'      => 'customers', 
         ]);
         Auth::login($user);
         $request->session()->regenerate(); 
-        return redirect()->route('/login.form');
+        return redirect()->route('home')->with('register_success', 'Đăng ký tài khoản thành công!');
     }
+    
+    //GET /login
     public function showLogin(): View
     {
         return view('login');
     }
+
+
+    //POST /login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -57,10 +62,10 @@ class AuthController extends Controller
                 default     => redirect()->route('home')->with('success', 'Đăng nhập thành công!'),
             };
         }
-            return back()
-                ->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])
-                ->onlyInput('email');
+            return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])->onlyInput('email');
     }
+
+    //POST /logout
     public function logout(Request $request)
     {
         Auth::logout();

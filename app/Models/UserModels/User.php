@@ -11,6 +11,17 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
     protected $fillable = ['username','email','password','phone','role'];
     protected $hidden = ['password','remember_token'];
+
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id');
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'user_id');
+    }
+
     public function isAdmin(): bool   { return $this->role === 'admin'; }
     public function isCustomer(): bool{ return $this->role === 'customers'; }
 }

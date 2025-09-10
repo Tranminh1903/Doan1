@@ -6,8 +6,8 @@ use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
 {  
-     public function showProfile(): View
-    {
-        return view('profile');
-    }
+    //  public function showProfile(): View
+    // {
+    //     return view('profile');
+    // }
 }
