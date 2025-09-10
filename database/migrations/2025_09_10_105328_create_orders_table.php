@@ -19,7 +19,6 @@ return new class extends Migration
             $table->foreign('customer_user_id')->references('user_id')->on('customers')->cascadeOnDelete();
         });
     }
-
     public function down(): void
     {
         Schema::dropIfExists('orders');

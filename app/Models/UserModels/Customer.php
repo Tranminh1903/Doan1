@@ -12,10 +12,10 @@ class Customer extends User
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'int';
-    protected $fillable = ['user_id','customer_point'];
+    protected $fillable = ['user_id','customer_name','customer_point'];
     //
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+    return $this->belongsTo(\App\Models\UserModels\User::class, 'user_id', 'id');
     }
 }
