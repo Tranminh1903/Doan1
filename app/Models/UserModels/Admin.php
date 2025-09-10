@@ -4,9 +4,16 @@ namespace App\Models\UserModels;
 
 class Admin extends User
 {
-    // Chỉ lấy các bản ghi role = 'admin'
-    protected static function booted()
+    //
+    protected $table = 'admin';    
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;   
+    protected $keyType = 'int';
+    //
+    
+    protected $fillable = ['user_id','role'];
+    public function user()
     {
-        static::addGlobalScope('only_admin', fn($q) => $q->where('role', 'admin'));
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController\AuthController;
 use App\Http\Controllers\UserController\HomeController;
+use App\Http\Controllers\UserController\CustomersController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -17,4 +18,5 @@ Route::middleware('guest')->group(function () {
 // Auth only (đã đăng nhập)
 Route::middleware('auth')->group(function () {
     Route::post('/', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile', [CustomersController::class, 'showProfile'])->name('profile.form');
 });

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UserController;
 
-use App\Models\Promotion;
+use App\Models\UserModels\Promotion;
 use Illuminate\Http\Request;
 
 class PromotionController extends Controller

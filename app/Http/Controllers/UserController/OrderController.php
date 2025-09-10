@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UserController;
 
-use App\Models\Order;
+use App\Models\UserModels\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller

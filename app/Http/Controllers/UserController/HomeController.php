@@ -30,21 +30,6 @@ class HomeController extends Controller
             ],
         ];
 
-        $movies = [
-            [
-                'title'    => 'Fast & Furious 8',
-                'genre'    => 'Sci-Fi',
-                'duration' => 166,
-                'poster'   => Storage::url('pictures/fastfurious.jpg'),
-            ],
-            [
-                'title'    => 'Giam Cầm Quỷ Dữ',
-                'genre'    => 'Horror',
-                'duration' => 96,
-                'poster'   => Storage::url('pictures/giamcamquydu.jpg'),
-            ],
-        ];
-
-        return view('home', compact('banners','movies'));
+        return view('home', compact('banners'));
     }
 }

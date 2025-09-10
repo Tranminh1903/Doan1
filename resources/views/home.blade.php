@@ -1,11 +1,9 @@
 @extends('layouts.app')
 @section('title','DuManMinh Cinema – Đặt vé xem phim')
 @section('content')
-<div id="bannerCarousel" class="carousel slide carousel-fade mb-4"
-     data-bs-ride="carousel" data-bs-interval="3200">
+<div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="3200">
 
   <div class="carousel-inner banner-wrapper rounded shadow-sm">
-
     @php
       $banners = $banners ?? [
         ['img'=>asset('storage/app/public/pictures/fastfurious.jpg'),
@@ -16,7 +14,6 @@
         'url'=>url('/promo/early-bird'), 'title'=>'Early Bird', 'desc'=>'Đặt sớm -20%'],
       ];
     @endphp
-
     @foreach ($banners as $i => $b)
       <div class="carousel-item {{ $i===0 ? 'active' : '' }}">
         <a href="{{ $b['url'] }}" class="d-block position-relative">
@@ -34,23 +31,20 @@
     @endforeach
   </div>
 
-  <button class="carousel-control-prev" type="button"
-          data-bs-target="#bannerCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button"
-          data-bs-target="#bannerCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
+    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
 
-  <div class="carousel-indicators">
+    <div class="carousel-indicators">
     @foreach ($banners as $i => $_)
-      <button type="button" data-bs-target="#bannerCarousel"
-              data-bs-slide-to="{{ $i }}" class="{{ $i===0?'active':'' }}"></button>
+      <button type="button" data-bs-target="#bannerCarousel" ndata-bs-slide-to="{{ $i }}" class="{{ $i===0?'active':'' }}"></button>
     @endforeach
-  </div>
+    </div>
 </div>
 
 <h4 id="phimdangchieu" class="mb-3">Phim đang chiếu</h4>
@@ -67,11 +61,8 @@
                 <button class="btn btn-outline-secondary me-2">11/9 Th 5</button>
                 <button class="btn btn-outline-secondary">12/9 Th 6</button>
             </div>
-            <div class="alert alert-warning mb-4" style ="background-color: orange; color: black;">
-                Nhấn vào suất chiếu để tiến hành mua vé
-            </div>
+            <div class="alert alert-warning mb-4" style ="background-color: orange; color: black;">Nhấn vào suất chiếu để tiến hành mua vé</div>
         {{-- Danh sách phim --}}
-
             {{-- Phim thứ 1 --}}
             <div class="card mb-4">
                 <div class="row g-0">
@@ -83,7 +74,6 @@
                             <h5 class="card-title mb-2">Fast & Furious 8 <span class="badge bg-secondary">T16</span></h5>
                             <p class="card-text mb-2"><small class="text-muted">Quá nhanh quá nguy hiểm 8 - 2h16' | Action, Criminal</small></p>
                             <p class="card-text mb-2"><small class="text-muted"><b>2D phụ đề tiếng Anh</b>  </small></p>
-
                             {{-- Suất phim --}}
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach (['08:50','09:30','10:30','11:15','12:00','13:00','13:40','14:30','15:30','16:10','17:00','18:00','18:20','18:40','19:30','20:30','21:10','22:00','23:30'] as $time)
@@ -94,7 +84,6 @@
                     </div>
                 </div>
             </div>
-
             {{-- Phim thứ 2 --}}
             <div class="card mb-4">
                 <div class="row g-0">
@@ -116,7 +105,6 @@
                     </div>
                 </div>
             </div>
-
             {{-- Phim thứ 3 --}}
               <div class="card mb-4">
                 <div class="row g-0">

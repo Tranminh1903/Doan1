@@ -85,7 +85,7 @@
 
       <div class="d-flex align-items-center gap-2">
         <p class="mb-0">Xin chào, <b>{{ auth()->user()->username }}</b></p>
-        <a class="btn btn-outline-primary">Xem hồ sơ</a>
+        <a class="btn btn-outline-primary" href="{{ route('profile.form') }}">Xem hồ sơ</a>
         <form action="{{ route('logout') }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
