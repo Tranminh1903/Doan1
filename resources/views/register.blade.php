@@ -3,7 +3,7 @@
 @section('content')
 <div class="row justify-content-center">
   <div class="col-md-6">
-    <h3 class="mb-3">Đăng ký</h3>
+    <h3 class="mb-3 text-center">Đăng ký</h3>
     <form method="POST" action="{{ route('register') }}">
       @csrf
 

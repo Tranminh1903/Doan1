@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->primary();     // PK = FK
+            $table->string('customer_name')->nullable();
             $table->integer('customer_point')->default(0);
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete(); // xóa user -> xóa customer

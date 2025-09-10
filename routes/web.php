@@ -18,5 +18,5 @@ Route::middleware('guest')->group(function () {
 // Auth only (đã đăng nhập)
 Route::middleware('auth')->group(function () {
     Route::post('/', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/profile', [CustomersController::class, 'showProfile'])->name('profile.form');
+    Route::get('/profile', [CustomersController::class, 'showProfile'])->name('profile');
 });

@@ -85,7 +85,7 @@
 
       <div class="d-flex align-items-center gap-2">
         <p class="mb-0">Xin chào, <b>{{ auth()->user()->username }}</b></p>
-        <a class="btn btn-outline-primary" href="{{ route('profile.form') }}">Xem hồ sơ</a>
+        <a class="btn btn-outline-primary" href="{{ route('profile') }}">Xem hồ sơ</a>
         <form action="{{ route('logout') }}" method="POST" class="d-inline">
           @csrf
           <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
@@ -113,27 +113,35 @@
 
 {{-- Thông báo đăng nhập thành công --}}
 <script>
-    @if(session('success'))
-        toastr.success("{{ session('success') }}", "Thành công", {
+    @if(session('LoginSuccess'))
+        toastr.success("{{ session('LoginSuccess') }}", "Thành công", {
             positionClass: "toast-bottom-right",
             timeOut: 3000,  
             progressBar: true,
         });
-        toastr.success("{{ session('success') }}", "Chào mừng khách hàng đã trở lại", {
+        toastr.success("{{ session('LoginSuccess') }}", "Chào mừng khách hàng đã trở lại", {
             positionClass: "toast-bottom-right",
             timeOut: 3000, 
             progressBar: true,
         });
     @endif
 
-    @if(session('register_success'))
-        toastr.success("{{ session('register_success') }}", "Thành công", {
+    @if(session('RegisterSuccess'))
+        toastr.success("{{ session('RegisterSuccess') }}", "Thành công", {
             positionClass: "toast-bottom-right",
             timeOut: 3000,  
             progressBar: true,
         });
     @endif
     
+    @if(session('LogoutSuccess'))
+        toastr.success("{{ session('LogoutSuccess') }}", "Bạn đã đăng xuất", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif
+
     @if(session('error'))
         toastr.error("{{ session('error') }}", "Lỗi", {
             positionClass: "toast-bottom-right",

@@ -11,7 +11,7 @@ class Admin extends User
     protected $keyType = 'int';
     //
     
-    protected $fillable = ['user_id','role'];
+    protected $fillable = ['user_id'];
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

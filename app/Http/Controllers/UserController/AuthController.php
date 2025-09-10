@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\UserController;
 
 use App\Models\UserModels\User;
+use App\Models\UserModels\Admin;
+use App\Models\UserModels\Customer;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -22,19 +24,32 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'username'  => ['required','string','max:20'],
+            'username'  => ['required','string','max:20','unique:users,username'],
             'email'     => ['required','email','max:60','unique:users,email'],
             'password'  => ['required', Password::min(5)->numbers()],
+        ], [
+            'username.unique' => 'Tên đăng nhập đã tồn tại.',
+            'email.unique'    => 'Email này đã được sử dụng.',
         ]);
+
+
         $user = User::create([
             'username'  => $data['username'],
             'email'     => $data['email'],
             'password'  => Hash::make($data['password']),
             'role'      => 'customers', 
-        ]);
+        ]); 
+
+        // Tạo bản ghi tương ứng trong bảng customers hoặc admin dựa trên vai trò của người dùng
+        if ($user->role === 'customers') {
+            Customer::create(['user_id' => $user->id, 'customer_name' => $user->username,'customer_point' => 0]);
+        } else {
+            Admin::create(['user_id' => $user->id]);
+        }
+        
         Auth::login($user);
         $request->session()->regenerate(); 
-        return redirect()->route('home')->with('register_success', 'Đăng ký tài khoản thành công!');
+        return redirect()->route('home')->with('RegisterSuccess', 'Đăng ký tài khoản thành công!');
     }
     
     //GET /login
@@ -57,9 +72,9 @@ class AuthController extends Controller
             $request->session()->regenerate();
             return match (Auth::user()->role) 
             {
-                'admin'     => redirect()->route('home')->with('success', 'Đăng nhập thành công!'),
-                'customers' => redirect()->route('home')->with('success', 'Đăng nhập thành công!'),
-                default     => redirect()->route('home')->with('success', 'Đăng nhập thành công!'),
+                'admin'     => redirect()->route('home')->with('LoginSuccess', 'Đăng nhập thành công!'),
+                'customers' => redirect()->route('home')->with('LoginSuccess', 'Đăng nhập thành công!'),
+                default     => redirect()->route('home')->with('LoginSuccess', 'Đăng nhập thành công!'),
             };
         }
             return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])->onlyInput('email');
@@ -71,6 +86,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('home');
+        return redirect()->route('home')->with('LogoutSuccess', 'Khỏi trang web thành công!');
     }
 }
