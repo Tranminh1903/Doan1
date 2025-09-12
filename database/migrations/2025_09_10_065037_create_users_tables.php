@@ -13,8 +13,7 @@ return new class extends Migration
             $table->string('password', 255);
             $table->string('email', 100)->unique();
             $table->string('phone', 20)->nullable();
-            $table->enum('sex', ['male', 'female', 'other'])->nullable(); 
-            $table->string('cmnd')->nullable(); 
+            $table->string('sex', 4)->nullable(); 
             $table->date('birthday')->nullable(); 
             $table->string('role', 20)->default('customers');
             $table->timestamps(); 
