@@ -31,16 +31,19 @@ class AuthController extends Controller
             'username.unique' => 'Tên đăng nhập đã tồn tại.',
             'email.unique'    => 'Email này đã được sử dụng.',
         ]);
-
+            $day   = $request->input('day');
+            $month = $request->input('month');
+            $year  = $request->input('year');
+            $birthday = sprintf('%04d-%02d-%02d', $year, $month, $day); 
 
         $user = User::create([
             'username'  => $data['username'],
             'email'     => $data['email'],
             'password'  => Hash::make($data['password']),
             'role'      => 'customers', 
+            'birthday'  => $birthday,
         ]); 
 
-        // Tạo bản ghi tương ứng trong bảng customers hoặc admin dựa trên vai trò của người dùng
         if ($user->role === 'customers') {
             Customer::create(['user_id' => $user->id, 'customer_name' => $user->username,'customer_point' => 0]);
         } else {

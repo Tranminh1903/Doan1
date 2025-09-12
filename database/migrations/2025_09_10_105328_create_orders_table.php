@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id(); // PK tự tăng
             $table->unsignedBigInteger('customer_user_id'); // FK đến customers.user_id
             $table->string('code')->unique(); // mã đơn hàng
-            $table->enum('status', ['created','paid','cancelled','refunded'])->default('created');
+            $table->string('status', 10)->default('created');
             $table->decimal('total_amount', 12, 2)->default(0);
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();

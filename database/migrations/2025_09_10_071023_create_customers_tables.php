@@ -12,6 +12,10 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->primary();     // PK = FK
             $table->string('customer_name')->nullable();
             $table->integer('customer_point')->default(0);
+            $table->string('tier', 10)->default('bronze');
+
+            $table->integer('total_order_amount')->default(0);
+            $table->integer('total_promotions_unused')->default(0);   
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete(); // xóa user -> xóa customer
         });
