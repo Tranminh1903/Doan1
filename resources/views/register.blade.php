@@ -55,6 +55,7 @@
     <div class="d-flex gap-3 mt-3">
         Đã có tài khoản? 
         <a href="{{ route('login.form') }}">Đăng nhập</a> 
+        <a href="{{ route('forget_password.form') }}">Quên mật khẩu</a>
         <a href="{{ url('/') }}">Trở về trang chủ</a>
     </div>
   </div>

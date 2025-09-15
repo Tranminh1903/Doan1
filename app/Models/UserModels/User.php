@@ -23,5 +23,5 @@ class User extends Authenticatable
     }
 
     public function isAdmin(): bool   { return $this->role === 'admin'; }
-    public function isCustomer(): bool{ return $this->role === 'customers'; }
+    public function isCustomers(): bool{ return $this->role === 'customers'; }
 }

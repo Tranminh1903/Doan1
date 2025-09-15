@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('orders_histories', function (Blueprint $table) {
             $table->id(); 
             $table->unsignedBigInteger('order_id'); // FK đến orders.id
-            $table->enum('status', ['created','paid','cancelled','refunded']); 
+            $table->string('status',10);//created','paid','cancelled','refunded'
             $table->text('note')->nullable(); 
             $table->timestamp('changed_at')->useCurrent(); 
             $table->timestamps();

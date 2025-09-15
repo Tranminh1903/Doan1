@@ -8,26 +8,29 @@
     {{-- Sidebar --}}
     <aside class="col-md-3">
       <div class="cinema-title">TÀI KHOẢN CINEMA</div>
-
       <div class="list-group small shadow-sm" id="profile-tabs" role="tablist">
         <a class="list-group-item list-group-item-action active"
            id="link-general" data-bs-toggle="list" data-bs-target="#tab-general"
            role="tab" aria-controls="tab-general">
           <i class="bi bi-gear me-2"></i> THÔNG TIN CHUNG
         </a>
+
         <a class="list-group-item list-group-item-action"
            id="link-account" data-bs-toggle="list" data-bs-target="#tab-account"
            role="tab" aria-controls="tab-account">
           <i class="bi bi-gear me-2"></i> CHI TIẾT TÀI KHOẢN
         </a>
+        
         <a class="list-group-item list-group-item-action"
            id="link-promos" data-bs-toggle="list" data-bs-target="#tab-promos"
            role="tab" aria-controls="tab-promos">
           <i class="bi bi-gift me-2"></i> DANH SÁCH KHUYẾN MÃI
         </a>
+
         <a class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">
           <i class="bi bi-gear me-2"></i> THẺ THÀNH VIÊN
         </a>
+
         <a class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">
           <i class="bi bi-gear me-2"></i> LỊCH SỬ GIAO DỊCH
         </a>
@@ -41,7 +44,6 @@
           <h5 class="mb-0">Hồ sơ khách hàng</h5>
         </div>
         <div class="card-body">
-
           {{-- NỘI DUNG TAB --}}
           <div class="tab-content" id="profile-tabContent">
             {{-- TAB: THÔNG TIN CHUNG --}}
@@ -102,24 +104,20 @@
                     <input type="text" name="phone" class="form-control"
                           value="{{ old('phone', $customer->user->phone) }}">
                   </div>
-
                   {{-- LỰA CHỌN GIỚI TÍNH --}}
                   <div class="col-md-6">
                     <label class="form-label d-block">Giới tính</span></label>
                     @php $sex = old('sex', $customer->user->sex ?? 'none'); @endphp
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="sex" id="sex_m" value="Nam"
-                            {{ $sex==='Nam' ? 'checked' : '' }}>
+                      <input class="form-check-input" type="radio" name="sex" id="sex_m" value="Nam" {{ $sex==='Nam' ? 'checked' : '' }}>
                       <label class="form-check-label" for="sex_m">Nam</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="sex" id="sex_f" value="Nữ"
-                            {{ $sex==='Nữ' ? 'checked' : '' }}>
+                      <input class="form-check-input" type="radio" name="sex" id="sex_f" value="Nữ" {{ $sex==='Nữ' ? 'checked' : '' }}>
                       <label class="form-check-label" for="sex_f">Nữ</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="sex" id="sex_n" value="Khác"
-                            {{ $sex==='Khác' ? 'checked' : '' }}>
+                      <input class="form-check-input" type="radio" name="sex" id="sex_n" value="Khác"{{ $sex==='Khác' ? 'checked' : '' }}>
                       <label class="form-check-label" for="sex_n">Khác</label>
                     </div>
                     @error('sex') <div class="text-danger small mt-1">{{ $message }}</div> @enderror

@@ -42,7 +42,7 @@
 
     <div class="carousel-indicators">
     @foreach ($banners as $i => $_)
-      <button type="button" data-bs-target="#bannerCarousel" ndata-bs-slide-to="{{ $i }}" class="{{ $i===0?'active':'' }}"></button>
+      <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $i }}" class="{{ $i===0?'active':'' }}"></button>
     @endforeach
     </div>
 </div>

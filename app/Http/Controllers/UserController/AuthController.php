@@ -5,22 +5,24 @@ namespace App\Http\Controllers\UserController;
 use App\Models\UserModels\User;
 use App\Models\UserModels\Admin;
 use App\Models\UserModels\Customer;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
+
 
 class AuthController extends Controller
 {
 
-    /** GET /register */
+    //Register 
     public function showRegister()
     {
         return view('register');
     }
 
-    /** POST /register */
+    // Register 
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -55,14 +57,14 @@ class AuthController extends Controller
         return redirect()->route('home')->with('RegisterSuccess', 'Đăng ký tài khoản thành công!');
     }
     
-    //GET /login
+    //Login
     public function showLogin(): View
     {
         return view('login');
     }
 
 
-    //POST /login
+    //Login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -83,7 +85,7 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])->onlyInput('email');
     }
 
-    //POST /logout
+    //Logout
     public function logout(Request $request)
     {
         Auth::logout();
