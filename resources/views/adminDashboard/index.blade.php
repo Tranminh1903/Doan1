@@ -17,8 +17,8 @@
                 href="{{ route('admin.form') }}">
                 <i class="bi bi-speedometer2"></i>Tổng quan
               </a>
-              <a class="ad-link {{ request()->routeIs('admin_userManagement.form') ? 'active' : '' }}" 
-                href="{{ route('admin_userManagement.form') }}">
+              <a class="ad-link {{ request()->routeIs('userManagement_main.form') ? 'active' : '' }}" 
+                href="{{ route('userManagement_main.form') }}">
                 <i class="bi bi-people"></i> Người dùng
               </a>
                 <a class="ad-link" href="#"><i class="bi bi-camera-reels"></i> Phim</a>
@@ -28,9 +28,7 @@
       </aside>
     </div>
 
-    <!-- Main -->
     <div class="col-lg-9 ad-main">
-    <!-- Header Admin -->
         <div class="card ad-card mb-3">
             <div class="card-body d-flex align-items-center gap-3">
                 <img src="{{ asset('storage/pictures/dogavatar.jpg') }}"

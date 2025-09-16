@@ -19,7 +19,7 @@ class AuthController extends Controller
     //Register 
     public function showRegister()
     {
-        return view('register');
+        return view('Authentication.register');
     }
 
     // Register 
@@ -60,7 +60,7 @@ class AuthController extends Controller
     //Login
     public function showLogin(): View
     {
-        return view('login');
+        return view('Authentication.login');
     }
 
 

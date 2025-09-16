@@ -39,7 +39,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
 
     //Admin Dashboard - Manage
-    Route::post('/adminDashboard_userManagement', [AdminController::class, 'createUser'])->name('admin_userManagement.Create');
+    Route::post('/adminDashboard/userManagement/_createUser', [AdminController::class, 'createUser'])->name('admin_userManagement.Create');
     Route::get('/adminDashboard', [AdminController::class, 'showAdminDashboard'])->name('admin.form');
-    Route::get('/adminDashboard_userManagement', [AdminController::class, 'showUserManagement'])->name('admin_userManagement.form');
+    Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('userManagement_main.form');
+    Route::get('/adminDashboard/userManagement/_managerUser', [AdminController::class, 'showManagerUser'])->name('userManagement_managerUser.form');
+    Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
+    Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
 }); 
+

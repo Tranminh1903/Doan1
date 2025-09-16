@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\UserController;
 
-use App\Models\UserModels\Customer;
-use App\Models\UserModels\Order;
+use App\Models\UserModels\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Http\Controllers\UserController\Controller;
@@ -17,7 +16,7 @@ class ForgetPassword extends Controller
         //Forget_password
     public function showForget_Password(Request $request) : View
         {
-            return view('forget_password');
+            return view('Authentication.forget_password');
         }
 
     public function sendResetLink(Request $request)
@@ -39,7 +38,7 @@ class ForgetPassword extends Controller
         }
     public function showReset_Password(Request $request,string $token) : View
         {
-            return view('reset_password',
+            return view('Authentication.reset_password',
             ['token' => $token,
             'email' => $request->query('email')]);
         }
@@ -57,11 +56,13 @@ class ForgetPassword extends Controller
 
         $status = Password::reset(
             $request->only('email','password','password_confirmation','token'),
-            function ($user, $password) {
+            function (User $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
-                ])->save();
+                ]);
+
+                $user -> save();
             }
         );
 

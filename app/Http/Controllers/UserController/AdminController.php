@@ -12,16 +12,30 @@ use Illuminate\Validation\Rules\Password;
 
 class AdminController extends Controller
 {
+    // View
     public function showAdminDashboard(): View
     {
-        return view('adminDashboard');
+        return view('adminDashboard.index');
     }
 
-    public function showUserManagement(): View
+    public function showMainManagementUser(Request $request): View
     {
-        return view('adminDashboard_userManagement');
+        return view('adminDashboard.userManagement.main');
+    }
+    public function showManagerUser(Request $request): View
+    {
+        return view('adminDashboard.userManagement._managerUser');
+    }
+    public function showCreateUser(Request $request): View
+    {
+        return view('adminDashboard.userManagement._createUser');
+    }
+    public function showUpdateUser(Request $request): View
+    {
+        return view('adminDashboard.userManagement._updateUser');
     }
 
+    // Button
     public function createUser(Request $request)
     {
         $data = $request->validate([
@@ -48,30 +62,4 @@ class AdminController extends Controller
         return redirect()->route('admin_userManagement.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
     }
 }
-    // public function index(): View
-    // {
-    //     $admins = Admin::with('user')->paginate(10);
-    //     return view('admin.admins.index', compact('admins'));
-    // }
 
-    // public function create(): View
-    // {
-    //     return view('admin.admins.create');
-    // }
-
-    // public function store(Request $r)
-    // {
-    //     $user = User::create([
-    //         'username' => $r->username,
-    //         'email'    => $r->email,
-    //         'password' => bcrypt($r->password),
-    //         'role'     => 'admin'
-    //     ]);
-
-    //     Admin::create([
-    //         'user_id'  => $user->id,
-    //         'position' => $r->position
-    //     ]);
-
-    //     return redirect()->route('admin.admins.index')->with('success','Thêm admin thành công');
-    // }
