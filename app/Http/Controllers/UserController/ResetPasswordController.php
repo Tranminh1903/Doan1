@@ -5,38 +5,13 @@ namespace App\Http\Controllers\UserController;
 use App\Models\UserModels\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use App\Http\Controllers\UserController\Controller;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class ForgetPassword extends Controller
+class ResetPasswordController extends Controller
 {
-        //Forget_password
-    public function showForget_Password(Request $request) : View
-        {
-            return view('Authentication.forget_password');
-        }
-
-    public function sendResetLink(Request $request)
-        {
-            $request->validate(['email' => 'required|email']);
-
-            $status = Password::sendResetLink($request->only('email'));
-            $generic = 'Đã gửi liên kết mật khẩu, xin hãy kiểm tra email của bạn!';
-
-            // Throttle notification
-            if (in_array($status, [
-                Password::RESET_LINK_SENT,
-                Password::INVALID_USER,     
-                Password::RESET_THROTTLED,    
-            ], true)) {
-                return back()->with('status', $generic);
-            }
-            return back()->withErrors(['email' => 'Hiện không thể gửi email, xin vui lòng hãy chờ đợi!']);
-        }
-    public function showReset_Password(Request $request,string $token) : View
+        public function showReset_Password(Request $request,string $token) : View
         {
             return view('Authentication.reset_password',
             ['token' => $token,
@@ -57,11 +32,10 @@ class ForgetPassword extends Controller
         $status = Password::reset(
             $request->only('email','password','password_confirmation','token'),
             function (User $user, string $password) {
-                $user->forceFill([
+                $user->forceFill(attributes: [
                     'password' => Hash::make($password),
                     'remember_token' => Str::random(60),
                 ]);
-
                 $user -> save();
             }
         );
@@ -70,5 +44,4 @@ class ForgetPassword extends Controller
             ? redirect()->route('login')->with('status', __($status))
             : back()->withErrors(['email' => __($status)]);
     }
-
 }

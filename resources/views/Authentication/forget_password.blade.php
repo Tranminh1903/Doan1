@@ -15,7 +15,6 @@
             </ul>
         </div>
     @endif
-
     <form method="POST" action="{{ route('forget_password.link') }}" class="vstack gap-3">
         @csrf
         <div>

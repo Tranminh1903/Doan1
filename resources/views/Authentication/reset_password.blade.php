@@ -39,7 +39,7 @@
              name="password"
              class="form-control"
              autocomplete="new-password"
-             minlength="8"
+             minlength="5"
              required>
       @error('password') <div class="text-danger small">{{ $message }}</div> @enderror
     </div>
@@ -50,7 +50,7 @@
              name="password_confirmation"
              class="form-control"
              autocomplete="new-password"
-             minlength="8"
+             minlength="5"
              required>
     </div>
 

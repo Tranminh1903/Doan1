@@ -2,9 +2,6 @@
 namespace App\Http\Controllers\UserController;
 
 use App\Models\UserModels\User;
-use App\Models\UserModels\Admin;
-use App\Models\UserModels\Customer;
-use App\Http\Controllers\UserController\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;

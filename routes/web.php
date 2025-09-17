@@ -5,7 +5,8 @@ use App\Http\Controllers\UserController\AuthController;
 use App\Http\Controllers\UserController\HomeController;
 use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\AdminController;
-use App\Http\Controllers\UserController\ForgetPassword;
+use App\Http\Controllers\UserController\ForgetPasswordController;
+use App\Http\Controllers\UserController\ResetPasswordController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -21,12 +22,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register.form');
 
     //Hạn chế spam, tối đa là 5 lần cho 1 phút - Forget Password
-    Route::post('/forgot_password', [ForgetPassword::class, 'sendResetLink'])->middleware('throttle:5,1') ->name('forget_password.link');
-    Route::get('/forget_password', [ForgetPassword::class,'showForget_Password'])->name('forget_password.form');
+    Route::post('/forgot_password', [ForgetPasswordController::class, 'sendResetLink'])->middleware('throttle:5,1') ->name('forget_password.link');
+    Route::get('/forget_password', [ForgetPasswordController::class,'showForget_Password'])->name('forget_password.form');
     
     //Reset Password
-    Route::post('/reset_password', [ForgetPassword::class, 'resetPassword'])->name('password.update');
-    Route::get('/reset_password/{token}', [ForgetPassword::class, 'showReset_Password'])->name('password.reset');
+    Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
+    Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
 
 });
 // Auth only (đã đăng nhập)
