@@ -45,5 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/adminDashboard/userManagement/_managerUser', [AdminController::class, 'showManagerUser'])->name('userManagement_managerUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
     Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
+    Route::get('/booking', function () {return view('booking');})->name('booking');
+    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
 }); 
 
