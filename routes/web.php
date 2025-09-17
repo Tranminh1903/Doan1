@@ -5,8 +5,7 @@ use App\Http\Controllers\UserController\AuthController;
 use App\Http\Controllers\UserController\HomeController;
 use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\AdminController;
-use App\Http\Controllers\UserController\ForgetPasswordController;
-use App\Http\Controllers\UserController\ResetPasswordController;
+use App\Http\Controllers\UserController\ForgetPassword;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -46,7 +45,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/adminDashboard/userManagement/_managerUser', [AdminController::class, 'showManagerUser'])->name('userManagement_managerUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
     Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
+    //Booking
     Route::get('/booking', function () {return view('booking');})->name('booking');
-    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
+   // Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
+
+    //Order
+
+    //Order
+Route::post('/create-order', [OrderController::class, 'createOrder']);
+Route::get('/sync-payments', [OrderController::class, 'syncPayments']);
+Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment']);
+Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire']);
+
+
 }); 
 
