@@ -13,7 +13,12 @@ class Order extends Model
         'customer_user_id',
         'order_code',
         'status',
-        'total_amount',
+        'amount',
         'paid_at'
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_user_id', 'user_id');
+    }
 }

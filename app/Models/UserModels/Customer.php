@@ -5,7 +5,7 @@ namespace App\Models\UserModels;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Customer extends User
+class Customer extends Model
 {
     //
     protected $table = 'customers';
@@ -33,5 +33,9 @@ class Customer extends User
     public function user()
     {
     return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_user_id', 'user_id');
     }
 }

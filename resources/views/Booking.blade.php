@@ -1,6 +1,16 @@
+  @push('head')
+  <script>
+    tailwind.config = {
+      prefix: 'tw-',                      
+      corePlugins: { preflight: false },  
+      important: '#payment-root'          
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+@endpush
+
   @extends('layouts.app')
   @section('title', 'Đặt Vé CGV')
-
   @section('content')
   <div class="container py-4">
     <h3 class="text-center mb-4">🎬 Đặt Vé CGV</h3>
@@ -98,27 +108,35 @@
 
   let checkInterval, countdownTimer;
 
-  function confirmSeats(){
-    const selectedSeats=Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.dataset.seatId);
-    if(selectedSeats.length===0){alert("Chưa chọn ghế!");return;}
+function confirmSeats(){
+  const selectedSeats = [...document.querySelectorAll('.seat.selected')].map(s=>s.dataset.seatId);
+  if (!selectedSeats.length) { alert('Chưa chọn ghế!'); return; }
 
-    fetch('/create-order',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content
-      },
-      body:JSON.stringify({seats:selectedSeats,amount:1000})
-    })
-    .then(res=>res.json())
-    .then(data=>{
-      if(data.order_code){
-        show_qr(data.order_code,selectedSeats);
-        startPolling(data.order_code,selectedSeats);
-      }else{alert("Không nhận được order_code từ server");}
-    })
-    .catch(err=>console.error('Lỗi tạo order:',err));
-  }
+  fetch("{{ route('orders.create') }}", {     // dùng route helper, tránh sai path
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ seats: selectedSeats, amount: 1000 })
+  })
+  .then(async res => {
+    const ct = res.headers.get('content-type') || '';
+    const body = ct.includes('application/json') ? await res.json() : { raw: await res.text() };
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${JSON.stringify(body)}`);
+    return body;
+  })
+  .then(data => {
+    if (data.order_code) {
+      show_qr(data.order_code, selectedSeats);
+      startPolling(data.order_code, selectedSeats);
+    } else {
+      alert('Server không trả order_code. Trả về: ' + JSON.stringify(data));
+    }
+  })
+  .catch(e => alert('Tạo order lỗi: ' + e.message));
+}
 
   function show_qr(orderCode,seats){
     const bankCode="MB";

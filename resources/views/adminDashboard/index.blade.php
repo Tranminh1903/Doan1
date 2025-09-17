@@ -55,7 +55,7 @@
                 <li class="mb-1"><i class="bi bi-pencil-square me-2 text-secondary"></i><a href="#">Cập nhật tài khoản</a></li>
               </ul>
               <div class="d-flex flex-wrap gap-2">
-                <a href="#" class="btn btn-outline-secondary btn-sm">Danh sách người dùng</a>
+                <a href="{{ route('userManagement_main.form')}}" class="btn btn-outline-secondary btn-sm">Chuyển sang quản lý người dùng</a>
               </div>
             </div>
           </div>

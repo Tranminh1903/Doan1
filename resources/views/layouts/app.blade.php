@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>@yield('title', 'Movie Tickets')</title>
+  
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+  
   <style>
-
   </style>
+  @stack('head')
 </head>
 <body>
 
@@ -20,18 +22,15 @@
     <a class="navbar-brand fw-bold" href="{{ url('/') }}">🎬 DuManMinh Cinema</a>
     <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
     <div id="nav" class="collapse navbar-collapse">
-
       <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-llink" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
       </ul>
-
       @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
         <div class="d-flex gap-2">
           <a class="btn btn-outline-primary" href="{{ route('login.form') }}">Đăng nhập</a>
           <a class="btn btn-outline-primary" href="{{ route('register.form') }}">Đăng ký</a>
         </div>
       @endif
-
     </div>
   </div>
 </nav>
@@ -63,7 +62,6 @@
           <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
         </form>
       </div>
-
     </div>
   </div>
 </nav>

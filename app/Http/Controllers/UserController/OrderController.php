@@ -4,8 +4,9 @@ namespace App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Http;
 
 use App\Models\UserModels\Order;
+use App\Models\UserModels\Customer;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\UserController\Controller;
 
 class OrderController extends Controller
 {
@@ -18,10 +19,14 @@ class OrderController extends Controller
             $order = Order::create([
                 'order_code' => strtoupper(uniqid('MB')),
                 'seats'      => json_encode($request->seats),
-                'total_amount' => $request->amount,
+                'amount' => $request->amount,
                 'status'     => 'pending'
             ]);
-
+            $userId   = auth()->id();    
+            $customer = Customer::firstOrCreate(
+                ['user_id' => $userId],
+                ['customer_name' => auth()->user()->name ?? '']
+            );
             return response()->json([
                 'order_code' => $order->order_code
             ]);
@@ -45,7 +50,6 @@ class OrderController extends Controller
 
         return response()->json(['status' => $order->status]);
     }
-    //đổi status thành cancelled khi hết hạn
     public function expire($orderCode)
     {
     $order = Order::where('order_code', $orderCode)->first();
@@ -57,8 +61,6 @@ class OrderController extends Controller
     return response()->json(['success' => true]);
     }
  
-
-
     /**
      * API đồng bộ giao dịch từ Google Sheet
      */

@@ -5,7 +5,10 @@ use App\Http\Controllers\UserController\AuthController;
 use App\Http\Controllers\UserController\HomeController;
 use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\AdminController;
-use App\Http\Controllers\UserController\ForgetPassword;
+use App\Http\Controllers\UserController\ForgetPasswordController;
+use App\Http\Controllers\UserController\ResetPasswordController;
+use App\Http\Controllers\UserController\OrderController;
+use App\Http\Controllers\UserController\BookingController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -46,16 +49,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
     Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
     //Booking
-    Route::get('/booking', function () {return view('booking');})->name('booking');
-   // Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
+    Route::get('/booking', function () {return view('Booking');})->name('booking');
+    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
 
     //Order
 
     //Order
-Route::post('/create-order', [OrderController::class, 'createOrder']);
-Route::get('/sync-payments', [OrderController::class, 'syncPayments']);
-Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment']);
-Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire']);
+    Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
+    Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.check');
+    Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment'])->name('orders.expire');
+    Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.sync');
 
 
 }); 

@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id(); 
-            $table->unsignedBigInteger('customer_user_id'); 
-            $table->string('code')->unique(); 
+            $table->unsignedBigInteger('customer_user_id')->nullable(); 
+            $table->string('order_code')->unique(); 
+            $table->string('seats')->nullable();
             $table->string('status', 10)->default('created');
-            $table->decimal('total_amount', 12, 2)->default(0);
+            $table->decimal('amount', 12, 2)->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
             $table->foreign('customer_user_id')->references('user_id')->on('customers')->cascadeOnDelete();
