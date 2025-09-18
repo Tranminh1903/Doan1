@@ -121,13 +121,21 @@
     @endif 
     
     @if(session('updateProfileSuccess'))
-        toastr.success("{{ session('LogoutSuccess') }}", "Bạn đã cập nhật thông tin thành công!", {
+        toastr.success("{{ session('updateProfileSuccess') }}", "Bạn đã cập nhật thông tin thành công!", {
             positionClass: "toast-bottom-right",
             timeOut: 3000,
             progressBar: true,
         });
     @endif
     
+    @if(session('changePasswordSuccess'))
+        toastr.success("{{ session('changePasswordSuccess') }}", "Bạn đã thay đổi mật khẩu thành công!", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+    @endif
+
     @if($errors->any())
         <div class="alert alert-danger small mb-2">
           <strong>Vui lòng kiểm tra lại:</strong>

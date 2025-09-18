@@ -34,14 +34,13 @@ class ResetPasswordController extends Controller
             function (User $user, string $password) {
                 $user->forceFill(attributes: [
                     'password' => Hash::make($password),
-                    'remember_token' => Str::random(60),
                 ]);
                 $user -> save();
             }
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))
+            ? redirect()->route('login')->with('status', __($status))->with('changePasswordSuccess')
             : back()->withErrors(['email' => __($status)]);
     }
 }

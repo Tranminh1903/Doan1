@@ -149,7 +149,7 @@ function confirmSeats(){
     document.getElementById('qr_image').src=qrUrl;
     document.getElementById('overlay').style.display='flex';
 
-    let timeLeft=10;
+    let timeLeft=50;
     const countdown=document.getElementById('countdown');
     countdownTimer=setInterval(()=>{
       timeLeft--;
