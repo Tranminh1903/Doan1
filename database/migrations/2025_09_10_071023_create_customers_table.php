@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('total_order_amount')->default(0);
             $table->integer('total_promotions_unused')->default(0);   
             $table->timestamps();
+            
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete(); // xóa user -> xóa customer
         });
     }

@@ -32,6 +32,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
 
 });
+
 // Auth only (đã đăng nhập)
 Route::middleware('auth')->group(function () {
     //Logout
@@ -48,11 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/adminDashboard/userManagement/_managerUser', [AdminController::class, 'showManagerUser'])->name('userManagement_managerUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
     Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
-    //Booking
-    Route::get('/booking', function () {return view('Booking');})->name('booking');
-    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
 
-    //Order
+    //Booking
+    Route::get('/booking', function () {return view('booking');})->name('booking');
+    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
 
     //Order
     Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');

@@ -10,6 +10,6 @@ class BookingController extends Controller
         // Kiểm tra giờ chiếu hợp lệ nếu cần
         // Truy vấn suất chiếu, danh sách ghế, v.v.
 
-        return view('Booking', compact('time'));
+        return view('booking', compact('time'));
     }
 }

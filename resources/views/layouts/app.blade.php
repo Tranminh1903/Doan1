@@ -127,15 +127,15 @@
             progressBar: true,
         });
     @endif
-    
-    @if(session('changePasswordSuccess'))
-        toastr.success("{{ session('changePasswordSuccess') }}", "Bạn đã thay đổi mật khẩu thành công!", {
-            positionClass: "toast-bottom-right",
-            timeOut: 3000,  
-            progressBar: true,
-        });
+  
+    @if (session('status'))
+      toastr.success(@json(session('status')),{
+        positionClass: 'toast-bottom-right',
+        timeOut: 3000,
+        progressBar: true,
+      });
     @endif
-
+    
     @if($errors->any())
         <div class="alert alert-danger small mb-2">
           <strong>Vui lòng kiểm tra lại:</strong>

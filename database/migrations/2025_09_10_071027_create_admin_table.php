@@ -12,6 +12,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->primary();       // PK = FK
             $table->string('role', 100)->nullable();    // chức vụ admin
             $table->timestamps();
+            
             $table->foreign('user_id') ->references('id')->on('users')->cascadeOnDelete(); // xóa user -> xóa admin
         });
     }

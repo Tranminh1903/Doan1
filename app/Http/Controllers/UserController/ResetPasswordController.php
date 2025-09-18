@@ -40,7 +40,7 @@ class ResetPasswordController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))->with('changePasswordSuccess')
+            ? redirect()->route('login')->with('status', __($status))->with('changePasswordSuccess', 'Bạn đã thay đổi mật khẩu thành công!')
             : back()->withErrors(['email' => __($status)]);
     }
 }
