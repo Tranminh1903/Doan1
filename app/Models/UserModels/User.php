@@ -10,7 +10,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
     protected $fillable = ['username','email','password','phone','role','sex','birthday'];
-    protected $hidden = ['password','remember_token'];
+    protected $hidden = ['password','token'];
 
     public function admin()
     {
@@ -23,5 +23,5 @@ class User extends Authenticatable
     }
 
     public function isAdmin(): bool   { return $this->role === 'admin'; }
-    public function isCustomer(): bool{ return $this->role === 'customers'; }
+    public function isCustomers(): bool{ return $this->role === 'customers'; }
 }

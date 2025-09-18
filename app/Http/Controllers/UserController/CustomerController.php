@@ -6,6 +6,8 @@ use App\Models\UserModels\Customer;
 use App\Models\UserModels\Order;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Http\Controllers\UserController\Controller;
+
 class CustomerController extends Controller
 {
 public function showProfile(Request $request): View

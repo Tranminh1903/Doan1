@@ -23,7 +23,7 @@
     </form>
     <div class="d-flex gap-3 mt-3">Chưa có tài khoản? 
         <a href="{{ route('register.form') }}">Đăng ký</a> 
-        <a href="">Quên mật khẩu</a>
+        <a href="{{ route('forget_password.form') }}">Quên mật khẩu</a>
         <a href="{{ url('/') }}">Trở về trang chủ</a>
     </div>
   </div>

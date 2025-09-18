@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('customer_name')->nullable();
             $table->integer('customer_point')->default(0);
             $table->string('tier', 10)->default('bronze');
-
             $table->integer('total_order_amount')->default(0);
             $table->integer('total_promotions_unused')->default(0);   
             $table->timestamps();

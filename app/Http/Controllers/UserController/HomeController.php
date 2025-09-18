@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\UserController;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller

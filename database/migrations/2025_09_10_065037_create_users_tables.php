@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('role', 20)->default('customers');
             $table->timestamps(); 
         });
-        
+
     }
     public function down(): void {
         Schema::dropIfExists('users');
