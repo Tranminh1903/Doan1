@@ -128,13 +128,32 @@ function confirmSeats(){
     return body;
   })
   .then(data => {
-    if (data.order_code) {
-      show_qr(data.order_code, selectedSeats);
-      startPolling(data.order_code, selectedSeats);
-    } else {
-      alert('Server không trả order_code. Trả về: ' + JSON.stringify(data));
-    }
-  })
+  if (data.order_code) {
+    // đổi ghế đang chọn thành "held" (vàng)
+    selectedSeats.forEach(id => {
+      const el = document.querySelector(`[data-seat-id="${id}"]`);
+      if (el) {
+        el.classList.remove('selected');
+        el.classList.add('held');
+      }
+    });
+
+    // disable toàn bộ ghế
+    document.querySelectorAll('.seat').forEach(seat => {
+      seat.style.pointerEvents = 'none';
+    });
+
+    // disable nút thanh toán
+    document.querySelector('button[onclick="confirmSeats()"]').disabled = true;
+
+    // show QR và bắt đầu countdown
+    show_qr(data.order_code, selectedSeats);
+    startPolling(data.order_code, selectedSeats);
+  } else {
+    alert('Server không trả order_code. Trả về: ' + JSON.stringify(data));
+  }
+})
+
   .catch(e => alert('Tạo order lỗi: ' + e.message));
 }
 
@@ -155,23 +174,35 @@ function confirmSeats(){
       timeLeft--;
       countdown.innerText=`Còn ${timeLeft}s`;
 
-      if(timeLeft<=0){
-        clearInterval(countdownTimer);
-        clearInterval(checkInterval);
-        seats.forEach(id=>{
-          const el=document.querySelector(`[data-seat-id="${id}"]`);
-          if(el){el.classList.remove('selected','held');}
-        });
-        fetch(`/orders/${orderCode}/expire`,{
-          method:"POST",
-          headers:{
-            "X-CSRF-TOKEN":document.querySelector('meta[name="csrf-token"]').content,
-            "Content-Type":"application/json"
-          }
-        });
-        closeQR();
-        alert("❌ QR hết hạn, vui lòng thử lại!");
-      }
+      if(timeLeft <= 0){
+  clearInterval(countdownTimer);
+  clearInterval(checkInterval);
+
+  // reset ghế
+  seats.forEach(id=>{
+    const el=document.querySelector(`[data-seat-id="${id}"]`);
+    if(el){el.classList.remove('selected','held');}
+  });
+
+  // mở lại tất cả ghế
+  document.querySelectorAll('.seat').forEach(seat => {
+    seat.style.pointerEvents = 'auto';
+  });
+
+  // bật lại nút thanh toán
+  document.querySelector('button[onclick="confirmSeats()"]').disabled = false;
+
+  fetch(`/orders/${orderCode}/expire`, {
+    method:"POST",
+    headers:{
+      "X-CSRF-TOKEN":document.querySelector('meta[name="csrf-token"]').content,
+      "Content-Type":"application/json"
+    }
+  });
+  closeQR();
+  alert("❌ QR hết hạn, vui lòng thử lại!");
+}
+
     },1000);
   }
 
@@ -182,14 +213,30 @@ function confirmSeats(){
         .then(res=>res.json())
         .then(data=>{
           if(data.status==='paid'){
-            clearInterval(checkInterval);
-            clearInterval(countdownTimer);
-            seats.forEach(id=>{
-              const el=document.querySelector(`[data-seat-id="${id}"]`);
-              if(el){el.classList.remove('selected','held');el.classList.add('booked');}
-            });
-            closeQR();
-          }
+  clearInterval(checkInterval);
+  clearInterval(countdownTimer);
+
+  seats.forEach(id=>{
+    const el=document.querySelector(`[data-seat-id="${id}"]`);
+    if(el){
+      el.classList.remove('selected','held');
+      el.classList.add('booked'); // đỏ
+    }
+  });
+
+  // mở lại các ghế khác (chỉ còn đỏ là khóa)
+  document.querySelectorAll('.seat').forEach(seat => {
+    if(!seat.classList.contains('booked')){
+      seat.style.pointerEvents = 'auto';
+    }
+  });
+
+  // bật lại nút thanh toán
+  document.querySelector('button[onclick="confirmSeats()"]').disabled = false;
+
+  closeQR();
+}
+
         })
         .catch(err=>console.error(err));
     },3000);

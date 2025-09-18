@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('amount', 12, 2)->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+            
             $table->foreign('customer_user_id')->references('user_id')->on('customers')->cascadeOnDelete();
         });
     }
