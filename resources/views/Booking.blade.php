@@ -162,7 +162,7 @@ function confirmSeats(){
     const accountNo="0869083080";
     const accountName="NGUYEN VAN A";
     const info=orderCode;
-    const total_amount=2000;
+    const amount=2000;
 
     const qrUrl=`https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${total_amount}&addInfo=${encodeURIComponent(info)}&accountName=${encodeURIComponent(accountName)}`;
     document.getElementById('qr_image').src=qrUrl;

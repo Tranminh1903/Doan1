@@ -60,8 +60,8 @@
                     <span class="badge bg-success">{{ $customer->tier }}</span>
                   </p>
                   <p class="mb-1"><i class="bi bi-phone me-2"></i>Điểm tích lũy: {{ $customer->customer_point }}</p>
-                  <p class="mb-1"><i class="bi bi-phone me-2"></i>Tổng tiêu dùng: {{ number_format($totalAmount, 0, ',', '.') }} VND</p>
-                  <p class="mb-1"><i class="bi bi-phone me-2"></i>Tổng đơn hàng: {{ $customer->total_order_amount }}</p>
+                  {{-- <p class="mb-1"><i class="bi bi-phone me-2"></i>Tổng tiêu dùng: {{ number_format($totalAmount, 0, ',', '.') }} VND</p>
+                  <p class="mb-1"><i class="bi bi-phone me-2"></i>Tổng đơn hàng: {{ $customer->total_order_amount }}</p> --}}
                 </div>
               </div>
               <hr>
