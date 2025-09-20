@@ -2,6 +2,9 @@
 
 namespace App\Models\ProductModels;
 
+use App\Models\UserModels\User;
+use App\Models\UserModels\Order;
+
 use Illuminate\Database\Eloquent\Model;
 
 class SeatHold extends Model

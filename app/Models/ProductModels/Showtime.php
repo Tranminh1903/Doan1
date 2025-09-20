@@ -28,33 +28,26 @@ class Showtime extends Model
     {
         return $this->hasMany(Ticket::class, 'showtimeID', 'showtimeID');
     }
-
-    // Các ghế đã được mua (qua bảng tickets) trong suất này
     public function reservedSeats()
     {
         return $this->belongsToMany(
-            Seat::class,          // model
-            'tickets',            // pivot
-            'showtimeID',         // FK trên pivot trỏ về showtimes
-            'seatID',             // FK trên pivot trỏ về seats
-            'showtimeID',         // local key
-            'seatID'              // related key
+            Seat::class,          
+            'tickets',            
+            'showtimeID',         
+            'seatID',             
+            'showtimeID',         
+            'seatID'              
         );
     }
-
-    // (Nếu có bảng seat_holds để giữ chỗ tạm)
     public function holds()
     {
         return $this->hasMany(SeatHold::class, 'showtimeID', 'showtimeID');
     }
-
-    // Lấy danh sách ghế còn trống (active, không bị giữ, không bị mua)
     public function availableSeats()
     {
         $reserved = $this->reservedSeats()->pluck('seats.seatID');
         $held = method_exists($this, 'holds')
-            ? $this->holds()->where('expires_at', '>', now())->pluck('seatID')
-            : collect([]);
+            ? $this->holds()->where('expires_at', '>', now())->pluck('seatID'): collect([]);
 
         return Seat::where('theaterID', $this->theaterID)
             ->where('status', 'active')
