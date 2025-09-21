@@ -13,8 +13,8 @@ class Movie extends Model
     protected $keyType = 'int';
     protected $fillable = ['title','durationMin','genre','rating','releaseDate'];
 
-    public function showtime()
-    {
-        return $this->hasMany(Showtime::class, 'movieID', 'movieID');
-    }
+    public function showtimes()   
+{
+    return $this->hasMany(Showtime::class, 'movieID', 'movieID');
+}
 }

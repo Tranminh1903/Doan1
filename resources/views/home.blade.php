@@ -77,10 +77,7 @@
                             {{-- Suất phim --}}
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach (['08:50','09:30','10:30','11:15','12:00','13:00','13:40','14:30','15:30','16:10','17:00','18:00','18:20','18:40','19:30','20:30','21:10','22:00','23:30'] as $time)
-                                    <a href="{{ route('booking.time', ['time' => $time]) }}"
-                                        class="btn btn-outline-primary btn-sm me-2 mb-2">
-                                        {{ $time }}
-                                    </a>
+                                    
                                 @endforeach
                             </div>
                         </div>

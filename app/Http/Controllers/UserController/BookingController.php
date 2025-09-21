@@ -1,15 +1,25 @@
 <?php
+
 namespace App\Http\Controllers\UserController;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\UserController\Controller;
+use App\Models\ProductModels\Seat;
+use App\Models\ProductModels\Showtime;
 
 class BookingController extends Controller
 {
-    public function showByTime($time)
+    public function booking($showtimeID)
     {
-        // Kiểm tra giờ chiếu hợp lệ nếu cần
-        // Truy vấn suất chiếu, danh sách ghế, v.v.
+        $showtime = Showtime::findOrFail($showtimeID);
+        $theaterId = $showtime->theaterID;
 
-        return view('booking', compact('time'));
+        $seats = Seat::where('theaterID', $theaterId)
+                    ->orderBy('verticalRow')
+                    ->orderBy('horizontalRow')
+                    ->get()
+                    ->groupBy('verticalRow');
+
+        return view('booking', compact('seats', 'showtimeID'));
     }
 }

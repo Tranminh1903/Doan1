@@ -13,13 +13,20 @@ return new class extends Migration
             $table->unsignedBigInteger('theaterID'); 
             $table->string('verticalRow'); 
             $table->integer('horizontalRow'); 
-            $table->string('seatType', 10)->default('normal');  //['normal', 'vip', 'couple']);
-            $table->string('status', 10)->default('active');    //['active', 'maintenance']);
+            $table->string('seatType', 10)->default('normal'); // ['normal','vip','couple']
+            
+            // status có 3 trạng thái: available, held, unavailable
+            $table->enum('status', ['available', 'held', 'unavailable'])->default('available');
+
             $table->timestamps();
 
-            $table->foreign('theaterID')->references('theaterID')->on('movie_theaters')->onDelete('cascade');
+            $table->foreign('theaterID')
+                  ->references('theaterID')
+                  ->on('movie_theaters')
+                  ->onDelete('cascade');
         });
     }
+
     public function down(): void
     {
         Schema::dropIfExists('seats');
