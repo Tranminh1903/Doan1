@@ -19,9 +19,9 @@ class AdminController extends Controller
     {
         return view('adminDashboard.userManagement.main');
     }
-    public function showManagerUser(Request $request): View
+    public function showCheckUser(Request $request): View
     {
-        return view('adminDashboard.userManagement._managerUser');
+        return view('adminDashboard.userManagement._checkUser');
     }
     public function showCreateUser(Request $request): View
     {
