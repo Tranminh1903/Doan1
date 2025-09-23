@@ -103,12 +103,16 @@
 <a href="{{ route('booking.time', ['showtime' => 8]) }}">Test Booking</a>
 
 <script>
-document.querySelectorAll('.seat').forEach(seat => {
-  seat.addEventListener('click', () => {
-    if (seat.classList.contains('booked') || seat.classList.contains('held')) return;
-    seat.classList.toggle('selected');
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('.seat').forEach(seat => {
+    seat.addEventListener('click', () => {
+      console.log("clicked", seat);
+      if (seat.classList.contains('booked') || seat.classList.contains('held')) return;
+      seat.classList.toggle('selected');
+    });
   });
 });
+
 
 let checkInterval, countdownTimer;
 
@@ -158,20 +162,12 @@ function confirmSeats(){
   .catch(e => alert('Tạo order lỗi: ' + e.message));
 }
 
-<<<<<<< Updated upstream
   function show_qr(orderCode,seats){
     const bankCode="MB";
     const accountNo="0869083080";
     const accountName="NGUYEN VAN A";
     const info=orderCode;
-    const total_amount=2000;
-=======
-function show_qr(orderCode,seats){
-  const bankCode="MB";
-  const accountNo="0869083080";
-  const accountName="NGUYEN VAN A";
-  const amount=2000;
->>>>>>> Stashed changes
+    const amount=2000;
 
   const qrUrl=`https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(accountName)}`;
   document.getElementById('qr_image').src=qrUrl;
