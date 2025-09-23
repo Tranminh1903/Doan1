@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Storage;
+use App\Models\ProductModels\Movie;
 
 class HomeController extends Controller
 {
@@ -29,6 +30,9 @@ class HomeController extends Controller
             ],
         ];
 
-        return view('home', compact('banners'));
+        $movies = Movie::with(['showtimes.theater'])->get();
+
+
+        return view('home', compact('banners', 'movies'));
     }
 }

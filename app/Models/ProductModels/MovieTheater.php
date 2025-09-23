@@ -7,7 +7,7 @@ use App\Models\ProductModels\Showtime;
 
 class MovieTheater extends Model
 {
-    protected $table = 'movie_theater';
+    protected $table = 'movie_theaters';
     protected $primaryKey = 'theaterID';
     public $incrementing = true;
     protected $keyType = 'int';
