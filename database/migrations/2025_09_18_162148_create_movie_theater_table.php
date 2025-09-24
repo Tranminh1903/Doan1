@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('movie_theaters', function (Blueprint $table) {
             $table->id('theaterID'); 
             $table->string('roomName');
+            $table->integer('capacity')->default(100);
             $table->timestamps();
         });
     }
