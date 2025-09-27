@@ -58,9 +58,10 @@
       <div class="d-flex flex-wrap justify-content-center mb-2">
         @foreach($rowSeats as $seat)
           <div class="seat {{ $seat->status === 'unavailable' ? 'booked' : '' }} {{ $seat->status === 'held' ? 'held' : '' }}" 
-          data-seat-id="{{ $seat->seatID }}">
-          {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
-       </div>
+     data-seat-id="{{ $seat->seatID }}">
+  {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
+</div>
+
         @endforeach
       </div>
     @endforeach
@@ -127,7 +128,11 @@ function confirmSeats(){
       "Accept": "application/json",
       "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
     },
-    body: JSON.stringify({ seats: selectedSeats, amount: 1000 })
+    body: JSON.stringify({
+      showtimeID: {{ $showtime->showtimeID ?? 8 }}, // 👈 truyền vào
+      seats: selectedSeats,
+      amount: 1000
+    })
   })
   .then(async res => {
     const ct = res.headers.get('content-type') || '';
