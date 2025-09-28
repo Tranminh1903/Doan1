@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->id('movieID');                    
             $table->string('title');
+            $table->string('poster')->nullable(); // đường dẫn ảnh poster
             $table->unsignedSmallInteger('durationMin'); 
             $table->string('genre')->nullable();      
             $table->string('rating')->nullable();     
             $table->date('releaseDate')->nullable();
+            $table->text('description')->nullable(); // thêm mô tả phim
             $table->timestamps();
         });
     }

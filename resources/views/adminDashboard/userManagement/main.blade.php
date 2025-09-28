@@ -60,35 +60,23 @@
       <div class="card ad-card">
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-            <a href="{{ route('userManagement_managerUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_managerUser.form') ? 'btn-primary' : 'btn-light' }}"
-              aria-current="{{ request()->routeIs('userManagement_managerUser.form') ? 'page' : 'false' }}">
-              <i class="bi bi-person-lines-fill me-1"></i> Xem thông tin
+            <a href="{{ route('userManagement_checkUser.form') }}"
+              class="btn {{ request()->routeIs('userManagement_checkUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+              <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
-
             <a href="{{ route('userManagement_createUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_createUser.form') ? 'btn-primary' : 'btn-light' }}"
-              aria-current="{{ request()->routeIs('userManagement_createUser.form') ? 'page' : 'false' }}">
+              class="btn {{ request()->routeIs('userManagement_createUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-person-plus me-1"></i> Tạo tài khoản
-            </a>
-
-            <a href="{{ route('userManagement_updateUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_updateUser.form') ? 'btn-primary' : 'btn-light' }}"
-              aria-current="{{ request()->routeIs('userManagement_updateUser.form') ? 'page' : 'false' }}">
-              <i class="bi bi-pencil-square me-1"></i> Cập nhật tài khoản
             </a>
           </div>
           <hr class="my-3">
 
           {{-- Nội dung theo route hiện tại --}}
-          @if (request()->routeIs('userManagement_managerUser.form'))
-            @include('adminDashboard.userManagement._managerUser')
+          @if (request()->routeIs('userManagement_checkUser.form'))
+            @include('adminDashboard.userManagement._checkUser')
           @elseif (request()->routeIs('userManagement_createUser.form'))
             @include('adminDashboard.userManagement._createUser')
-          @elseif (request()->routeIs('userManagement_updateUser.form'))
-            @include('adminDashboard.userManagement._updateUser')
           @endif
-
     </div>
   </div>
 </div>

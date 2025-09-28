@@ -42,24 +42,25 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
 
-    //Admin Dashboard - Manage
+    //Booking
+    Route::get('/booking/{showtime}', [BookingController::class, 'booking'])->name('booking.time');
+
+    //Order
+    // Đặt hàng mới
+    Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
+    // Kiểm tra trạng thái thanh toán (frontend gọi để reload)
+    Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment'])->name('orders.check');
+    // Hủy đơn khi hết hạn (frontend gọi khi timeLeft = 0)
+    Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.expire');
+    // Đồng bộ thanh toán từ Google Sheet
+    Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
+    }); 
+
+Route::middleware('auth','admin')->group(function() {
+     //Admin Dashboard - Manage
     Route::post('/adminDashboard/userManagement/_createUser', [AdminController::class, 'createUser'])->name('admin_userManagement.Create');
     Route::get('/adminDashboard', [AdminController::class, 'showAdminDashboard'])->name('admin.form');
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('userManagement_main.form');
-    Route::get('/adminDashboard/userManagement/_managerUser', [AdminController::class, 'showManagerUser'])->name('userManagement_managerUser.form');
+    Route::get('/adminDashboard/userManagement/_checkUser', [AdminController::class, 'showCheckUser'])->name('userManagement_checkUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
-    Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
-
-    //Booking
-    Route::get('/booking', function () {return view('booking');})->name('booking');
-    Route::get('/booking/{time}', [BookingController::class, 'showByTime'])->name('booking.time');
-
-    //Order
-    Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
-    Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.check');
-    Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment'])->name('orders.expire');
-    Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.sync');
-
-
-}); 
-
+});

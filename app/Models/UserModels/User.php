@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
-    protected $fillable = ['username','email','password','phone','role','sex','birthday'];
+    protected $fillable = ['username','email','password','phone','role','sex','birthday','avatar','status'];
     protected $hidden = ['password','token'];
 
     public function admin()

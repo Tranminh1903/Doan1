@@ -19,17 +19,34 @@ class AdminController extends Controller
     {
         return view('adminDashboard.userManagement.main');
     }
-    public function showManagerUser(Request $request): View
+    public function showCheckUser(Request $request): View
     {
-        return view('adminDashboard.userManagement._managerUser');
+    $query = User::query();
+
+    // Tìm kiếm theo từ khóa (username hoặc email)
+    if ($request->filled('q')) {
+        $query->where(function($q) use ($request) {
+            $q->where('username', 'like', '%' . $request->q . '%')
+              ->orWhere('email', 'like', '%' . $request->q . '%');
+        });
     }
+    // Lọc theo role
+    if ($request->filled('role')) {
+        $query->where('role', $request->role);
+    }
+    // Lọc theo status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+    // Sắp xếp mới nhất + phân trang
+    $users = $query->latest()->paginate(10)->withQueryString();
+
+    return view('adminDashboard.userManagement._checkUser', compact('users'));
+    }
+    
     public function showCreateUser(Request $request): View
     {
         return view('adminDashboard.userManagement._createUser');
-    }
-    public function showUpdateUser(Request $request): View
-    {
-        return view('adminDashboard.userManagement._updateUser');
     }
 
     // Button
@@ -56,7 +73,7 @@ class AdminController extends Controller
             'role'      => $data['role'], 
             'birthday'  => $birthday,
         ]); 
-        return redirect()->route('admin_userManagement.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
+        return redirect()->route('userManagement_checkUser.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
     }
 }
 
