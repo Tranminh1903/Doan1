@@ -1,16 +1,16 @@
 @extends('layouts.app')
-@section('title','DuManMinh Cinema – Đặt vé xem phim')
+@section('title','Trang chu - DuManMinh Cinema')
 @section('content')
 <div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="3200">
 
   <div class="carousel-inner banner-wrapper rounded shadow-sm">
     @php
       $banners = $banners ?? [
-        ['img'=>asset('storage/app/public/pictures/fastfurious.jpg'),
+        ['img'=>asset('storage/app/public/pictures/mai.jpg'),
         'url'=>url('/promo/member-day'), 'title'=>'Member Day', 'desc'=>'X2 điểm thưởng'],
-        ['img'=>asset('storage/app/public/pictures/giamcamquydu.jpg'),
+        ['img'=>asset('storage/app/public/pictures/muado.jpg'),
         'url'=>url('/promo/combo'), 'title'=>'Combo Bắp Nước', 'desc'=>'Chỉ từ 49K'],
-        ['img'=>asset('storage/app/public/pictures/hocduongnoiloan.jpg'),
+        ['img'=>asset('storage/app/public/pictures/tuchientrenkhong.jpg'),
         'url'=>url('/promo/early-bird'), 'title'=>'Early Bird', 'desc'=>'Đặt sớm -20%'],
       ];
     @endphp

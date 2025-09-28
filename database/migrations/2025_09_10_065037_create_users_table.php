@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('sex', 4)->nullable(); 
             $table->date('birthday')->nullable(); 
             $table->string('role', 20)->default('customers');
+            $table->string('avatar',255)->nullable();
+            $table->string('status',20)->default('active'); //'active' & 'banned'
             $table->timestamps(); 
         });
 

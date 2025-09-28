@@ -67,13 +67,13 @@
               <hr>
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Ngày tạo tài khoản:</strong> {{ $customer->user->created_at->format('d/m/Y') }}</p>
                   <p><strong>THÔNG TIN LIÊN HỆ:</strong></p>
                   <p class="mb-1"><i class="bi bi-person me-2"></i>Tên: {{ $customer->customer_name }}</p>
                   <p class="mb-1"><i class="bi bi-envelope me-2"></i>Email: {{ $customer->user->email ?? 'chưa cập nhật' }}</p>
                   <p class="mb-1"><i class="bi bi-telephone me-2"></i>Số điện thoại: {{ $customer->user->phone ?? 'chưa cập nhật'}}</p>
                   <p class="mb-1"><i class="bi bi-telephone me-2"></i>Giới tính: {{ $customer->user->sex ?? 'chưa cập nhật'}}</p>
                   <p class="mb-1"><i class="bi bi-telephone me-2"></i>Ngày sinh: {{ $customer->user->birthday }}</p>
+                  <p><strong>Ngày tạo tài khoản:</strong> {{ $customer->user->created_at->format('d/m/Y') }}</p>
                 </div>
                 <div class="col-md-6">
                   <p><strong>Trạng thái:</strong>
