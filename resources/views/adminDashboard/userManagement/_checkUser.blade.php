@@ -155,8 +155,15 @@
 
                         <td class="text-end">
                           <div class="d-inline-flex gap-2">
-                            <a href="" {{--{{ route('users.edit', $user) }} --}}
-                               class="btn btn-sm btn-outline-primary rounded-pill">
+                            <a  href="#"
+                                class="btn btn-sm btn-outline-primary rounded-pill"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editUserModal"
+                                data-id="{{ $user->id }}"
+                                data-username="{{ $user->username }}"
+                                data-email="{{ $user->email }}"
+                                data-role="{{ $user->role }}"
+                                data-status="{{ $user->status }}">
                               <i class="bi bi-pencil me-1"></i> Sửa
                             </a>
 
@@ -164,9 +171,14 @@
                                   onsubmit="return confirm('Bạn có chắc muốn xóa user này không?')" class="d-inline">
                               @csrf
                               @method('DELETE')
-                              <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
-                                <i class="bi bi-trash me-1"></i> Xóa
-                              </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger rounded-pill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteUserModal"
+                                        data-id="{{ $user->id }}"
+                                        data-name="{{ $user->username }}">
+                                  <i class="bi bi-trash me-1"></i> Xóa
+                                </button>
                             </form>
                           </div>
                         </td>
@@ -197,6 +209,134 @@
 
     </div>
     {{-- /ad-main --}}
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editUserLabel">Chỉnh sửa người dùng</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+
+          <form id="editUserForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Tên đăng nhập</label>
+                  <input type="text" name="username" class="form-control" required>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Vai trò</label>
+                  <select name="role" class="form-select" required>
+                    <option value="admin">Admin</option>
+                    <option value="customers">Khách hàng</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Trạng thái</label>
+                  <select name="status" class="form-select" required>
+                    <option value="active">Hoạt động</option>
+                    <option value="blocked">Chặn</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Avatar (tuỳ chọn)</label>
+                  <input type="file" name="avatar" class="form-control">
+                  <div class="form-text">jpg, jpeg, png, webp • tối đa 2MB</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary">
+                <i class="bi bi-save me-1"></i> Lưu thay đổi
+              </button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteUserLabel">Xóa người dùng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="deleteUserForm" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="modal-body">
+          <p class="mb-0">
+            Bạn có chắc muốn xóa tài khoản <strong id="deleteUserName"></strong>?
+            Hành động này không thể hoàn tác.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger">Xóa</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+
+//Update user
+document.addEventListener('DOMContentLoaded', function () {
+  const modalEl = document.getElementById('editUserModal');
+  const form    = document.getElementById('editUserForm');
+
+  modalEl.addEventListener('show.bs.modal', function (event) {
+    const btn       = event.relatedTarget; // nút Sửa vừa bấm
+    const id        = btn.getAttribute('data-id');
+    const username  = btn.getAttribute('data-username');
+    const email     = btn.getAttribute('data-email');
+    const role      = btn.getAttribute('data-role');
+    const status    = btn.getAttribute('data-status');
+    // Set action: /admin/users/{id}
+    form.action = "{{ route('users.update', ':id') }}".replace(':id', id);
+    // Đổ dữ liệu vào input
+    form.querySelector('input[name="username"]').value = username || '';
+    form.querySelector('input[name="email"]').value    = email    || '';
+    form.querySelector('select[name="role"]').value    = role     || 'customers';
+    form.querySelector('select[name="status"]').value  = status   || 'active';
+  });
+  // Clear file input khi đóng modal (tránh giữ file cũ)
+  modalEl.addEventListener('hidden.bs.modal', function () {
+    form.reset();
+  });
+});
+
+//Delete User
+document.addEventListener('DOMContentLoaded', function () {
+  const modalEl = document.getElementById('deleteUserModal');
+  const form    = document.getElementById('deleteUserForm');
+  const nameEl  = document.getElementById('deleteUserName');
+
+  modalEl.addEventListener('show.bs.modal', function (event) {
+    const btn  = event.relatedTarget;
+    const id   = btn.getAttribute('data-id');
+    const name = btn.getAttribute('data-name');
+
+    form.action = "{{ route('users.destroy', ':id') }}".replace(':id', id);
+    nameEl.textContent = name || '';
+  });
+});
+</script>
 @endsection

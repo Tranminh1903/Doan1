@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title','Bảng điều khiển Admin')
-
 @section('content')
 <style>
 </style>
@@ -49,14 +48,8 @@
               <i class="bi bi-people text-warning"></i>
             </div>
             <div class="card-body">
-              <ul class="list-unstyled action-list small mb-3">
-                <li class="mb-1"><i class="bi bi-person-lines-fill me-2 text-secondary"></i><a href="#">Xem thông tin người dùng</a></li>
-                <li class="mb-1"><i class="bi bi-person-plus me-2 text-secondary"></i><a href="#">Tạo tài khoản</a></li>
-                <li class="mb-1"><i class="bi bi-pencil-square me-2 text-secondary"></i><a href="#">Cập nhật tài khoản</a></li>
-              </ul>
-              <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('userManagement_main.form')}}" class="btn btn-outline-secondary btn-sm">Chuyển sang quản lý người dùng</a>
-              </div>
+              <p class="text-muted small">Xem thông tin người dùng,tạo tài khoản và cập nhật.</p>
+              <a href="{{ route('userManagement_main.form')}}" class="btn btn-info btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý người dùng</a>
             </div>
           </div>
         </div>
@@ -69,8 +62,7 @@
             </div>
             <div class="card-body">
               <p class="text-muted small">Thêm/sửa phim, trailer, poster, thời lượng…</p>
-              <a href="#" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg me-1"></i>Thêm phim</a>
-              <a href="#" class="btn btn-outline-secondary btn-sm ms-2">Danh sách phim</a>
+              <a href="#" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý phim</a>
             </div>
           </div>
         </div>
@@ -84,8 +76,7 @@
             </div>
             <div class="card-body">
               <p class="text-muted small">Chọn phim, phòng chiếu và khung giờ.</p>
-              <a href="#" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Tạo suất chiếu</a>
-              <a href="#" class="btn btn-outline-secondary btn-sm ms-2">Danh sách suất chiếu</a>
+              <a href="#" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý suất chiếu</a>
             </div>
           </div>
         </div>
@@ -98,8 +89,7 @@
             </div>
             <div class="card-body">
               <p class="text-muted small">Tạo mã, đặt điều kiện áp dụng, bật/tắt.</p>
-              <a href="#" class="btn btn-success btn-sm"><i class="bi bi-plus-lg me-1"></i>Thêm khuyến mãi</a>
-              <a href="#" class="btn btn-outline-secondary btn-sm ms-2">Danh sách khuyến mãi</a>
+              <a href="#" class="btn btn-success btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý khuyến mãi</a>
             </div>
           </div>
         </div>

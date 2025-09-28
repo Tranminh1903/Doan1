@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\UserController;
 
 use App\Models\UserModels\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
@@ -75,5 +76,46 @@ class AdminController extends Controller
         ]); 
         return redirect()->route('userManagement_checkUser.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
     }
-}
 
+
+
+    public function edit(User $user)
+    {
+        // Trả về view có form edit
+        return view('adminDashboard.userManagement._checkUser', compact('user'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'username' => 'required|string|max:100|unique:users,username,' . $user->id,
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'role'     => 'required|in:admin,customers',
+            'status'   => 'required|in:active,blocked',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = 'storage/' . $path;
+        }
+
+        $user->update($data);
+
+        return back()->with('success', 'Cập nhật người dùng thành công!');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        // Không cho tự xóa mình
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'Bạn không thể tự xóa tài khoản của mình.');
+        }
+        try {
+            $user->forceDelete();
+            return back()->with('success', 'Đã xóa người dùng.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Không thể xóa người dùng. Kiểm tra ràng buộc dữ liệu.');
+        }
+    }
+}

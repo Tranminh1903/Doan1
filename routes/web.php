@@ -63,4 +63,8 @@ Route::middleware('auth','admin')->group(function() {
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('userManagement_main.form');
     Route::get('/adminDashboard/userManagement/_checkUser', [AdminController::class, 'showCheckUser'])->name('userManagement_checkUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
+
+    //Admin Dashboard - Button for _checkUser
+    Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('users.update');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
 });
