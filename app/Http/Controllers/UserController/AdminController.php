@@ -10,7 +10,7 @@ use Illuminate\Validation\Rules\Password;
 
 class AdminController extends Controller
 {
-    // View
+    // Admin Management - User Management
     public function showAdminDashboard(): View
     {
         return view('adminDashboard.index');
@@ -20,7 +20,8 @@ class AdminController extends Controller
     {
         return view('adminDashboard.userManagement.main');
     }
-    public function showCheckUser(Request $request): View
+
+    public function showUpdateUser(Request $request): View
     {
     $query = User::query();
 
@@ -42,7 +43,7 @@ class AdminController extends Controller
     // Sắp xếp mới nhất + phân trang
     $users = $query->latest()->paginate(10)->withQueryString();
 
-    return view('adminDashboard.userManagement._checkUser', compact('users'));
+    return view('adminDashboard.userManagement._updateUser', compact('users'));
     }
     
     public function showCreateUser(Request $request): View
@@ -74,17 +75,14 @@ class AdminController extends Controller
             'role'      => $data['role'], 
             'birthday'  => $birthday,
         ]); 
-        return redirect()->route('userManagement_checkUser.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
+        return redirect()->route('userManagement_updateUser.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
     }
 
-
-
-    public function edit(User $user)
-    {
-        // Trả về view có form edit
-        return view('adminDashboard.userManagement._checkUser', compact('user'));
+    public function checkOldAvata($user) {
+        if ($user->avatar && file_exists(public_path($user->avatar))) {
+            unlink(public_path($user->avatar));
+        }
     }
-
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
@@ -95,27 +93,44 @@ class AdminController extends Controller
             'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
+        $this -> checkOldAvata($user);
+
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
             $data['avatar'] = 'storage/' . $path;
+        } else if ($request->input('avatar') === null) {
+            $user->avatar = null;
         }
-
         $user->update($data);
-
-        return back()->with('success', 'Cập nhật người dùng thành công!');
+        return back()->with('UpdateProfileSuccess', 'Cập nhật người dùng thành công!');
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function delete(User $user): RedirectResponse
     {
         // Không cho tự xóa mình
         if (auth()->id() === $user->id) {
             return back()->with('error', 'Bạn không thể tự xóa tài khoản của mình.');
         }
+        
         try {
             $user->forceDelete();
             return back()->with('success', 'Đã xóa người dùng.');
         } catch (\Throwable $e) {
             return back()->with('error', 'Không thể xóa người dùng. Kiểm tra ràng buộc dữ liệu.');
         }
+    }
+
+
+    // Admin Dashboard - Movies Management
+    public function showCreateMovies (Request $request) : View {
+        return view('adminDashboard.moviesManagement._createUser');
+    }
+
+    public function showUpdateMovies (Request $request) : View {
+        return view('adminDashboard.moviesManagement._updateUser');
+    }
+    
+    public function showMain (Request $request) : View {
+        return view('adminDashboard.moviesManagement.main');
     }
 }

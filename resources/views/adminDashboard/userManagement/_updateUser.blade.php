@@ -50,7 +50,7 @@
       {{-- Profile card --}}
       <div class="card card-profile mb-3 border-0 shadow-sm rounded-4">
         <div class="card-body d-flex align-items-center gap-3 p-4">
-          <img src="{{ asset('storage/pictures/dogavatar.jpg') }}"
+          <img src="{{ auth()->user() && auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('storage/pictures/dogavatar.jpg')}}"
                class="rounded-circle border border-3 border-white shadow-sm avatar-100"
                alt="avatar">
           <div>
@@ -64,8 +64,8 @@
       <div class="card ad-card">
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-            <a href="{{ route('userManagement_checkUser.form') }}"
-               class="btn {{ request()->routeIs('userManagement_checkUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+            <a href="{{ route('userManagement_updateUser.form') }}"
+               class="btn {{ request()->routeIs('userManagement_updateUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
             <a href="{{ route('userManagement_createUser.form') }}"
@@ -80,7 +80,7 @@
             <div class="tab-pane fade show active" id="u-view" role="tabpanel" aria-labelledby="u-view-tab">
 
               {{-- Form lọc --}}
-              <form action="{{ route('userManagement_checkUser.form') }}" method="GET" class="row gy-2 gx-3 align-items-end mb-3">
+              <form action="{{ route('userManagement_updateUser.form') }}" method="GET" class="row gy-2 gx-3 align-items-end mb-3">
                 <div class="col-md-4">
                   <label class="form-label">Từ khóa</label>
                   <input type="text" class="form-control" name="q" value="{{ request('q') }}" placeholder="Tên đăng nhập / Email">
@@ -108,7 +108,7 @@
                   <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search me-1"></i> Tìm
                   </button>
-                  <a href="{{ route('userManagement_checkUser.form') }}" class="btn btn-outline-secondary">
+                  <a href="{{ route('userManagement_updateUser.form') }}" class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle me-1"></i> Xoá
                   </a>
                 </div>
@@ -135,7 +135,7 @@
 
                         <td>
                           <div class="d-flex align-items-center">
-                            <img src="{{ $user->avatar ?: asset('storage/pictures/dogavatar.jpg') }}"
+                            <img src="{{ $user->avatar ? asset($user->avatar) : asset('storage/pictures/dogavatar.jpg') }}"
                                  class="rounded-circle me-2 avatar-28" alt="avatar">
                             <span class="fw-semibold">{{ $user->username }}</span>
                           </div>
@@ -167,7 +167,7 @@
                               <i class="bi bi-pencil me-1"></i> Sửa
                             </a>
 
-                            <form action="" method="POST" {{--{{ route('users.destroy', $user) }} --}}
+                            <form action="" method="POST" 
                                   onsubmit="return confirm('Bạn có chắc muốn xóa user này không?')" class="d-inline">
                               @csrf
                               @method('DELETE')
@@ -206,7 +206,6 @@
           </div>
         </div>
       </div>
-
     </div>
     {{-- /ad-main --}}
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserLabel" aria-hidden="true">
@@ -228,7 +227,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Email</label>
+                  <label class="form-label">Email</label> 
                   <input type="email" name="email" class="form-control" required>
                 </div>
 
@@ -334,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id   = btn.getAttribute('data-id');
     const name = btn.getAttribute('data-name');
 
-    form.action = "{{ route('users.destroy', ':id') }}".replace(':id', id);
+    form.action = "{{ route('users.delete', ':id') }}".replace(':id', id);
     nameEl.textContent = name || '';
   });
 });

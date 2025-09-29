@@ -40,8 +40,8 @@ Route::middleware('auth')->group(function () {
 
     //Profile account
     Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
-
     //Booking
     Route::get('/booking/{showtime}', [BookingController::class, 'booking'])->name('booking.time');
 
@@ -57,14 +57,19 @@ Route::middleware('auth')->group(function () {
     }); 
 
 Route::middleware('auth','admin')->group(function() {
-     //Admin Dashboard - Manage
+     //Admin Dashboard - Manage User
     Route::post('/adminDashboard/userManagement/_createUser', [AdminController::class, 'createUser'])->name('admin_userManagement.Create');
     Route::get('/adminDashboard', [AdminController::class, 'showAdminDashboard'])->name('admin.form');
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('userManagement_main.form');
-    Route::get('/adminDashboard/userManagement/_checkUser', [AdminController::class, 'showCheckUser'])->name('userManagement_checkUser.form');
+    Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
     Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
 
-    //Admin Dashboard - Button for _checkUser
+    //Admin Dashboard - Button for _updateUser 
     Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('users.update');
-    Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('users.destroy');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
+
+    //Admin Dashboard - Manage Movies
+    Route::get('/adminDashboard/moviesManagement/_createMovies',[AdminController::class, 'showCreateMovies'])->name('moviesManagement_createMovies.form');
+    Route::get('/adminDashboard/moviesManagement/_updateMovies',[AdminController::class,'showUpdateMovies'])->name('moviesManagement_updateMovies.form');
+    Route::get('/adminDashboard/moviesManagement/main',[AdminController::class,'showMain'])->name('moviesManagement_main.form');
 });

@@ -53,6 +53,10 @@
                   <img src="{{ asset('storage/pictures/dogavatar.jpg') }}"
                        class="rounded-circle shadow-sm"
                        style="width:100px;height:100px;object-fit:cover" alt="avatar">
+                  <form action="{{ route('avatar.update')}}" method="POST" class="d-inline">
+                    @csrf
+                    <button class="btn btn-primary btn-sm rounded m-1">Thay đổi avatar</button>
+                  </form>
                 </div>
                 <div class="col-md-9">
                   <p class="mb-1"><i class="bi bi-envelope me-2"></i>Xin chào khách hàng {{ $customer->customer_name }}</p>
@@ -130,7 +134,7 @@
                   </div>
                   {{-- NÚT LƯU THÔNG TIN --}}
                   <form action="{{ route('profile.update') }}" method="POST" class="d-inline">
-                    @csrf
+                  @csrf
                   <div class="col-12 d-flex justify-content-end">
                     <button class="btn btn-danger px-4 fw-bold">LƯU LẠI</button>
                   </div>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Quản lý người dùng')
+@section('title','Quản lý phim')
 
 @section('content')
 <div class="ad-wrapper container-fluid px-0">
@@ -23,7 +23,7 @@
           </a>
 
           <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}"
-             href="{{ route('moviesManagement_main.form') }}">
+             href="#">
             <i class="bi bi-film"></i> Phim
           </a>
 
@@ -61,12 +61,12 @@
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
             <a href="{{ route('userManagement_updateUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_updateUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+              class="btn {{ request()->routeIs('moviesManagement_updateMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
             <a href="{{ route('userManagement_createUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_createUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
-              <i class="bi bi-person-plus me-1"></i> Tạo tài khoản
+              class="btn {{ request()->routeIs('moviesManagement_createMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+              <i class="bi bi-person-plus me-1"></i> Tạo phim
             </a>
           </div>
           <hr class="my-3">

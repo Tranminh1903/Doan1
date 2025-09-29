@@ -20,7 +20,9 @@
                 href="{{ route('userManagement_main.form') }}">
                 <i class="bi bi-people"></i> Người dùng
               </a>
-                <a class="ad-link" href="#"><i class="bi bi-camera-reels"></i> Phim</a>
+              <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}" 
+                href="{{ route('moviesManagement_main.form') }}">
+                <i class="bi bi-camera-reels"></i> Phim</a>
                 <a class="ad-link" href="#"><i class="bi bi-film"></i> Suất chiếu</a>
                 <a class="ad-link" href="#"><i class="bi bi-ticket-perforated"></i> Khuyến mãi</a>
         </div>
@@ -62,7 +64,7 @@
             </div>
             <div class="card-body">
               <p class="text-muted small">Thêm/sửa phim, trailer, poster, thời lượng…</p>
-              <a href="#" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý phim</a>
+              <a href="{{ route('moviesManagement_main.form')}}" class="btn btn-danger btn-sm"><i class="bi bi-plus-lg me-1"></i>Chuyển sang quản lý phim</a>
             </div>
           </div>
         </div>

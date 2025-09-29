@@ -54,8 +54,8 @@
       <div class="card ad-card">
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-            <a href="{{ route('userManagement_checkUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_checkUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+            <a href="{{ route('userManagement_updateUser.form') }}"
+              class="btn {{ request()->routeIs('userManagement_updateUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
             <a href="{{ route('userManagement_createUser.form') }}"
