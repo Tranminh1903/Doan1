@@ -59,23 +59,23 @@
 
       <div class="card ad-card">
         <div class="card-body">
-          <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-            <a href="{{ route('userManagement_updateUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_updateUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+         <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+            <a href="{{ route('moviesManagement_updateMovies.form') }}"
+              class="btn {{ request()->routeIs('moviesManagement_updateMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
-            <a href="{{ route('userManagement_createUser.form') }}"
-              class="btn {{ request()->routeIs('userManagement_createUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+            <a href="{{ route('moviesManagement_createMovies.form') }}"
+              class="btn {{ request()->routeIs('moviesManagement_createMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-person-plus me-1"></i> Tạo tài khoản
             </a>
-          </div>
+          </div>  
           <hr class="my-3">
 
           {{-- Nội dung theo route hiện tại --}}
-          @if (request()->routeIs('userManagement_updateUser.form'))
-            @include('adminDashboard.userManagement._updateUser')
-          @elseif (request()->routeIs('userManagement_createUser.form'))
-            @include('adminDashboard.userManagement._createUser')
+          @if (request()->routeIs('moviesManagement_updateMovies.form'))
+            @include('moviesManagement_updateMovies.form')
+          @elseif (request()->routeIs('moviesManagement_createMovies.form'))
+            @include('moviesManagement_createMovies.form')
           @endif
     </div>
   </div>

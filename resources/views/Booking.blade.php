@@ -170,7 +170,7 @@ function confirmSeats(){
   function show_qr(orderCode,seats){
     const bankCode="MB";
     const accountNo="0869083080";
-    const accountName="NGUYEN VAN A";
+    const accountName="TRAN VAN HUNG MINH EM";
     const info=orderCode;
     const amount=2000;
 

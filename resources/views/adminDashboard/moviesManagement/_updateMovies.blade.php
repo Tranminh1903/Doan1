@@ -55,12 +55,12 @@
       <div class="card ad-card">
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-            <a href="{{ route('userManagement_updateUser.form') }}"
+            <a href="{{ route('moviesManagement_updateMovies.form') }}"
               class="btn {{ request()->routeIs('moviesManagement_updateMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
-            <a href="{{ route('userManagement_createUser.form') }}"
-              class="btn {{ request()->routeIs('moviesManagement_createMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
+            <a href="{{ route('moviesManagement_updateMovies.form') }}"
+              class="btn {{ request()->routeIs('moviesManagement_updateMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-person-plus me-1"></i> Tạo phim
             </a>
           </div>

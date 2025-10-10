@@ -24,6 +24,7 @@ return new class extends Migration
                   ->references('theaterID')
                   ->on('movie_theaters')
                   ->onDelete('cascade');
+            $table->unique(['theaterID','verticalRow','horizontalRow'], 'uk_theater_row_col');
         });
     }
 

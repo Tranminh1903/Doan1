@@ -21,7 +21,8 @@
             <i class="bi bi-people"></i> Người dùng
           </a>
 
-          <a class="ad-link {{ request()->routeIs('movies.*') ? 'active' : '' }}" href="#">
+          <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}"
+             href="{{ route('moviesManagement_main.form') }}">
             <i class="bi bi-film"></i> Phim
           </a>
 
@@ -51,6 +52,7 @@
           </div>
         </div>
       </div>
+      
       <div class="card ad-card">
         <div class="card-body">
           <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
@@ -62,7 +64,7 @@
               class="btn {{ request()->routeIs('userManagement_createUser.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-person-plus me-1"></i> Tạo tài khoản
             </a>
-          </div>
+          </div> 
           <hr class="my-3">
 
           <div class="tab-content">

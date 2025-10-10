@@ -123,11 +123,11 @@ class AdminController extends Controller
 
     // Admin Dashboard - Movies Management
     public function showCreateMovies (Request $request) : View {
-        return view('adminDashboard.moviesManagement._createUser');
+        return view('adminDashboard.moviesManagement._createMovies');
     }
 
     public function showUpdateMovies (Request $request) : View {
-        return view('adminDashboard.moviesManagement._updateUser');
+        return view('adminDashboard.moviesManagement._updateMovies');
     }
     
     public function showMain (Request $request) : View {

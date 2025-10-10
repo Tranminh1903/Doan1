@@ -108,12 +108,12 @@
 
           <div class="card-quick-actions px-3 pt-3">
             <div class="d-flex gap-2">
-              @if ($firstShowtime)
-                <a href="" class="btn btn-primary btn-sm flex-fill">Mua vé</a>
+              @if ($movie->showtimes->isNotEmpty())
+                <a href="{{ route('booking.time', ['showtime' => $movie->showtimes->first()->showtimeID]) }}"
+                  class="btn btn-primary btn-sm flex-fill">Mua vé</a>
               @else
-                <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled aria-disabled="true">Mua vé</button>
+                <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
               @endif
-
               <a href="" class="btn btn-outline-secondary btn-sm flex-fill">Chi tiết</a>
             </div>
           </div>
