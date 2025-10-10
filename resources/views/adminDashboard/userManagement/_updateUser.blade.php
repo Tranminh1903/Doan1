@@ -44,17 +44,17 @@
       </aside>
     </div>
 
-    {{-- Khu vực chính --}}
     <div class="col-lg-9 ad-main">
-
-      {{-- Profile card --}}
-      <div class="card card-profile mb-3 border-0 shadow-sm rounded-4">
-        <div class="card-body d-flex align-items-center gap-3 p-4">
-          <img src="{{ auth()->user() && auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('storage/pictures/dogavatar.jpg')}}"
-               class="rounded-circle border border-3 border-white shadow-sm avatar-100"
-               alt="avatar">
+      <div class="card ad-card mb-3">
+        <div class="card-body d-flex align-items-center gap-3">
+          <img
+            src="{{ asset('storage/pictures/dogavatar.jpg') }}"
+            class="rounded-circle shadow-sm"
+            style="width:100px;height:100px;object-fit:cover"
+            alt="avatar"
+          >
           <div>
-            <h5 class="mb-1 fw-bold text-dark">ADMIN {{ auth()->user()->username }}</h5>
+            <h5 class="mb-0 fw-bold">ADMIN {{ auth()->user()->username }}</h5>
             <span class="text-muted small">Hệ thống bán vé xem phim</span>
           </div>
         </div>

@@ -18,8 +18,33 @@
     text-decoration: underline;
   }
 /* Su dung trong blade Home */
+  
+  :root{
+    --card-radius: 1rem;
+    --radius:16px; --shadow:0 12px 30px rgba(18,38,63,.08); --muted:#6b7280; 
+  }
+  .ns-wrap{
+    max-width:1200px; margin:48px auto;
+  }
+  .ns-row{ 
+    row-gap:24px; 
+  }
+  .movie-card{
+  border-radius: var(--card-radius);
+  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: var(--shadow);
+  }
+  .movie-card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 .75rem 2rem rgba(0,0,0,.12);
+  }
   .movie-card img {
-    aspect-ratio: 3/4; object-fit: cover;
+    aspect-ratio: auto;
+  }
+  .actions-float{
+    position:absolute; left:12px; right:12px; bottom:12px;
+    display:flex; gap:10px; opacity:0; transform:translateY(6px);
+    transition: all .18s ease;
   }
   .hero {
     background:#0d1117 url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
@@ -53,6 +78,24 @@
   .banner-caption p{
     background: rgba(0,0,0,.25); display:inline-block; padding:.2rem .5rem; border-radius:.5rem; margin-top:.25rem;
   }
+  .poster-wrap{ 
+    border-top-left-radius: var(--card-radius); 
+    border-top-right-radius: var(--card-radius); 
+  }
+  .poster-img{ 
+    transition: transform .35s ease; 
+  }
+  .movie-card:hover .poster-img{ 
+    transform: scale(1.04); 
+  }
+  .card-quick-actions{ transition: opacity .25s ease; }
+  .movie-card:hover .card-quick-actions{ 
+    opacity: 1; 
+  }
+  .movie-card:hover .actions-float{ 
+    opacity:1; transform:translateY(0); 
+  }
+/* Su dung trong phim sap chieu */
 
 /* Su dung trong blade Profile */
 .cinema-title{
@@ -65,7 +108,6 @@
 }
 
 /* Su dung trong blade adminDashboard */
-  :root{ --radius:16px; --shadow:0 12px 30px rgba(18,38,63,.08); --muted:#6b7280; }
   .ad-wrapper{position:relative}
   .ad-sidebar{
     background: linear-gradient(180deg,#27c2a6 0%, #1aa3f1 100%);
@@ -84,3 +126,4 @@
   .text-muted{color:var(--muted)!important}
   .action-list a{ text-decoration:none }
   @media (max-width: 992px){ .ad-sidebar{width:100%; border-radius:12px} .ad-main{padding-left:0} }
+  
