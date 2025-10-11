@@ -30,7 +30,7 @@ class SeatHold extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'orderID', 'id'); // 👈 cột ở bảng orders là id
+        return $this->belongsTo(Order::class, 'orderID', 'id'); 
     }
 
     public function scopeActive($q)
