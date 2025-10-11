@@ -31,7 +31,7 @@ return new class extends Migration
                   ->on('orders')
                   ->nullOnDelete();
             $table->timestamp('expires_at')->nullable(); 
-            $table->enum('status', ['held', 'pending', 'paid', 'expired'])
+            $table->enum('status', ['available', 'held', 'unavailable'])
                   ->default('held');
             $table->timestamps();
         });
