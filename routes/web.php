@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\OrderController;
 use App\Http\Controllers\UserController\BookingController;
+use App\Http\Controllers\UserController\MovieController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
