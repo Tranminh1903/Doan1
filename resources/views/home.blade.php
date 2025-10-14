@@ -114,7 +114,7 @@
               @else
                 <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
               @endif
-              <a href="" class="btn btn-outline-secondary btn-sm flex-fill">Chi tiết</a>
+              <a href="{{ route('movies.show', ['movieID' => $movie->movieID]) }}" class="btn btn-outline-secondary btn-sm flex-fill">Chi tiết</a>
             </div>
           </div>
 
