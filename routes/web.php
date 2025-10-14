@@ -9,8 +9,6 @@ use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\OrderController;
 use App\Http\Controllers\UserController\BookingController;
-use App\Http\Controllers\UserController\MovieController;
-
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -32,10 +30,6 @@ Route::middleware('guest')->group(function () {
     //Reset Password
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
-
-    // Trang chủ và chi tiết phim — công khai
-    Route::get('/', [MovieController::class, 'index'])->name('home');
-    Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
 
 });
 
@@ -78,5 +72,4 @@ Route::middleware('auth','admin')->group(function() {
     Route::get('/adminDashboard/moviesManagement/_createMovies',[AdminController::class, 'showCreateMovies'])->name('moviesManagement_createMovies.form');
     Route::get('/adminDashboard/moviesManagement/_updateMovies',[AdminController::class,'showUpdateMovies'])->name('moviesManagement_updateMovies.form');
     Route::get('/adminDashboard/moviesManagement/main',[AdminController::class,'showMain'])->name('moviesManagement_main.form');
-    
 });

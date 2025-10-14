@@ -19,7 +19,7 @@ class Movie extends Model
         'age_rating',
         'format',
         'releaseDate',
-        'poster',
+        'image',
         'description',
     ];
 
