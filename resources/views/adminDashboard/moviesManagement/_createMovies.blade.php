@@ -59,16 +59,17 @@
               class="btn {{ request()->routeIs('moviesManagement_updateMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-list-ul me-1"></i> Danh sách
             </a>
+
             <a href="{{ route('moviesManagement_createMovies.form') }}"
               class="btn {{ request()->routeIs('moviesManagement_createMovies.form') ? 'btn-primary' : 'btn-outline-secondary' }} px-3">
               <i class="bi bi-person-plus me-1"></i> Tạo phim
             </a>
+            
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 
 @endsection

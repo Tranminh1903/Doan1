@@ -155,9 +155,9 @@ function confirmSeats(){
       "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
-      showtimeID: {{ $showtime->showtimeID ?? 8 }},
-      seats: selectedSeats.map(s => s.dataset.seatId),
-      amount: totalAmount
+      showtimeID: {{ $showtime->showtimeID ?? 8 }}, // 👈 truyền vào
+      seats: selectedSeats,
+      amount: 1000
     })
   })
   .then(async res => {

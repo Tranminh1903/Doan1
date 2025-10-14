@@ -31,6 +31,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
 
+    // Trang chủ và chi tiết phim — công khai
+    Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
+
 });
 
 // Auth only (đã đăng nhập)

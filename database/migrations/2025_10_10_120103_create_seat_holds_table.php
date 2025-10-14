@@ -25,8 +25,8 @@ return new class extends Migration
                   ->references('id')
                   ->on('users')
                   ->nullOnDelete();
-            $table->unsignedBigInteger('order_id')->nullable();
-            $table->foreign('order_id')
+            $table->unsignedBigInteger('orderID')->nullable();
+            $table->foreign('orderID')
                   ->references('id')
                   ->on('orders')
                   ->nullOnDelete();

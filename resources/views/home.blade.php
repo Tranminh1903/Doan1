@@ -2,6 +2,12 @@
 @section('title', 'Trang chủ - DuManMinh Cinema')
 
 @section('content')
+<section class="ns-section container mb-4">
+  <div class="ns-head text-center mb-4">
+    <h4 class="mb-1">Phim sắp chiếu</h4>
+    <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
+  </div>
+</section>
 <div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="3200">
   @php
     $banners = $banners ?? [
@@ -63,16 +69,7 @@
   </div>
 </div>
 
-{{-- Khu vực phim sắp chiếu --}}
-<section class="ns-section container mb-4">
-  <div class="ns-head text-center mb-4">
-    <h4 class="mb-1">Phim sắp chiếu</h4>
-    <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
-  </div>
-  {{-- TODO: Render danh sách phim sắp chiếu nếu có biến $upcomingMovies --}}
-</section>
 
-{{-- Khu vực phim đang chiếu --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mb-1">Phim đang chiếu</h4>
