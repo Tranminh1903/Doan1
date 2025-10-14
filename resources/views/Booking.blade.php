@@ -57,10 +57,16 @@
       <div class="row-label">Hàng {{ $row }}</div>
       <div class="d-flex flex-wrap justify-content-center mb-2">
         @foreach($rowSeats as $seat)
-          <div class="seat {{ $seat->status === 'unavailable' ? 'booked' : '' }} {{ $seat->status === 'held' ? 'held' : '' }}" 
-     data-seat-id="{{ $seat->seatID }}">
+      <!-- gán tiền cho ghế -->
+         <div class="seat 
+     {{ $seat->status === 'unavailable' ? 'booked' : '' }} 
+     {{ $seat->status === 'held' ? 'held' : '' }}" 
+     data-seat-id="{{ $seat->seatID }}"
+     data-type="{{ $seat->type }}" 
+     data-price="{{ $seat->type === 'vip' ? 3000 : ($seat->type === 'couple' ? 3000 : 2000) }}">
   {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
 </div>
+
 
         @endforeach
       </div>
@@ -78,6 +84,9 @@
     <strong class="mb-2 d-block">Quét mã để thanh toán</strong>
     <img id="qr_image" src="" alt="qr_code" style="max-width:200px;">
     <div id="countdown" class="mt-2 text-danger fw-bold"></div>
+    <div class="text-center my-3">
+    <h5>Tổng tiền: <span id="total-amount">0</span> VND</h5>
+    </div> 
     <button class="btn btn-secondary mt-3" onclick="closeQR()">Hủy</button>
   </div>
 </div>
@@ -105,21 +114,38 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll('.seat').forEach(seat => {
+  const seats = document.querySelectorAll('.seat');
+  const totalDisplay = document.getElementById('total-amount');
+
+  function updateTotal() {
+    let total = 0;
+    seats.forEach(s => {
+      if (s.classList.contains('selected')) {
+        total += parseInt(s.dataset.price || 0);
+      }
+    });
+    totalDisplay.textContent = total.toLocaleString('vi-VN');
+  }
+
+  seats.forEach(seat => {
     seat.addEventListener('click', () => {
-      console.log("clicked", seat);
       if (seat.classList.contains('booked') || seat.classList.contains('held')) return;
       seat.classList.toggle('selected');
+      updateTotal(); // 👉 mỗi lần click thì cập nhật tiền
     });
   });
 });
 
 
+
 let checkInterval, countdownTimer;
 
 function confirmSeats(){
-  const selectedSeats = [...document.querySelectorAll('.seat.selected')].map(s=>s.dataset.seatId);
+  const selectedSeats = [...document.querySelectorAll('.seat.selected')];
   if (!selectedSeats.length) { alert('Chưa chọn ghế!'); return; }
+
+  // 👉 Tính tổng tiền thực tế
+  const totalAmount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0);
 
   fetch("{{ route('orders.create') }}", {
     method: "POST",
@@ -129,9 +155,9 @@ function confirmSeats(){
       "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
-      showtimeID: {{ $showtime->showtimeID ?? 8 }}, // 👈 truyền vào
-      seats: selectedSeats,
-      amount: 1000
+      showtimeID: {{ $showtime->showtimeID ?? 8 }},
+      seats: selectedSeats.map(s => s.dataset.seatId),
+      amount: totalAmount
     })
   })
   .then(async res => {
@@ -142,14 +168,11 @@ function confirmSeats(){
   })
   .then(data => {
     if (data.order_code) {
-      console.log("Order code:", data.order_code); // ✅ log ra console để check
+      console.log("Order code:", data.order_code);
 
-      selectedSeats.forEach(id => {
-        const el = document.querySelector(`[data-seat-id="${id}"]`);
-        if (el) {
-          el.classList.remove('selected');
-          el.classList.add('held');
-        }
+      selectedSeats.forEach(s => {
+        s.classList.remove('selected');
+        s.classList.add('held');
       });
 
       document.querySelectorAll('.seat').forEach(seat => {
@@ -157,32 +180,36 @@ function confirmSeats(){
       });
       document.querySelector('button[onclick="confirmSeats()"]').disabled = true;
 
-      show_qr(data.order_code, selectedSeats);
-      startPolling(data.order_code, selectedSeats);
+      // 👉 truyền totalAmount vào show_qr()
+      show_qr(data.order_code, selectedSeats.map(s => s.dataset.seatId), totalAmount);
+      startPolling(data.order_code, selectedSeats.map(s => s.dataset.seatId));
     } else {
       alert('Server không trả order_code. Trả về: ' + JSON.stringify(data));
     }
-})
-
+  })
   .catch(e => alert('Tạo order lỗi: ' + e.message));
 }
 
-  function show_qr(orderCode,seats){
-    const bankCode="MB";
-    const accountNo="0869083080";
-    const accountName="TRAN VAN HUNG MINH EM";
-    const info=orderCode;
-    const amount=2000;
+function show_qr(orderCode, seats, amount){
+  const bankCode = "MB";
+  const accountNo = "0869083080";
+  const accountName = "TRAN VAN HUNG MINH EM";
+  const info = orderCode;
 
-  const qrUrl=`https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(accountName)}`;
-  document.getElementById('qr_image').src=qrUrl;
-  document.getElementById('overlay').style.display='flex';
+  // 👉 Dùng amount thật
+  const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(accountName)}`;
+  
+  document.getElementById('qr_image').src = qrUrl;
+  document.getElementById('overlay').style.display = 'flex';
 
-  let timeLeft=30;
-  const countdown=document.getElementById('countdown');
-  countdownTimer=setInterval(()=>{
+  // 👉 Hiển thị số tiền trong overlay
+  document.getElementById('total-amount').textContent = amount.toLocaleString('vi-VN');
+
+  let timeLeft = 30;
+  const countdown = document.getElementById('countdown');
+  countdownTimer = setInterval(()=>{
     timeLeft--;
-    countdown.innerText=`Còn ${timeLeft}s`;
+    countdown.innerText = `Còn ${timeLeft}s`;
 
     if(timeLeft <= 0){
       clearInterval(countdownTimer);
@@ -199,20 +226,21 @@ function confirmSeats(){
       document.querySelector('button[onclick="confirmSeats()"]').disabled = false;
 
       fetch(`/orders/${orderCode}/expire`, {
-  method:"POST",
-  headers:{
-    "X-CSRF-TOKEN":document.querySelector('meta[name="csrf-token"]').content,
-    "Content-Type":"application/json"
-  }
-})
-.then(res => res.json())
-.then(data => console.log("Expire:", data));
+        method:"POST",
+        headers:{
+          "X-CSRF-TOKEN":document.querySelector('meta[name="csrf-token"]').content,
+          "Content-Type":"application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(data => console.log("Expire:", data));
 
       closeQR();
       alert("❌ QR hết hạn, vui lòng thử lại!");
     }
   },1000);
 }
+
 
 function startPolling(orderCode,seats){
   checkInterval=setInterval(()=>{
