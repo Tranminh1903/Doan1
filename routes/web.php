@@ -46,8 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
     Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
-    //Booking
-    Route::get('/booking/{showtime}', [BookingController::class, 'booking'])->name('booking.time');
+   
 
     //Order
     // Đặt hàng mới
@@ -58,6 +57,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.expire');
     // Đồng bộ thanh toán từ Google Sheet
     Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
+    // Trang chọn suất chiếu
+
+    Route::get('/select-showtimes/{movieID}', [BookingController::class, 'selectShowtime'])->name('select.showtime');
+    Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
+    Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
+     //Booking
+    Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
+    
     }); 
 
 Route::middleware('auth','admin')->group(function() {

@@ -55,4 +55,33 @@ class BookingController extends Controller
             'showtime'   => $showtime
         ]);
     }
+
+public function selectShowtime($movieID)
+{
+    $movie = \App\Models\ProductModels\Movie::with(['showtimes.theater'])
+        ->findOrFail($movieID);
+
+    // Lấy danh sách ngày có suất chiếu
+    $availableDates = $movie->showtimes
+        ->pluck('startTime')
+        ->map(fn($t) => \Carbon\Carbon::parse($t)->startOfDay())
+        ->unique()
+        ->sort();
+
+    // Nhóm suất chiếu theo rạp
+    $groupedShowtimes = $movie->showtimes->groupBy(fn($st) => $st->theater->name);
+
+    return view('select_showtimes', compact('movie', 'availableDates', 'groupedShowtimes'));
+}
+public function start($showtimeID)
+{
+    // Kiểm tra suất chiếu có tồn tại không
+    $showtime = Showtime::findOrFail($showtimeID);
+
+    // Gọi lại hàm booking() để load giao diện chọn ghế
+    return $this->booking($showtimeID);
+}
+
+
+
 }

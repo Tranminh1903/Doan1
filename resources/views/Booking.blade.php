@@ -110,7 +110,6 @@
   }
 </style>
 
-<a href="{{ route('booking.time', ['showtime' => 8]) }}">Test Booking</a>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -131,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     seat.addEventListener('click', () => {
       if (seat.classList.contains('booked') || seat.classList.contains('held')) return;
       seat.classList.toggle('selected');
-      updateTotal(); // 👉 mỗi lần click thì cập nhật tiền
+      updateTotal(); 
     });
   });
 });
@@ -144,7 +143,6 @@ function confirmSeats(){
   const selectedSeats = [...document.querySelectorAll('.seat.selected')];
   if (!selectedSeats.length) { alert('Chưa chọn ghế!'); return; }
 
-  // 👉 Tính tổng tiền thực tế
   const totalAmount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0);
 
   fetch("{{ route('orders.create') }}", {
@@ -155,9 +153,9 @@ function confirmSeats(){
       "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
-      showtimeID: {{ $showtime->showtimeID ?? 8 }}, // 👈 truyền vào
-      seats: selectedSeats,
-      amount: 1000
+      showtimeID: {{ $showtime->showtimeID ?? 8 }},
+      seats: selectedSeats.map(s => s.dataset.seatId),
+      amount: totalAmount
     })
   })
   .then(async res => {
@@ -180,7 +178,7 @@ function confirmSeats(){
       });
       document.querySelector('button[onclick="confirmSeats()"]').disabled = true;
 
-      // 👉 truyền totalAmount vào show_qr()
+      //  truyền totalAmount vào show_qr()
       show_qr(data.order_code, selectedSeats.map(s => s.dataset.seatId), totalAmount);
       startPolling(data.order_code, selectedSeats.map(s => s.dataset.seatId));
     } else {
@@ -196,13 +194,13 @@ function show_qr(orderCode, seats, amount){
   const accountName = "TRAN VAN HUNG MINH EM";
   const info = orderCode;
 
-  // 👉 Dùng amount thật
+  //  Dùng amount thật
   const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(accountName)}`;
   
   document.getElementById('qr_image').src = qrUrl;
   document.getElementById('overlay').style.display = 'flex';
 
-  // 👉 Hiển thị số tiền trong overlay
+  //  Hiển thị số tiền trong overlay
   document.getElementById('total-amount').textContent = amount.toLocaleString('vi-VN');
 
   let timeLeft = 30;

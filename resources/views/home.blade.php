@@ -106,8 +106,9 @@
           <div class="card-quick-actions px-3 pt-3">
             <div class="d-flex gap-2">
               @if ($movie->showtimes->isNotEmpty())
-                <a href="{{ route('booking.time', ['showtime' => $movie->showtimes->first()->showtimeID]) }}"
-                  class="btn btn-primary btn-sm flex-fill">Mua vé</a>
+                <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}"
+   class="btn btn-primary btn-sm flex-fill">Mua vé</a>
+
               @else
                 <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
               @endif
