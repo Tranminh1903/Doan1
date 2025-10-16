@@ -1,129 +1,476 @@
+/* =========================================================
+   SOURCE MAPPING
+   ========================================================= */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/*THEME & GLOBAL VARIABLES*/
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
-  html {
-    scroll-behavior: smooth;
-  }
-  a { 
-    text-decoration: none !important; 
-  }
-  a:hover,
-  a:focus {
-    text-decoration: underline;
-  }
-/* Su dung trong blade Home */
-  
-  :root{
-    --card-radius: 1rem;
-    --radius:16px; --shadow:0 12px 30px rgba(18,38,63,.08); --muted:#6b7280; 
-  }
-  .ns-wrap{
-    max-width:1200px; margin:48px auto;
-  }
-  .ns-row{ 
-    row-gap:24px; 
-  }
-  .movie-card{
+
+:root {
+  --card-radius: 1rem;
+  --radius: 16px;
+  --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
+  --muted: #6b7280;
+}
+
+/*GLOBAL STYLES*/
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/*HOME PAGE / MOVIE LISTING*/
+
+/* Container chính */
+.ns-wrap {
+  max-width: 1200px;
+  margin: 48px auto;
+}
+
+.ns-row {
+  row-gap: 24px;
+}
+
+/* Movie Card */
+.movie-card {
   border-radius: var(--card-radius);
-  transition: transform .2s ease, box-shadow .2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow);
-  }
-  .movie-card:hover{
-    transform: translateY(-4px);
-    box-shadow: 0 .75rem 2rem rgba(0,0,0,.12);
-  }
-  .movie-card img {
-    aspect-ratio: auto;
-  }
-  .actions-float{
-    position:absolute; left:12px; right:12px; bottom:12px;
-    display:flex; gap:10px; opacity:0; transform:translateY(6px);
-    transition: all .18s ease;
-  }
-  .hero {
-    background:#0d1117 url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
-    color:#fff; border-radius:1rem
-  }
-  .hero-overlay {
-    backdrop-filter:brightness(.6); border-radius:1rem
-  }
-  a{text-decoration:none}
-  .banner-wrapper { 
-    max-height: 720px; overflow: hidden; 
-  }
-  .banner-img { 
-    aspect-ratio: 16 / 6; object-fit: cover; transform: scale(1); transition: transform 4s ease; 
-  }
-  .carousel-item.active .banner-img { transform: scale(1.06); }
-  .banner-overlay{
-    position:absolute; inset:0; content:"";
-    background: linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.45) 80%);
-  }  
-  .banner-caption{
-    position:absolute; left:1rem; bottom:1rem; right:1rem;
-    color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6);
-    transform: translateY(10px); opacity:0; transition: all .5s ease;
-  }
-  .carousel-item.active .banner-caption{ transform: translateY(0); opacity:1; }
-  .banner-caption h5{
-    font-weight:700; letter-spacing:.3px;
-    background: rgba(0,0,0,.35); display:inline-block; padding:.25rem .5rem; border-radius:.5rem;
-  }
-  .banner-caption p{
-    background: rgba(0,0,0,.25); display:inline-block; padding:.2rem .5rem; border-radius:.5rem; margin-top:.25rem;
-  }
-  .poster-wrap{ 
-    border-top-left-radius: var(--card-radius); 
-    border-top-right-radius: var(--card-radius); 
-  }
-  .poster-img{ 
-    transition: transform .35s ease; 
-  }
-  .movie-card:hover .poster-img{ 
-    transform: scale(1.04); 
-  }
-  .card-quick-actions{ transition: opacity .25s ease; }
-  .movie-card:hover .card-quick-actions{ 
-    opacity: 1; 
-  }
-  .movie-card:hover .actions-float{ 
-    opacity:1; transform:translateY(0); 
-  }
-/* Su dung trong phim sap chieu */
-
-/* Su dung trong blade Profile */
-.cinema-title{
-  color:#e71a0f;          
-  font-weight:800;
-  text-transform:uppercase;
-  font-size:1.3rem;
-  letter-spacing:.5px;
-  margin-bottom:.5rem;
 }
 
-/* Su dung trong blade adminDashboard */
-  .ad-wrapper{position:relative}
-  .ad-sidebar{
-    background: linear-gradient(180deg,#27c2a6 0%, #1aa3f1 100%);
-    border-radius: 18px; color:#fff; width:260px; min-height:calc(100vh - 180px);
-    box-shadow: var(--shadow); position:sticky; top:12px;
+.movie-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.12);
+}
+
+.movie-card img {
+  aspect-ratio: auto;
+}
+
+.poster-wrap {
+  border-top-left-radius: var(--card-radius);
+  border-top-right-radius: var(--card-radius);
+}
+
+.poster-img {
+  transition: transform 0.35s ease;
+}
+
+.movie-card:hover .poster-img {
+  transform: scale(1.04);
+}
+
+.actions-float {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.18s ease;
+}
+
+.movie-card:hover .actions-float {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-quick-actions {
+  transition: opacity 0.25s ease;
+}
+
+.movie-card:hover .card-quick-actions {
+  opacity: 1;
+}
+
+/* Banner / Carousel */
+.banner-wrapper {
+  max-height: 720px;
+  overflow: hidden;
+}
+
+.banner-img {
+  aspect-ratio: 16 / 6;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 4s ease;
+}
+
+.carousel-item.active .banner-img {
+  transform: scale(1.06);
+}
+
+.banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.45) 80%);
+}
+
+.banner-caption {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  right: 1rem;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transform: translateY(10px);
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.carousel-item.active .banner-caption {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.banner-caption h5 {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: rgba(0, 0, 0, 0.35);
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.banner-caption p {
+  background: rgba(0, 0, 0, 0.25);
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/*PROFILE PAGE*/
+.cinema-title {
+  color: #e71a0f;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+/*ADMIN DASHBOARD*/
+.ad-wrapper {
+  position: relative;
+}
+
+.ad-sidebar {
+  background: linear-gradient(180deg, #27c2a6 0%, #1aa3f1 100%);
+  border-radius: 18px;
+  color: #fff;
+  width: 260px;
+  min-height: calc(100vh - 180px);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 12px;
+}
+
+.ad-brand {
+  padding: 18px 18px 10px;
+  font-weight: 700;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ad-menu {
+  padding: 6px 10px 18px;
+}
+
+.ad-menu h6 {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin: 12px 10px 6px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.ad-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 4px 8px;
+  color: #eaf7ff;
+  text-decoration: none;
+  border-radius: 12px;
+}
+
+.ad-link:hover,
+.ad-link.active {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ad-main {
+  padding-left: 12px;
+}
+
+.ad-topbar {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ad-card {
+  border: 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.text-muted {
+  color: var(--muted) !important;
+}
+
+.action-list a {
+  text-decoration: none;
+}
+
+@media (max-width: 992px) {
+  .ad-sidebar {
+    width: 100%;
+    border-radius: 12px;
   }
-  .ad-brand{padding:18px 18px 10px; font-weight:700; display:flex; gap:10px; align-items:center}
-  .ad-menu{padding:6px 10px 18px}
-  .ad-menu h6{font-size:.75rem; opacity:.85; margin:12px 10px 6px; letter-spacing:.3px; text-transform:uppercase}
-  .ad-link{display:flex; align-items:center; gap:12px; padding:10px 12px; margin:4px 8px; color:#eaf7ff; text-decoration:none; border-radius:12px}
-  .ad-link:hover,.ad-link.active{background:rgba(255,255,255,.18)}
-  .ad-main{padding-left: 12px}
-  .ad-topbar{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
-    padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px }
-  .ad-card{border:0; border-radius:var(--radius); box-shadow:var(--shadow)}
-  .text-muted{color:var(--muted)!important}
-  .action-list a{ text-decoration:none }
-  @media (max-width: 992px){ .ad-sidebar{width:100%; border-radius:12px} .ad-main{padding-left:0} }
-  
+  .ad-main {
+    padding-left: 0;
+  }
+}
+
+/*FOOTER - DUMANMINH CINEMA*/
+.footer-dmm {
+  background: #fff;
+  color: #4a4a4a;
+  font-size: 14px;
+  border-top: 1px solid #ededed;
+}
+
+.footer-dmm__wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+/* Footer Titles */
+.footer-dmm__title {
+  margin: 0 0 12px;
+  color: #2f2f2f;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+
+/* Footer Lists */
+.footer-dmm__list,
+.footer-dmm__info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-dmm__list li,
+.footer-dmm__info li {
+  line-height: 1.9;
+}
+
+.footer-dmm__list a {
+  color: #4a4a4a;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  text-decoration-color: transparent;
+}
+
+.footer-dmm__list a:hover {
+  color: #111;
+  text-decoration: underline;
+  text-decoration-color: #cfcfcf;
+}
+
+/* Footer Social Buttons */
+.footer-dmm__socials {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+
+.social-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  color: #2f2f2f;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.social-btn.fb {
+  background: #3b5998;
+  border-color: #2f4a87;
+  color: #fff;
+}
+
+.social-btn.yt {
+  background: #ff0000;
+  border-color: #cf0000;
+  color: #fff;
+}
+
+.social-btn.ig {
+  background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  border-color: #d6249f;
+  color: #fff;
+}
+
+.social-btn.zalo {
+  background: #017fff;
+  border-color: #006ad6;
+  color: #fff;
+}
+
+.footer-dmm__badge img {
+  display: block;
+  width: 156px;
+  margin-top: 8px;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.02));
+}
+
+/* Footer Info Links */
+.footer-dmm__info li strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.footer-dmm__info a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.footer-dmm__info a:hover {
+  text-decoration: underline;
+}
+
+.footer-dmm a:focus-visible,
+.social-btn:focus-visible {
+  outline: 3px solid rgba(0, 115, 230, 0.25);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Responsive Footer */
+@media (max-width: 992px) {
+  .footer-dmm__wrap {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-dmm__wrap {
+    grid-template-columns: 1fr;
+  }
+  .footer-dmm__socials {
+    justify-content: flex-start;
+  }
+}
+
+/*PAGE: SELECT SHOWTIMES (ĐẶT VÉ) */
+.page-select-showtime body {
+  background: none !important;
+}
+
+.page-select-showtime .container {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+}
+
+.page-select-showtime .min-vh-75 {
+  min-height: 75vh;
+}
+
+/* Nút chọn ngày */
+.page-select-showtime .date-btn {
+  width: 85px;
+  text-align: center;
+  line-height: 1.3;
+  border-radius: 12px;
+  padding: 8px;
+  font-weight: 600;
+  border: none;
+  background-color: #f8f9fa;
+  transition: 0.25s;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-select-showtime .date-btn.active {
+  background-color: #0d6efd;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+}
+
+/* Nút chọn suất chiếu */
+.page-select-showtime .time-btn {
+  min-width: 70px;
+  font-weight: 500;
+  border: none;
+  background-color: #f8f9fa;
+  transition: 0.25s;
+  border-radius: 10px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.page-select-showtime .time-btn:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+/* Hiệu ứng hover cho thẻ rạp */
+.page-select-showtime .showtime-card {
+  transition: 0.3s;
+}
+
+.page-select-showtime .showtime-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Hiệu ứng fade khi đổi ngày */
+.page-select-showtime .fade-container {
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.page-select-showtime .fade-container.fade-out {
+  opacity: 0;
+}

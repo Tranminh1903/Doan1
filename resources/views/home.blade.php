@@ -37,9 +37,7 @@
       <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
         <a href="{{ $b['url'] }}" class="d-block position-relative" aria-label="{{ $b['title'] ?? 'Banner ' . ($i + 1) }}">
           <img class="w-100 banner-img" src="{{ $b['img'] }}" alt="{{ $b['title'] ?? 'Banner ' . ($i + 1) }}" loading="lazy">
-          {{-- overlay mờ trên ảnh --}}
           <span class="banner-overlay"></span>
-          {{-- caption trên ảnh --}}
           <div class="banner-caption">
             @if (!empty($b['title']))
               <h5 class="mb-1">{{ $b['title'] }}</h5>
@@ -106,14 +104,13 @@
           <div class="card-quick-actions px-3 pt-3">
             <div class="d-flex gap-2">
               @if ($movie->showtimes->isNotEmpty())
-                <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}"
-   class="btn btn-primary btn-sm flex-fill">Mua vé</a>
-
+                <a href="{{ route('select.showtime',['movieID' => $movie->movieID])}}"class="btn btn-primary btn-sm flex-fill">Mua vé</a>
               @else
                 <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
               @endif
+
               <a href="{{ route('movies.show', ['movieID' => $movie->movieID]) }}" class="btn btn-outline-secondary btn-sm flex-fill">Chi tiết</a>
-            </div>
+            </div> 
           </div>
 
           <div class="card-body">

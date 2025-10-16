@@ -10,6 +10,6 @@ class MovieController
     public function show($movieID)
     {
         $movie = Movie::with(['showtimes.theater'])->findOrFail($movieID);
-        return view('adminDashboard.moviesManagement.movie_detail', compact('movie'));
+        return view('movie_detail', compact('movie'));
     }
 }
