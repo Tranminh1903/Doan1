@@ -13,6 +13,8 @@ use App\Http\Controllers\UserController\MovieController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
+// Trang chủ và chi tiết phim — công khai
+    Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
 // Guest only (chưa đăng nhập)
 Route::middleware('guest')->group(function () {
 
@@ -31,9 +33,6 @@ Route::middleware('guest')->group(function () {
     //Reset Password
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
-
-    // Trang chủ và chi tiết phim — công khai
-    Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
 
 });
 
@@ -62,7 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/select-showtimes/{movieID}', [BookingController::class, 'selectShowtime'])->name('select.showtime');
     Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
     Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
-     //Booking
+    //Booking
     Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
     
     }); 
