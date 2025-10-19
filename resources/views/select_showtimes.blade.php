@@ -1,52 +1,180 @@
 @extends('layouts.app')
 @section('title', 'Chọn Suất Chiếu - DuManMinh Cinema')
-@section('content')
-<div class="container py-5">
-  <h3 class="text-center mb-5 fw-bold">🎬 Chọn Suất Chiếu</h3>
 
-  <div class="row justify-content-center align-items-center min-vh-75">
-    <div class="col-md-5 mb-4 d-flex justify-content-center">
-      <div class="card border-0 bg-transparent text-center w-100" style="max-width: 450px;">
-        <img src="{{ asset($movie->poster) }}" alt="{{ $movie->title }}"
-             class="rounded shadow-sm mb-3 w-100"
-             style="max-height: 420px; object-fit: cover;">
-        <h4 class="fw-bold mb-2">{{ $movie->title }}</h4>
-        <p class="mb-1 text-muted">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
-        <p class="text-muted small mb-0">{{ $movie->description ?? 'Không có mô tả' }}</p>
+@section('content')
+
+<style>
+body {
+  background-color: #0b0b0f;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Hero */
+.hero-section {
+  position: relative;
+  background: url('{{ asset($movie->poster ?? "images/default_poster.jpg") }}') center/cover no-repeat;
+  min-height: 90vh;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));
+}
+
+/* Hero content */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 3rem;
+  max-width: 600px;
+}
+
+.hero-content h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+
+.hero-content p {
+  color: #ccc;
+}
+
+.btn-custom {
+  background: #e50914;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.btn-custom:hover {
+  background: #f40612;
+  transform: scale(1.05);
+}
+
+/* Main layout */
+.main-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.left-content {
+  flex: 2;
+  min-width: 60%;
+}
+
+.right-sidebar {
+  flex: 1;
+  min-width: 280px;
+  background: #141414;
+  padding: 1.5rem;
+  border-radius: 20px;
+  height: fit-content;
+}
+
+/* Showtime section */
+.showtimes-container {
+  background-color: #141414;
+  padding: 2rem;
+  margin-top: -40px;
+  border-radius: 20px;
+}
+
+.date-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: all 0.3s;
+}
+
+.date-btn.active,
+.date-btn:hover {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+.showtime-card {
+  background: #1f1f1f;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 10px rgba(255,255,255,0.05);
+}
+
+.time-btn {
+  background: transparent;
+  border: 1px solid #888;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  transition: 0.3s;
+}
+
+.time-btn:hover {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+.fade-container {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+}
+</style>
+
+<div class="main-section container">
+  {{-- LEFT: Hero + showtimes --}}
+  <div class="left-content">
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1>{{ $movie->title }}</h1>
+        <p class="mb-1">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
+        <p class="mb-3">{{ $movie->description ?? 'Không có mô tả' }}</p>
+        <a href="#showtime-section" class="btn btn-custom">🎟 Đặt vé ngay</a>
       </div>
     </div>
-
-    <div class="col-md-6">
-      <div class="mb-4 text-center text-md-start">
-        <h5 class="fw-bold mb-3">📅 Chọn ngày chiếu</h5>
-        <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
-          @foreach ($availableDates as $d)
-            <button class="btn btn-outline-primary date-btn"
-                    data-date="{{ $d->format('Y-m-d') }}">
-              {{ $d->format('d/m') }}<br>
-              <small>{{ $d->format('D') }}</small>
-            </button>
-          @endforeach
-        </div>
+    
+    <div class="showtimes-container" id="showtime-section">
+      <hr>
+      <h3 class="fw-bold mb-3 text-start">📅 Chọn ngày chiếu</h3>
+      <div class="d-flex justify-content-start flex-wrap gap-2 mb-5">
+        @foreach ($availableDates as $d)
+          <button class="btn date-btn" data-date="{{ $d->format('Y-m-d') }}">
+            {{ $d->format('d/m') }}<br>
+            <small>{{ $d->translatedFormat('l') }}</small>
+          </button>
+        @endforeach
       </div>
 
       <div id="showtime-list" class="fade-container">
-        <h5 class="fw-bold mb-3">⏰ Chọn suất chiếu</h5>
+        <h4 class="fw-bold mb-3">⏰ Chọn suất chiếu</h4>
         @forelse ($groupedShowtimes as $theaterName => $showtimes)
-          <div class="card border-0 bg-transparent mb-3 showtime-card">
-            <div class="card-body p-2">
-              <h6 class="fw-bold mb-2">{{ $theaterName }}</h6>
-              <div class="d-flex flex-wrap gap-2">
-                @foreach ($showtimes as $showtime)
-                  @if ($showtime->startTime)
-                    <a href="{{ route('booking.time', ['showtimeID' => $showtime->showtimeID]) }}"
-                       class="btn btn-outline-dark btn-sm time-btn"
-                       data-date="{{ $showtime->startTime->format('Y-m-d') }}">
-                      {{ $showtime->startTime->format('H:i') }}
-                    </a>
-                  @endif
-                @endforeach
-              </div>
+          <div class="showtime-card">
+            <h6 class="fw-bold mb-2">{{ $theaterName }}</h6>
+            <div class="d-flex flex-wrap gap-2">
+              @foreach ($showtimes as $showtime)
+                @if ($showtime->startTime)
+                  <a href="{{ route('booking.time', ['showtimeID' => $showtime->showtimeID]) }}"
+                     class="btn time-btn"
+                     data-date="{{ $showtime->startTime->format('Y-m-d') }}">
+                    {{ $showtime->startTime->format('H:i') }}
+                  </a>
+                @endif
+              @endforeach
             </div>
           </div>
         @empty
@@ -56,6 +184,7 @@
     </div>
   </div>
 </div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const dateButtons = document.querySelectorAll('.date-btn');
