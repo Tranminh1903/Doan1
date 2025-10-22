@@ -63,7 +63,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
     //Booking
     Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
-    
+    // giữ ghế chỉ 1 người được chọn
+    Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
+    // Kiểm tra và giải phóng ghế hết hạn
+    Route::get('/check-expired-seats/{showtimeID}', [\App\Http\Controllers\UserController\BookingController::class, 'checkExpiredSeats']);
+
     }); 
 
 Route::middleware('auth','admin')->group(function() {

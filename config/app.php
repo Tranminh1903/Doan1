@@ -65,7 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Ho_Chi_Minh'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +123,42 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+        /*
+    |--------------------------------------------------------------------------
+    | Class Aliases
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. You may add as many as you wish as the aliases are
+    | "lazy" loaded so they don't hinder performance.
+    |
+    */
+
+    'aliases' => [
+        'App' => Illuminate\Support\Facades\App::class,
+        'Arr' => Illuminate\Support\Arr::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'Blade' => Illuminate\Support\Facades\Blade::class,
+        'Cache' => Illuminate\Support\Facades\Cache::class,
+        'Config' => Illuminate\Support\Facades\Config::class,
+        'DB' => Illuminate\Support\Facades\DB::class,
+        'Eloquent' => Illuminate\Database\Eloquent\Model::class,
+        'Event' => Illuminate\Support\Facades\Event::class,
+        'File' => Illuminate\Support\Facades\File::class,
+        'Hash' => Illuminate\Support\Facades\Hash::class,
+        'Http' => Illuminate\Support\Facades\Http::class,
+        'Log' => Illuminate\Support\Facades\Log::class,
+        'Queue' => Illuminate\Support\Facades\Queue::class,
+        'Redis' => Illuminate\Support\Facades\Redis::class, 
+        'Request' => Illuminate\Support\Facades\Request::class,
+        'Response' => Illuminate\Support\Facades\Response::class,
+        'Route' => Illuminate\Support\Facades\Route::class,
+        'Schema' => Illuminate\Support\Facades\Schema::class,
+        'Storage' => Illuminate\Support\Facades\Storage::class,
+        'Str' => Illuminate\Support\Str::class,
+        'Validator' => Illuminate\Support\Facades\Validator::class,
+        'View' => Illuminate\Support\Facades\View::class,
+    ],
+
 
 ];
