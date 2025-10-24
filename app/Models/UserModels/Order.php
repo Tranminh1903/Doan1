@@ -6,11 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'customer_user_id',
-        'order_code',
-        'seats',
-        'status',
-        'amount',
-        'paid_at',
-    ];
+    'showtimeID',
+    'order_code',
+    'seats',
+    'status',
+    'username',
+    'amount',
+];
+public function showtime()
+{
+    return $this->belongsTo(\App\Models\ProductModels\Showtime::class, 'showtimeID', 'showtimeID');
+}
+
+
 }

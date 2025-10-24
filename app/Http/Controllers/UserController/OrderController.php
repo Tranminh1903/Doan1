@@ -5,12 +5,17 @@ namespace App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController\Controller;
-
+use Illuminate\Support\Str;
+use App\Models\ProductModels\Ticket;
 use App\Models\UserModels\Order;
 use App\Models\UserModels\Customer;
 use App\Models\ProductModels\SeatHold;
 use App\Events\SeatStatusChanged;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketPaidMail;
+use App\Models\ProductModels\Showtime;
+use App\Models\ProductModels\MovieTheater;
 
 class OrderController extends Controller
 {
@@ -25,14 +30,20 @@ class OrderController extends Controller
                     'error' => 'Thiếu showtimeID trong request'
                 ], 422);
             }
+            $user = auth()->user();
+
 
             //  Tạo đơn hàng
-            $order = Order::create([
-                'order_code' => strtoupper(uniqid('MB')),
-                'seats'      => json_encode($request->seats),
-                'amount'     => $request->amount,
-                'status'     => 'pending',
-            ]);
+           $order = Order::create([
+            'showtimeID' => $request->showtimeID, 
+            'order_code' => strtoupper(uniqid('MB')),
+            'username'   => $user->username ?? $user->name ?? 'unknown',
+            'seats'      => json_encode($request->seats),
+            'amount'     => $request->amount,
+            'status'     => 'pending',
+           ]);
+
+
 
             $userId = auth()->id();
             $customer = Customer::firstOrCreate(
@@ -175,7 +186,7 @@ if ($seatHold) {
 
             foreach ($orders as $order) {
                 if (str_contains($note, $order->order_code)) {
-                    $order->update(['status' => 'paid', 'paid_at' => now()]);
+                    
 
                     $seats = json_decode($order->seats, true);
                     if (is_array($seats)) {
@@ -186,6 +197,16 @@ if ($seatHold) {
                                     'status'     => 'unavailable',
                                     'expires_at' => null
                                 ]);
+                                Ticket::create([
+                                'price'       => $order->amount / count($seats), 
+                                'status'      => 'issued',
+                                'qr_token'    => (string) Str::uuid(),
+                                'qr_code'     => null, 
+                                'issueAt'     => now(),
+                                'refund_reason' => null,
+                                'showtimeID'  => $order->showtimeID,
+                                'seatID'      => $seatId,
+        ]);
                         }
 
                         // Phát event realtime chuẩn
@@ -198,7 +219,27 @@ if ($seatHold) {
                         $seats,
                         'unavailable'
                 ));
+                $showtime = \App\Models\ProductModels\Showtime::with('movie')->find($order->showtimeID ?? null);
+                $cinema = $showtime ? \App\Models\ProductModels\MovieTheater::find($showtime->theaterID ?? null) : null;
+
+if ($showtime && $cinema) {
+    try {
+        Mail::to(auth()->user()->email)->send(new TicketPaidMail($order, $showtime, $cinema));
+        \Log::info("Đã gửi mail vé cho đơn {$order->order_code}");
+    } catch (\Exception $mailError) {
+        \Log::error(" Gửi mail lỗi: " . $mailError->getMessage());
+    }
+} else {
+    \Log::warning(" Không gửi mail được vì showtime hoặc cinema null", [
+        'order_code' => $order->order_code,
+        'showtime' => $showtime,
+        'cinema' => $cinema,
+    ]);
 }
+
+
+}
+
 
 
                     }

@@ -3,22 +3,21 @@
 @section('title', 'Đặt Vé CGV')
 
 @push('head')
-    <!-- ✅ Load Tailwind trước -->
+
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- ✅ Config Tailwind sau khi load -->
     <script>
         tailwind.config = {
-            prefix: 'tw-',                       // Thêm tiền tố để không đụng bootstrap
-            corePlugins: { preflight: false },   // Tắt reset mặc định
-            important: '#payment-root'           // Giới hạn phạm vi
+            prefix: 'tw-',                       
+            corePlugins: { preflight: false },   
+            important: '#payment-root'           
         }
     </script>
 @endpush
 
 @section('content')
 <div class="container py-4">
-  <h3 class="text-center mb-4">🎬 Đặt Vé CGV</h3>
+  <h3 class="text-center mb-4">Đặt Vé CGV</h3>
 
   {{-- Legend --}}
   <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 mb-4">
@@ -161,16 +160,16 @@ document.addEventListener("DOMContentLoaded", () => {
         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
       },
       body: JSON.stringify({
-        showtimeID,
-        seats: seatIds,
-        amount: totalAmount
+      showtimeID: {{ $showtime->showtimeID ?? 8 }},
+      seats: selectedSeats.map(s => s.dataset.seatId),
+      amount: totalAmount
       })
     })
     .then(res => res.json())
     .then(data => {
       if (!data.order_code) throw new Error('Không có order_code');
 
-      console.log("🧾 Order created:", data.order_code);
+      console.log(" Order created:", data.order_code);
       selectedSeats.forEach(s => {
         s.classList.remove('selected');
         s.classList.add('held');
@@ -193,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('overlay').style.display = 'flex';
     document.getElementById('total-amount').textContent = amount.toLocaleString('vi-VN');
 
-    let timeLeft = 30;
+    let timeLeft = 300;
     const countdown = document.getElementById('countdown');
     const button = document.querySelector('button[onclick="confirmSeats()"]');
 
@@ -218,10 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         })
         .then(res => res.json())
-        .then(data => console.log("⏰ Expired:", data));
+        .then(data => console.log(" Expired:", data));
 
         closeQR();
-        alert("❌ QR hết hạn, vui lòng thử lại!");
+        alert(" QR hết hạn, vui lòng thử lại!");
       }
     }, 1000);
   };
