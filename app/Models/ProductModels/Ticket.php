@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models\ProductModels;
-
+use App\Models\UserModels\Order;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model

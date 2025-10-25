@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\OrderController;
 use App\Http\Controllers\UserController\BookingController;
 use App\Http\Controllers\UserController\MovieController;
-
+use App\Http\Controllers\UserController\TicketController;
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
 // Trang chủ và chi tiết phim — công khai
@@ -67,6 +67,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
     // Kiểm tra và giải phóng ghế hết hạn
     Route::get('/check-expired-seats/{showtimeID}', [\App\Http\Controllers\UserController\BookingController::class, 'checkExpiredSeats']);
+    // Lịch sử vé đã mua    
+
+    Route::get('/tickets/history', [TicketController::class, 'index'])
+     ->name('tickets.history')
+     ->middleware('auth');
+
 
     }); 
 

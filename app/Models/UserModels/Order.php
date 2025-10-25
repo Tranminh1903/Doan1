@@ -18,6 +18,10 @@ class Order extends Model
     {
         return $this->belongsTo(\App\Models\ProductModels\Showtime::class, 'showtimeID', 'showtimeID');
     }
+    public function tickets()
+    {
+    return $this->hasMany(\App\Models\ProductModels\Ticket::class, 'showtimeID', 'showtimeID');
+    }
 
 
 }

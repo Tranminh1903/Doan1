@@ -100,7 +100,6 @@
       <h4 class="footer-dmm__title d-flex align-items-center gap-2">
         <img
           src="{{ asset('storage/pictures/logo-dmm.png') }}"
-          srcset="{{ asset('storage/pictures/logo-dmm@2x.jpg') }} 2x"
           alt="DMM CINEMA"
           class="footer-dmm__logo"
         >
