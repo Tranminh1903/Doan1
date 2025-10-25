@@ -37,19 +37,21 @@
       </div>
     </aside>
 
-    {{-- Main --}}
     <section class="col-md-9">
       <div class="card shadow-sm rounded-3">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-secondary text-white">
           <h5 class="mb-0">Hồ sơ khách hàng</h5>
         </div>
         <div class="card-body">
-          {{-- NỘI DUNG TAB --}}
           <div class="tab-content" id="profile-tabContent">
-            {{-- TAB: THÔNG TIN CHUNG --}}
             <div class="tab-pane fade show active" id="tab-general" role="tabpanel" aria-labelledby="link-general">
               <div class="row mb-3">
                 <div class="col-md-3 text-center">
+                  @if (auth()->user()->isAdmin())
+                    <div class="d-flex justify-content-center">
+                        <a class="btn btn-outline-primary m-1" href="{{ route('admin.form') }}">Admin Dashboard</a>
+                    </div>
+                  @endif
                   <img src="{{ asset('storage/pictures/dogavatar.jpg') }}"
                        class="rounded-circle shadow-sm"
                        style="width:100px;height:100px;object-fit:cover" alt="avatar">
@@ -79,23 +81,12 @@
                   <p class="mb-1"><i class="bi bi-telephone me-2"></i>Ngày sinh: {{ $customer->user->birthday }}</p>
                   <p><strong>Ngày tạo tài khoản:</strong> {{ $customer->user->created_at->format('d/m/Y') }}</p>
                 </div>
-                <div class="col-md-6">
-                  <p><strong>Trạng thái:</strong>
-                    @if($customer->user->email_verified_at)
-                      <span class="text-success">Đã xác minh</span>
-                    @else
-                      <span class="text-danger">Chưa xác minh</span>
-                    @endif
-                  </p>
-                </div>
               </div>
             </div>
 
-            {{-- TAB: CHI TIẾT TÀI KHOẢN --}}
             <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="link-account">
                 <form method="POST" action="{{ route('profile.update') }}" class="row g-3">
                   @csrf
-                  {{-- CHỈNH SỬA USERNAME & NUMBERPHONE --}}
                   <div class="col-md-6">
                     <label class="form-label">Tên</span></label>
                     <input type="text" name="customer_name"

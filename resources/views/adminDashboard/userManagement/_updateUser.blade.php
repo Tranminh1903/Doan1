@@ -29,9 +29,9 @@
             <i class="bi bi-people"></i> Người dùng
           </a>
 
-          <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}"
+          <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}" 
              href="{{ route('moviesManagement_main.form') }}">
-            <i class="bi bi-film"></i> Phim
+            <i class="bi bi-camera-reels"></i> Chuyển sang quản lý phim
           </a>
 
           <a class="ad-link {{ request()->routeIs('showtimes.*') ? 'active' : '' }}" href="#">

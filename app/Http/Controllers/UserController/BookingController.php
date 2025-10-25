@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\UserController;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\UserController\Controller;
-use App\Models\ProductModels\Seat;
-use App\Models\ProductModels\Showtime;
-use App\Models\ProductModels\Movie;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ProductModels\Seat;
+use Illuminate\Support\Facades\DB;
+use App\Models\ProductModels\Movie;
 use Illuminate\Support\Facades\Redis;
+use App\Models\ProductModels\Showtime;
+use App\Http\Controllers\UserController\Controller;
 
 class BookingController extends Controller
 {

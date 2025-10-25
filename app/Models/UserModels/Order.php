@@ -12,11 +12,12 @@ class Order extends Model
     'status',
     'username',
     'amount',
-];
-public function showtime()
-{
-    return $this->belongsTo(\App\Models\ProductModels\Showtime::class, 'showtimeID', 'showtimeID');
-}
+    ];
+    
+    public function showtime()
+    {
+        return $this->belongsTo(\App\Models\ProductModels\Showtime::class, 'showtimeID', 'showtimeID');
+    }
 
 
 }

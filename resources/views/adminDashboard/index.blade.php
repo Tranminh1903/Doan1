@@ -22,7 +22,8 @@
               </a>
               <a class="ad-link {{ request()->routeIs('moviesManagement_main.form') ? 'active' : '' }}" 
                 href="{{ route('moviesManagement_main.form') }}">
-                <i class="bi bi-camera-reels"></i> Phim</a>
+                <i class="bi bi-camera-reels"></i> Chuyển sang quản lý phim
+              </a>
                 <a class="ad-link" href="#"><i class="bi bi-film"></i> Suất chiếu</a>
                 <a class="ad-link" href="#"><i class="bi bi-ticket-perforated"></i> Khuyến mãi</a>
         </div>

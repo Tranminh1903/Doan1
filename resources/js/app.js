@@ -14,7 +14,6 @@ window.Echo = new Echo({
     enabledTransports: ['ws', 'wss'],
 });
 
-// ===== DEBUG LOGS =====
 window.Echo.connector.pusher.connection.bind('connected', () => {
     console.log('✅ Reverb connected!');
 });
@@ -22,7 +21,6 @@ window.Echo.connector.pusher.connection.bind('error', (err) => {
     console.error('❌ Reverb error:', err);
 });
 
-// ===== CẬP NHẬT MÀU GHẾ =====
 window.updateSeatColor = function (seatIDs, status) {
     if (!Array.isArray(seatIDs)) seatIDs = [seatIDs];
 
@@ -42,7 +40,6 @@ window.updateSeatColor = function (seatIDs, status) {
     });
 };
 
-// ===== KHỞI TẠO LẮNG NGHE REALTIME =====
 window.initSeatRealtime = function (showtimeID) {
     console.log(`🎧 Listening to channel: showtime.${showtimeID}`);
 

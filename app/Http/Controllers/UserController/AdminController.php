@@ -1,16 +1,23 @@
 <?php
+
 namespace App\Http\Controllers\UserController;
 
-use App\Models\UserModels\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+
+use id;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Models\UserModels\User;
+use App\Models\ProductModels\Movie;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;   
+use App\Http\Controllers\UserController\Controller;
 
 class AdminController extends Controller
 {
-    // Admin Management - User Management
     public function showAdminDashboard(): View
     {
         return view('adminDashboard.index');
@@ -23,36 +30,29 @@ class AdminController extends Controller
 
     public function showUpdateUser(Request $request): View
     {
-    $query = User::query();
+        $query = User::query();
 
-    // Tìm kiếm theo từ khóa (username hoặc email)
-    if ($request->filled('q')) {
-        $query->where(function($q) use ($request) {
-            $q->where('username', 'like', '%' . $request->q . '%')
-              ->orWhere('email', 'like', '%' . $request->q . '%');
-        });
-    }
-    // Lọc theo role
-    if ($request->filled('role')) {
-        $query->where('role', $request->role);
-    }
-    // Lọc theo status
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-    // Sắp xếp mới nhất + phân trang
-    $users = $query->latest()->paginate(10)->withQueryString();
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($x) use ($q) {
+                $x->where('username', 'like', "%{$q}%")
+                  ->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+        if ($request->filled('role'))   $query->where('role',   $request->role);
+        if ($request->filled('status')) $query->where('status', $request->status);
 
-    return view('adminDashboard.userManagement._updateUser', compact('users'));
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        return view('adminDashboard.userManagement._updateUser', compact('users'));
     }
-    
+
     public function showCreateUser(Request $request): View
     {
         return view('adminDashboard.userManagement._createUser');
     }
 
-    // Button
-    public function createUser(Request $request)
+    public function createUser(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'username' => 'required|string|max:20|unique:users,username',
@@ -63,27 +63,33 @@ class AdminController extends Controller
             'username.unique' => 'Tên đăng nhập đã tồn tại.',
             'email.unique'    => 'Email này đã được sử dụng.',
         ]);
-            $day   = $request->input('day');
-            $month = $request->input('month');
-            $year  = $request->input('year');
-            $birthday = sprintf('%04d-%02d-%02d', $year, $month, $day); 
+
+        $birthday = null;
+        if ($request->filled(['day','month','year'])) {
+            $birthday = sprintf('%04d-%02d-%02d', $request->year, $request->month, $request->day);
+        }
 
         User::create([
             'username'  => $data['username'],
             'email'     => $data['email'],
             'password'  => Hash::make($data['password']),
-            'role'      => $data['role'], 
+            'role'      => $data['role'],
             'birthday'  => $birthday,
-        ]); 
-        return redirect()->route('userManagement_updateUser.form')->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
+        ]);
+
+        return redirect()->route('userManagement_updateUser.form')
+            ->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
     }
 
-    public function checkOldAvata($user) {
-        if ($user->avatar && file_exists(public_path($user->avatar))) {
-            unlink(public_path($user->avatar));
+    protected function removeOldAvatarIfAny(User $user): void
+    {
+        if ($user->avatar) {
+            $path = str_replace('storage/', '', $user->avatar);
+            Storage::disk('public')->delete($path);
         }
     }
-    public function update(Request $request, User $user)
+
+    public function update(Request $request, User $user): RedirectResponse
     {
         $data = $request->validate([
             'username' => 'required|string|max:100|unique:users,username,' . $user->id,
@@ -91,28 +97,33 @@ class AdminController extends Controller
             'role'     => 'required|in:admin,customers',
             'status'   => 'required|in:active,blocked',
             'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'remove_avatar' => 'sometimes|boolean',
         ]);
 
-        $this -> checkOldAvata($user);
+        if ($request->boolean('remove_avatar')) {
+            $this->removeOldAvatarIfAny($user);
+            $data['avatar'] = null;
+        }
 
         if ($request->hasFile('avatar')) {
+            $this->removeOldAvatarIfAny($user);
             $path = $request->file('avatar')->store('avatars', 'public');
             $data['avatar'] = 'storage/' . $path;
-        } else if ($request->input('avatar') === null) {
-            $user->avatar = null;
         }
+
         $user->update($data);
+
         return back()->with('UpdateProfileSuccess', 'Cập nhật người dùng thành công!');
     }
 
     public function delete(User $user): RedirectResponse
     {
-        // Không cho tự xóa mình
         if (auth()->id() === $user->id) {
             return back()->with('error', 'Bạn không thể tự xóa tài khoản của mình.');
         }
-        
+
         try {
+            $this->removeOldAvatarIfAny($user);
             $user->forceDelete();
             return back()->with('success', 'Đã xóa người dùng.');
         } catch (\Throwable $e) {
@@ -120,18 +131,183 @@ class AdminController extends Controller
         }
     }
 
+    public function showMain(Request $request): View
+    {
+        $q = (string) $request->query('q', '');
+        $movies = Movie::when($q, function ($qr) use ($q) {
+                $qr->where('title','like',"%$q%")
+                   ->orWhere('genre','like',"%$q%")
+                   ->orWhere('rating','like',"%$q%");
+            })
+            ->latest('movieID')
+            ->paginate(12)
+            ->withQueryString();
 
-    // Admin Dashboard - Movies Management
-    public function showCreateMovies (Request $request) : View {
-        return view('adminDashboard.moviesManagement._createUser');
+        return view('adminDashboard.moviesManagement.main', compact('movies','q'));
     }
 
-    public function showUpdateMovies (Request $request) : View {
-        return view('adminDashboard.moviesManagement._updateUser');
+    public function movieStore(Request $req): RedirectResponse
+    {
+        $data = $req->validate([
+            'title'        => 'required|string|max:255',
+            'poster'       => 'nullable|string|max:2000',
+            'durationMin'  => 'required|integer|min:0|max:65535',
+            'genre'        => 'nullable|string|max:255',
+            'rating'       => 'nullable|string|max:50',
+            'releaseDate'  => 'nullable|date',
+            'description'  => 'nullable|string',
+            'status'       => 'nullable|in:active,unable',
+        ]);
+
+        if (empty($data['status'])) {
+            $data['status'] = 'active';
+        }
+
+        Movie::create($data);
+        return back()->with('status','Đã thêm phim.');
     }
-    
-    public function showMain (Request $request) : View {
-        return view('adminDashboard.moviesManagement.main');
+
+    public function movieUpdate(Request $req, Movie $movie): RedirectResponse
+    {
+        $data = $req->validate([
+            'title'        => 'required|string|max:255',
+            'poster'       => 'nullable|string|max:2000',
+            'durationMin'  => 'required|integer|min:0|max:65535',
+            'genre'        => 'nullable|string|max:255',
+            'rating'       => 'nullable|string|max:50',
+            'releaseDate'  => 'nullable|date',
+            'description'  => 'nullable|string',
+            'status'       => 'required|in:active,unable',
+        ]);
+
+        $movie->update($data);
+        return back()->with('status','Đã cập nhật.');
     }
-    
+
+    public function movieDestroy(Movie $movie): RedirectResponse
+    {
+        $movie->delete();
+        return back()->with('status','Đã xoá phim.');
+    }
+    ////////////////////////// CSV //////////////////////////
+    public function movieTemplateCsv()
+    {
+        $header = ['movieID','title','poster','durationMin','genre','rating','releaseDate','description','status'];
+        return response()->streamDownload(function () use ($header) {
+            $out = fopen('php://output','w');
+            fputcsv($out,$header);
+            fputcsv($out, ['', 'MAI', 'https://.../mai.jpg', 120, 'Drama', 'T13', '2024-02-10', 'Mô tả...', 'active']);
+            fclose($out);
+        }, 'movies_template.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    public function movieExportCsv(Request $request)
+    {
+        $q = (string) $request->query('q','');
+        $rows = Movie::when($q, function ($qr) use ($q) {
+                $qr->where('title','like',"%$q%")
+                ->orWhere('genre','like',"%$q%")
+                ->orWhere('rating','like',"%$q%");
+            })->orderBy('movieID')->get();
+
+        $header = ['movieID','title','poster','durationMin','genre','rating','releaseDate','description','status'];
+
+        return response()->streamDownload(function () use ($rows,$header) {
+            $out = fopen('php://output','w');
+            fputcsv($out,$header);
+            foreach ($rows as $m) {
+                fputcsv($out, [
+                    $m->movieID, $m->title, $m->poster, $m->durationMin,
+                    $m->genre, $m->rating, $m->releaseDate, $m->description, $m->status,
+                ]);
+            }
+            fclose($out);
+        }, 'movies.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    const MOVIE_STATUSES = ['active', 'unable'];
+    public function movieImportCsv(Request $req): RedirectResponse
+    {
+        $req->validate([
+            'file' => 'required|file|mimes:csv,txt|max:4096',
+        ]);
+
+        $fp = fopen($req->file('file')->getRealPath(), 'r');
+        if (!$fp) return back()->with('error','Không mở được file CSV.');
+
+        $header = fgetcsv($fp) ?: [];
+        $map = array_change_key_case(array_flip($header), CASE_LOWER);
+
+        foreach (['title','durationmin'] as $need) {
+            if (!array_key_exists($need, $map)) {
+                fclose($fp);
+                return back()->with('error', "Thiếu cột: $need");
+            }
+        }
+
+        $created=0; $updated=0;
+        $get = fn($row,$key,$def=null)=> $row[$map[$key]] ?? $def;
+
+        while (($row = fgetcsv($fp)) !== false) {
+            if (count(array_filter($row))===0) continue;
+
+            $status = strtolower((string) $get($row,'status','active'));
+            if (!in_array($status, self::MOVIE_STATUSES, true)) {
+                $status = 'active';
+            }
+
+            $payload = [
+                'title'        => $get($row,'title',''),
+                'poster'       => $get($row,'poster'),
+                'durationMin'  => (int) $get($row,'durationmin',0),
+                'genre'        => $get($row,'genre'),
+                'rating'       => $get($row,'rating'),
+                'releaseDate'  => $get($row,'releasedate'),
+                'description'  => $get($row,'description'),
+                'status'       => $status,
+            ];
+
+            $id = $get($row,'movieid');
+            if ($id && ($movie = Movie::find($id))) {
+                $movie->update($payload);
+                $updated++;
+            } else {
+                Movie::create($payload);
+                $created++;
+            }
+        }
+        fclose($fp);
+
+        return back()->with('status', "Import xong: thêm $created, cập nhật $updated.");
+    }
+
+
+    ////////////////////////// Set Banner //////////////////////////
+    public function setBanner(Movie $movie)
+    {
+        if (!$movie->is_banner) {
+            $movie->update(['is_banner' => true]);
+        }
+        return back()->with('success', "Đã đặt '{$movie->title}' làm banner.");
+    }
+
+    public function unsetBanner(Movie $movie)
+    {
+        if ($movie->is_banner) {
+            $movie->update(['is_banner' => false]);
+        }
+        return back()->with('success', "Đã bỏ banner cho '{$movie->title}'.");
+    }
+
+    ////////////////////////// Nut Upload poster //////////////////////////
+    public function uploadPoster(Request $request)
+    {
+        $request->validate([
+            'file' => ['required','image','max:2048'],
+        ]);
+        $path = $request->file('file')->store('pictures', 'public');
+        return response()->json(['path' => 'storage/'.$path]);
+    }
+
+    ////////////////////////// Movie Theater //////////////////////////
 }

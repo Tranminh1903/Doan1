@@ -18,54 +18,76 @@
 
 {{-- Giao diện khi chưa đăng nhập --}}
 @guest
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="{{ url('/') }}">🎬 DuManMinh Cinema</a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
-    <div id="nav" class="collapse navbar-collapse">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
-      </ul>
+    <a class="navbar-brand" href="{{ url('/') }}">
+      <img src="{{ asset('storage/pictures/logo-dmm.png') }}" alt="DMM Logo" class="navbar-logo">
+    </a>
+
+    <div class="dmm-search flex-grow-1 ms-3">
+      <div class="input-group">
       @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
-        <div class="d-flex gap-2">
-          <a class="btn btn-outline-primary" href="{{ route('login.form') }}">Đăng nhập</a>
-          <a class="btn btn-outline-primary" href="{{ route('register.form') }}">Đăng ký</a>
-        </div>
+        <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+      @endif
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
+        <a class="btn btn-outline-primary" href="{{ route('login.form') }}">Đăng nhập</a>
+        <a class="btn btn-outline-primary" href="{{ route('register.form') }}">Đăng ký</a>
       @endif
     </div>
   </div>
 </nav>
+
+@if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
+  <section class="sub-header py-4">
+    <div class="container">
+        <a href="" class="text-white">Trang chủ</a>
+        <a href="" class="text-white">Giới thiệu</a>
+        <a href="" class="text-white">Khuyến mãi</a>
+    </div>
+  </section>     
+@endif
 @endguest
 
 {{-- Giao diện khi đăng nhập thành công --}}
 @auth
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="{{ url('/') }}">🎬 DuManMinh Cinema</a>
-    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
-    <div id="nav" class="collapse navbar-collapse">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ url('/#phimdangchieu') }}">Phim đang chiếu</a></li>
-      </ul>
-      <div class="d-flex align-items-center gap-2">
-          <p class="mb-0">Xin chào, <b>{{ auth()->user()->username }}</b></p>
-        @if (auth()->user()->isAdmin())
-            <div class="d-flex gap-2">
-              <a class="btn btn-outline-primary" href="{{ route('admin.form') }}">Admin Dashboard</a>
-            </div>
-        @else
-            <div class="d-flex gap-2">
-              <a class="btn btn-outline-primary" href="{{ route('profile') }}">Xem hồ sơ</a>
-            </div>
-        @endif
-        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
-        </form>
+      <a class="navbar-brand" href="{{ url('/') }}">
+        <img src="{{ asset('storage/pictures/logo-dmm.png') }}" alt="DMM Logo" class="navbar-logo">
+      </a>
+
+      <div class="dmm-search flex-grow-1 ms-3">
+        <div class="input-group">
+          <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+        </div>
       </div>
-    </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <p class="mb-0">Xin chào, <b>{{ auth()->user()->username }}</b></p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-primary" href="{{ route('profile') }}">Xem hồ sơ</a>
+            </div>
+          <form action="{{ route('logout') }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-outline-danger">Đăng xuất</button>
+          </form>
+      </div>
   </div>
 </nav>
+
+  @if (((!request()->routeIs('login.form') && !request()->routeIs('register.form')) && !request()->routeIs('moviesManagement_main.form')))
+    <section class="sub-header py-4">
+      <div class="container">
+          <a href="" class="text-white">Trang chủ</a>
+          <a href="" class="text-white">Giới thiệu</a>
+          <a href="" class="text-white">Khuyến mãi</a>
+      </div>
+    </section>     
+  @endif
 @endauth
 
 <main class="container my-4">
@@ -74,28 +96,39 @@
 
 <footer class="footer-dmm" role="contentinfo">
   <div class="footer-dmm__wrap">
-
     <div class="footer-dmm__col">
-      <h4 class="footer-dmm__title">DuManMinh Cinema</h4>
-      <ul class="footer-dmm__list">
-        <li><a href="/about">Giới Thiệu</a></li>
-        <li><a href="/online">Tiện Ích Online</a></li>
-        <li><a href="/gift-card">Thẻ Quà Tặng</a></li>
-        <li><a href="/jobs">Tuyển Dụng</a></li>
-        <li><a href="/ads">Liên Hệ Quảng Cáo</a></li>
-        <li><a href="/partners">Dành cho đối tác</a></li>
-      </ul>
+      <h4 class="footer-dmm__title d-flex align-items-center gap-2">
+        <img
+          src="{{ asset('storage/pictures/logo-dmm.png') }}"
+          srcset="{{ asset('storage/pictures/logo-dmm@2x.jpg') }} 2x"
+          alt="DMM CINEMA"
+          class="footer-dmm__logo"
+        >
+      </h4>
+      <p class="text-muted small mb-2">
+        DMM CINEMA là hệ thống rạp chiếu phim được thành lập bởi ba thành viên cốt lõi — những người có chung niềm đam mê với nghệ thuật điện ảnh và công nghệ giải trí hiện đại.
+        Chúng tôi mang đến trải nghiệm xem phim chân thực, tiện nghi và đầy cảm xúc.
+      </p>
     </div>
 
 
     <div class="footer-dmm__col">
-      <h4 class="footer-dmm__title">Điều khoản sử dụng</h4>
+      <h4 class="footer-dmm__title">Giới thiệu chung</h4>
       <ul class="footer-dmm__list">
+        <li><a href="/about">Giới thiệu</a></li>
         <li><a href="/terms">Điều Khoản Chung</a></li>
         <li><a href="/trade-terms">Điều Khoản Giao Dịch</a></li>
         <li><a href="/payment-policy">Chính Sách Thanh Toán</a></li>
-        <li><a href="/privacy">Chính Sách Bảo Mật</a></li>
-        <li><a href="/faq">Câu Hỏi Thường Gặp</a></li>
+        <li><a href="/privacy">Khuyến mãi</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-dmm_col">
+      <h4 class="footer-dmm__title">Chăm sóc khách hàng</h4>
+      <ul class="footer-dmm__info">
+        <li>Hotline: <strong>0978140521</strong></li>
+        <li>Giờ làm việc: <strong>8:00 - 22:00</strong> (Tất cả các ngày, gồm Lễ Tết)</li>
+        <li>Email hỗ trợ: <a href="mailto:hotro@dumanminh.vn">hotro@dumanminh.vn</a></li>
       </ul>
     </div>
 
@@ -115,15 +148,6 @@
           <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H8.5l-3.3 1.7a.8.8 0 01-1.2-.7V4a1 1 0 011-1zm4 4v2h5.6L8 16v2h8v-2H10.4L16 9V7H8z"/></svg>
         </a>
       </div>
-    </div>
-
-    <div class="footer-dmm_col">
-      <h4 class="footer-dmm__title">Chăm sóc khách hàng</h4>
-      <ul class="footer-dmm__info">
-        <li>Hotline: <strong>0978140521</strong></li>
-        <li>Giờ làm việc: <strong>8:00 - 22:00</strong> (Tất cả các ngày, gồm Lễ Tết)</li>
-        <li>Email hỗ trợ: <a href="mailto:hotro@dumanminh.vn">hotro@dumanminh.vn</a></li>
-      </ul>
     </div>
   </div>
 </footer>

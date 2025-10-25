@@ -2,11 +2,12 @@
 
 namespace App\Models\ProductModels;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\ProductModels\Movie;
-use App\Models\ProductModels\SeatHold;
+use App\Models\UserModels\Order;
 use App\Models\ProductModels\Seat;
+use App\Models\ProductModels\Movie;
 use App\Models\ProductModels\Ticket;
+use App\Models\ProductModels\SeatHold;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductModels\MovieTheater;
 
 class Showtime extends Model
@@ -29,6 +30,12 @@ class Showtime extends Model
         'endTime',
         'price', // cột trong DB là price chứ không phải basePrice
     ];
+
+    public function orders()
+    {
+        // FK tại bảng orders: showtimeID => PK bảng showtimes: showtimeID
+        return $this->hasMany(Order::class, 'showtimeID', 'showtimeID');
+    }
 
     // Quan hệ: phim
     public function movie()

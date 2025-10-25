@@ -83,7 +83,19 @@ Route::middleware('auth','admin')->group(function() {
     Route::delete('/admin/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
 
     //Admin Dashboard - Manage Movies
-    Route::get('/adminDashboard/moviesManagement/_createMovies',[AdminController::class, 'showCreateMovies'])->name('moviesManagement_createMovies.form');
-    Route::get('/adminDashboard/moviesManagement/_updateMovies',[AdminController::class,'showUpdateMovies'])->name('moviesManagement_updateMovies.form');
     Route::get('/adminDashboard/moviesManagement/main',[AdminController::class,'showMain'])->name('moviesManagement_main.form');
+
+    Route::post('/admin/movies', [AdminController::class, 'movieStore'])->name('moviesManage.store');
+    Route::put('/admin/movies/{movie}', [AdminController::class, 'movieUpdate'])->name('moviesManage.update');
+    Route::delete('/admin/movies/{movie}', [AdminController::class, 'movieDestroy'])->name('moviesManage.delete');
+    Route::post('/admin/movies/upload-poster', [MovieController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
+
+    // CSV
+    Route::get('/admin/movies/export/csv',  [AdminController::class,'movieExportCsv'])->name('moviesManage.export_csv');
+    Route::get('/admin/movies/template/csv',[AdminController::class,'movieTemplateCsv'])->name('moviesManage.template_csv');
+    Route::post('/admin/movies/import/csv', [AdminController::class,'movieImportCsv'])->name('moviesManage.export_csv');
+
+    //Set Banner
+    Route::post('admin/movies/{movie}/banner',  [AdminController::class, 'setBanner'])->name('moviesManage.banner_set');
+    Route::delete('admin/movies/{movie}/banner', [AdminController::class, 'unsetBanner'])->name('moviesManage.banner_unset');
 });

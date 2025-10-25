@@ -30,7 +30,7 @@ a {
 
 a:hover,
 a:focus {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /*HOME PAGE / MOVIE LISTING*/
@@ -102,14 +102,21 @@ a:focus {
 /* Banner / Carousel */
 .banner-wrapper {
   max-height: 720px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .banner-img {
-  aspect-ratio: 16 / 6;
+  aspect-ratio: 2 / 1;
   object-fit: cover;
   transform: scale(1);
-  transition: transform 4s ease;
+  transition: transform 4s ease, box-shadow 0.3s ease-in-out; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); 
+}
+
+.banner-img:hover {
+  transform: scale(1.08); 
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7); 
 }
 
 .carousel-item.active .banner-img {
@@ -119,7 +126,7 @@ a:focus {
 .banner-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.45) 80%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 .banner-caption {
@@ -128,7 +135,7 @@ a:focus {
   bottom: 1rem;
   right: 1rem;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); 
   transform: translateY(10px);
   opacity: 0;
   transition: all 0.5s ease;
@@ -156,6 +163,108 @@ a:focus {
   margin-top: 0.25rem;
 }
 
+
+/* Điều chỉnh Header */
+
+.navbar {
+  position: sticky !important;    
+  top: 0;               
+  width: 100%;         
+  z-index: 2;       
+  background-color: #1a1a1a;
+  color: #070707;       
+  padding: 5px 0;   
+  transition: top 0.5s;   
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;            
+}
+
+.navbar-logo {
+  max-height: 60px; 
+  width: auto; 
+  margin-right: 50px;
+}
+
+.form-control:focus {
+  border-color: transparent !important; 
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important; 
+  outline: none !important; 
+}
+
+.dmm-search input[type="search"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  width: 100%;                 
+}
+
+
+.dmm-search {
+  display: flex;
+  align-items: center;
+  margin: 0 100px; 
+}
+
+.input-group {
+  width: 100%;
+}
+
+.form-control {
+  border-radius: 30px; 
+  padding-left: 40px; 
+}
+
+.fas.fa-search {
+  color: #007bff; 
+}
+
+
+/* Sub header*/
+.sub-header {
+  position: sticky;        
+  top: 86px;               
+  background-color: #454AF2;
+  padding: 5px 0;
+  z-index: 1000;           
+}
+.sub-header .container{
+  display: flex;            
+  align-items: center;
+  gap: 20px;
+}
+.sub-header a{
+  text-decoration: none;
+  text-underline-offset: 2px;
+  color: white;
+}
+.sub-header a:hover{
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.banner-caption h5 {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: rgba(0, 0, 0, 0.35);
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.banner-caption p {
+  background: rgba(0, 0, 0, 0.25);
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+}
+
 /*PROFILE PAGE*/
 .cinema-title {
   color: #e71a0f;
@@ -164,6 +273,13 @@ a:focus {
   font-size: 1.3rem;
   letter-spacing: 0.5px;
   margin-bottom: 0.5rem;
+}
+
+.card-header {
+  display: flex;
+  position: center;
+  align-items: center;
+  gap: 50px;
 }
 
 /*ADMIN DASHBOARD*/
@@ -404,6 +520,14 @@ a:focus {
   }
 }
 
+.footer-dmm__logo{
+  width: 300px;          /* chỉnh 28–48px tùy ý */
+  height: 50px;
+  object-fit: contain;
+  border-radius: 6px;   /* nếu logo vuông, bo nhẹ cho đẹp */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
 /*PAGE: SELECT SHOWTIMES (ĐẶT VÉ) */
 .page-select-showtime body {
   background: none !important;
@@ -473,4 +597,170 @@ a:focus {
 
 .page-select-showtime .fade-container.fade-out {
   opacity: 0;
+}
+
+
+/* Movie detail*/
+.movie-info p {
+    margin-bottom: 5px;
+}
+
+
+/* ============================
+   ADMIN MOVIES (scoped by .adm-movies)
+   ============================ */
+
+/* Khung tổng */
+.adm-movies .card-like{
+  background:#fff;
+  border:1px solid #EAECF0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(16,24,40,.06);
+  overflow:hidden;
+}
+
+/* Toolbar (tìm kiếm + CSV + Thêm phim) */
+.adm-movies .toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin: 16px 0 12px;
+}
+
+.adm-movies .toolbar .search{
+  flex:1 1 320px;
+  max-width: 560px;
+}
+
+.adm-movies .toolbar .search input[type="search"]{
+  height:44px;
+  border-radius: 999px;
+  border:1px solid #EAECF0;
+  padding: 0 16px;
+  box-shadow: 0 1px 2px rgba(16,24,40,.04);
+}
+.adm-movies .toolbar .search input[type="search"]:focus{
+  outline:none;
+  border-color:#B8BDFD;
+  box-shadow: 0 0 0 4px rgba(69,74,242,.12);
+}
+
+/* Nút “mềm” & nút thương hiệu – chỉ trong trang này */
+.adm-movies .btn-soft{
+  background:#F9FAFB;
+  border:1px solid #EAECF0;
+  color:#101828;
+}
+.adm-movies .btn-soft:hover{ background:#fff; }
+
+.adm-movies .btn-brand{
+  background:#454AF2;
+  border-color:#454AF2;
+  color:#fff;
+}
+.adm-movies .btn-brand:hover{ filter:brightness(.95); }
+
+/* Input file CSV (ẩn input thật, dùng label/nút giả) */
+.adm-movies .csv-input{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.adm-movies .csv-input input[type="file"]{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+.adm-movies .csv-input .fake-btn{
+  pointer-events:none; /* để click vào vùng nào cũng kích hoạt input */
+}
+
+/* Bảng phim */
+.adm-movies .table-movies{
+  margin:0;
+}
+.adm-movies .table-movies thead th{
+  background:#F6F7FB;
+  color:#667085;
+  font-weight:600;
+  font-size:.85rem;
+  border-bottom:1px solid #EAECF0 !important;
+  white-space:nowrap;
+}
+.adm-movies .table-movies tbody td{
+  vertical-align:middle;
+  border-color:#EAECF0;
+  color:#101828;
+}
+
+/* Cột poster + ảnh poster */
+.adm-movies .poster-col{ width:64px; }
+.adm-movies .poster-thumb{
+  width:48px; height:48px;
+  border-radius:8px;
+  object-fit:cover;
+  box-shadow:0 2px 6px rgba(16,24,40,.06);
+}
+
+/* Nhãn “mềm” cho thời lượng/chỉ số */
+.adm-movies .badge-soft{
+  background:#F9FAFB;
+  color:#667085;
+  border:1px solid #EAECF0;
+  font-weight:500;
+}
+
+/* Cột thao tác */
+.adm-movies .table-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+}
+
+/* Bo viền + bóng nhẹ cho cụm toolbar (tuỳ chọn) */
+.adm-movies .toolbar-wrap{
+  background:#fff;
+  border:1px solid #EAECF0;
+  border-radius:12px;
+  padding:10px;
+  box-shadow:0 10px 30px rgba(16,24,40,.06);
+}
+
+/* Responsive: chuyển bảng thành block trên màn nhỏ */
+@media (max-width: 992px){
+  .adm-movies .table-movies thead{ display:none; }
+  .adm-movies .table-movies tbody tr{
+    display:block;
+    border-bottom:1px solid #EAECF0;
+    padding:12px 12px;
+  }
+  .adm-movies .table-movies tbody td{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:8px 0;
+    border:0;
+  }
+  .adm-movies .table-movies tbody td::before{
+    content: attr(data-label);
+    color:#667085;
+    font-weight:600;
+  }
+  .adm-movies .table-actions{ justify-content:flex-start; }
+}
+/* ===== FIX MODAL BỊ CHE BỞI HEADER / SUBHEADER ===== */
+.modal {
+  z-index: 2000 !important;
+}
+
+.modal-backdrop {
+  z-index: 1999 !important;
+}
+
+/* Hạ z-index của sub-header để modal phủ lên */
+.sub-header {
+  z-index: 1020 !important;
 }

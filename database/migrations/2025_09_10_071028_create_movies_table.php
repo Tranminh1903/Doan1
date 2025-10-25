@@ -14,21 +14,21 @@ return new class extends Migration
         Schema::create('movies', function (Blueprint $table) {
             $table->id('movieID');                    
             $table->string('title');
-            $table->string('poster')->nullable(); // đường dẫn ảnh poster
+            $table->string('poster')->nullable(); 
             $table->unsignedSmallInteger('durationMin'); 
             $table->string('genre')->nullable();      
             $table->string('rating')->nullable();     
             $table->date('releaseDate')->nullable();
-            $table->text('description')->nullable(); // thêm mô tả phim
+            $table->text('description')->nullable();
+            $table->boolean('is_banner')->default(false)->index(); 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('movies');
+        Schema::table('movies', function (Blueprint $table) {
+            $table->dropColumn('is_banner');
+        });
     }
 };

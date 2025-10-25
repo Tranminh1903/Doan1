@@ -23,11 +23,14 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
+        Schema::table('showtime', function (Blueprint $table) {
+            try { $table->dropForeign(['movieID']); } catch (\Throwable $e) {}
+            try { $table->dropForeign(['theaterID']); } catch (\Throwable $e) {}
+        });
+
         Schema::dropIfExists('showtime');
     }
 };

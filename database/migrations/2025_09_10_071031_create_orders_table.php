@@ -17,18 +17,17 @@ return new class extends Migration
             $table->string('status', 10)->default('created');
             $table->decimal('amount', 12, 2)->nullable();
             $table->timestamps();
-
-
-            $table->foreign('showtimeID')
-                  ->references('showtimeID')
-                  ->on('showtimes')
-                  ->cascadeOnDelete();
+            $table->foreign('showtimeID')->references('showtimeID')->on('showtime')->cascadeOnDelete();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+    Schema::table('orders', function (Blueprint $table) {
+        try { $table->dropForeign(['showtimeID']); } catch (\Throwable $e) {}
+    });
+    
+    Schema::dropIfExists('orders');
     }
 };
 

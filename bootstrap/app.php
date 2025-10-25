@@ -4,7 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\Admin;
-use App\Console\Kernel as ConsoleKernel; 
+use App\Http\Middleware\SetupBanner;
+use App\Console\Kernel as ConsoleKernel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => Admin::class,
+            'banner' => SetupBanner::class,
+        ]);
+        $middleware->web(append: [
+            SetupBanner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -1,16 +1,15 @@
 @extends('layouts.app') {{-- Nếu bạn có layout chung --}}
-
 @section('title', $movie->title)
-
 @section('content')
 <div class="container mt-4">
-    <h2 class="mb-3">{{ $movie->title }}</h2>
-
     <div class="row">
         <div class="col-md-4">
             <img src="{{ asset($movie->poster) }}" alt="{{ $movie->title }}" class="img-fluid rounded">
         </div>
-        <div class="col-md-8">
+        <div class="movie-info col-md-8">
+            @if($movie->description)
+                <p>{{ $movie->description }}</p>
+            @endif
             <p><strong>Thể loại:</strong> {{ $movie->genre }}</p>
             <p><strong>Thời lượng:</strong> {{ $movie->durationMin }} phút</p>
             @if($movie->releaseDate)
@@ -19,20 +18,7 @@
             @if($movie->age_rating)
                 <p><strong>Độ tuổi:</strong> {{ $movie->age_rating }}</p>
             @endif
-            @if($movie->format)
-                <p><strong>Định dạng:</strong> {{ $movie->format }}</p>
-            @endif
-            @if($movie->description)
-                <p><strong>Mô tả:</strong> {{ $movie->description }}</p>
-            @endif
-        </div>
-    </div>
-
-    <hr>
-
-    <div class="card-quick-actions px-3 pt-3">
-        <div class="d-flex gap-2">
-            @if ($movie->showtimes->isNotEmpty())
+                        @if ($movie->showtimes->isNotEmpty())
                 <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}"
                 class="btn btn-primary btn-sm flex-fill">Mua vé</a>
 
@@ -47,6 +33,8 @@
                 <button class="btn btn-outline-secondary btn-sm flex-fill" type="button" disabled>Trailer chưa có</button>
             @endif
         </div>
+
     </div>
+
 </div>
 @endsection
