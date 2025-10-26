@@ -15,8 +15,8 @@ public function showProfile(Request $request): View
         // Lấy customer kèm quan hệ user
         $customer = Customer::with('user')->where('user_id', $request->user()->id)->firstOrFail();
         //Tổng tiêu dùng của 1 khách hàng
-        $totalAmount = Order::where('customer_user_id', $request->user()->id)->sum('amount');
-        return view('profile', compact('customer', 'totalAmount'));
+        $totalAmount = Order::where('username', $request->user()->id)->sum('amount');
+        return view('user.profile', compact('customer', 'totalAmount'));
     }
 
 public function updateProfile(Request $request)

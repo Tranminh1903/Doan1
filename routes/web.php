@@ -3,14 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController\AuthController;
 use App\Http\Controllers\UserController\HomeController;
-use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\AdminController;
-use App\Http\Controllers\UserController\ForgetPasswordController;
-use App\Http\Controllers\UserController\ResetPasswordController;
-use App\Http\Controllers\UserController\OrderController;
-use App\Http\Controllers\UserController\BookingController;
 use App\Http\Controllers\UserController\MovieController;
+use App\Http\Controllers\UserController\OrderController;
 use App\Http\Controllers\UserController\TicketController;
+use App\Http\Controllers\UserController\BookingController;
+use App\Http\Controllers\UserController\CustomerController;
+use App\Http\Controllers\UserController\ResetPasswordController;
+use App\Http\Controllers\UserController\ForgetPasswordController;
+
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
 // Trang chủ và chi tiết phim — công khai
@@ -46,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
    
-
+    Route::get('/tickets/history', [TicketController::class, 'index'])->name('tickets.history');
     //Order
     // Đặt hàng mới
     Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
@@ -67,12 +68,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
     // Kiểm tra và giải phóng ghế hết hạn
     Route::get('/check-expired-seats/{showtimeID}', [\App\Http\Controllers\UserController\BookingController::class, 'checkExpiredSeats']);
-    // Lịch sử vé đã mua    
-
-    Route::get('/tickets/history', [TicketController::class, 'index'])
-     ->name('tickets.history')
-     ->middleware('auth');
-
 
     }); 
 

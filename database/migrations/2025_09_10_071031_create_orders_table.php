@@ -23,11 +23,11 @@ return new class extends Migration
 
     public function down(): void
     {
-    Schema::table('orders', function (Blueprint $table) {
-        try { $table->dropForeign(['showtimeID']); } catch (\Throwable $e) {}
-    });
-    
-    Schema::dropIfExists('orders');
+        Schema::table('orders', function (Blueprint $table) {
+            try { $table->dropForeign(['showtimeID']); } catch (\Throwable $e) {}
+        });
+        
+        Schema::dropIfExists('orders');
     }
 };
 

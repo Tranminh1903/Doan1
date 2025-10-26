@@ -11,7 +11,7 @@ class ForgetPasswordController extends Controller
         //Forget_password
     public function showForget_Password(Request $request) : View
         {
-            return view('Authentication.forget_password');
+            return view('authentication.forget_password');
         }
 
     public function sendResetLink(Request $request)
@@ -31,5 +31,4 @@ class ForgetPasswordController extends Controller
             }
             return back()->withErrors(['email' => 'Hiện không thể gửi email, xin vui lòng hãy chờ đợi!']);
         }
-
 }

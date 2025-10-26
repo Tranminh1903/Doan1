@@ -18,7 +18,7 @@ class AuthController extends Controller
     ////////////////////////// Register //////////////////////////
     public function showRegister()
     {
-        return view('Authentication.register');
+        return view('authentication.register');
     }
 
     public function register(Request $request)
@@ -78,7 +78,7 @@ class AuthController extends Controller
 
     public function showLogin(): View
     {
-        return view('Authentication.login');
+        return view('authentication.login');
     }
 
     ////////////////////////// Logout //////////////////////////

@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\UserController;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use App\Http\Controllers\UserController\Controller;
+use App\Models\UserModels\User;
 use Illuminate\Support\Str;
-use App\Models\ProductModels\Ticket;
-use App\Models\UserModels\Order;
-use App\Models\UserModels\Customer;
-use App\Models\ProductModels\SeatHold;
-use App\Events\SeatStatusChanged;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\TicketPaidMail;
+use Illuminate\Http\Request;
+use App\Models\UserModels\Order;
+use App\Events\SeatStatusChanged;
+use App\Models\UserModels\Customer;
+use App\Models\ProductModels\Ticket;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redis;
+use App\Models\ProductModels\SeatHold;
 use App\Models\ProductModels\Showtime;
 use App\Models\ProductModels\MovieTheater;
+use App\Http\Controllers\UserController\Controller;
 
 class OrderController extends Controller
 {
@@ -34,14 +36,14 @@ class OrderController extends Controller
 
 
             //  Tạo đơn hàng
-           $order = Order::create([
-            'showtimeID' => $request->showtimeID, 
-            'order_code' => strtoupper(uniqid('MB')),
-            'username'   => $user->username ?? $user->name ?? 'unknown',
-            'seats'      => json_encode($request->seats),
-            'amount'     => $request->amount,
-            'status'     => 'pending',
-           ]);
+            $order = Order::create([
+                'showtimeID' => $request->showtimeID,
+                'order_code' => strtoupper(uniqid('MB')),
+                'username'   => $user->username ?? $user->name ?? 'unknown',
+                'seats'      => json_encode($request->seats),
+                'amount'     => $request->amount,
+                'status'     => 'pending',
+            ]);
 
 
 
@@ -68,10 +70,10 @@ class OrderController extends Controller
 
                 // Phát realtime event cho frontend
                 broadcast(new \App\Events\SeatStatusUpdated(
-                $request->showtimeID,
-                $request->seats,
-                'held'
-));
+                    $request->showtimeID,
+                    $request->seats,
+                    'held'
+                ));
 
 
                 \Log::info(" SeatHeldEvent fired for seat $seatId showtime {$request->showtimeID}");
@@ -105,158 +107,156 @@ class OrderController extends Controller
      * API hủy đơn khi hết hạn
      */
     public function expire($orderCode)
-{
-    try {
-        $order = Order::where('order_code', $orderCode)->first();
+    {
+        try {
+            $order = Order::where('order_code', $orderCode)->first();
 
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
-        // Chỉ xử lý nếu đơn chưa thanh toán
-        if ($order->status !== 'paid') {
-            $order->update(['status' => 'cancelled']);
-
-            $seats = json_decode($order->seats, true) ?? [];
-
-            foreach ($seats as $seatId) {
-                SeatHold::where('orderID', $order->id)
-                    ->where('seatID', $seatId)
-                    ->update([
-                        'status'     => 'available',
-                        'expires_at' => null
-                    ]);
+            if (!$order) {
+                return response()->json(['message' => 'Order not found'], 404);
             }
 
-            //  Phát realtime event cho tất cả client khác
-$seatHold = \App\Models\ProductModels\SeatHold::where('orderID', $order->id)->first();
+            // Chỉ xử lý nếu đơn chưa thanh toán
+            if ($order->status !== 'paid') {
+                $order->update(['status' => 'cancelled']);
 
-if ($seatHold) {
-    $showtimeID = $seatHold->showtimeID;
-    broadcast(new \App\Events\SeatStatusUpdated(
-        $showtimeID,
-        $seats,
-        'available'
-    ))->toOthers();
-}
+                $seats = json_decode($order->seats, true) ?? [];
+
+                foreach ($seats as $seatId) {
+                    SeatHold::where('orderID', $order->id)
+                        ->where('seatID', $seatId)
+                        ->update([
+                            'status'     => 'available',
+                            'expires_at' => null
+                        ]);
+                }
+
+                //  Phát realtime event cho tất cả client khác
+                $seatHold = \App\Models\ProductModels\SeatHold::where('orderID', $order->id)->first();
+
+                if ($seatHold) {
+                    $showtimeID = $seatHold->showtimeID;
+                    broadcast(new \App\Events\SeatStatusUpdated(
+                        $showtimeID,
+                        $seats,
+                        'available'
+                    ))->toOthers();
+                }
 
 
 
-            \Log::info("Order {$order->order_code} hết hạn, ghế đã được release realtime", [
-                'released_seats' => $seats
-            ]);
+                \Log::info("Order {$order->order_code} hết hạn, ghế đã được release realtime", [
+                    'released_seats' => $seats
+                ]);
 
-            return response()->json([
-                'message' => 'Order expired and seats released successfully',
-                'released_seats' => $seats
-            ]);
+                return response()->json([
+                    'message' => 'Order expired and seats released successfully',
+                    'released_seats' => $seats
+                ]);
+            }
+
+            return response()->json(['message' => 'Order already paid, no action needed']);
+        } catch (\Exception $e) {
+            \Log::error("Lỗi expire order {$orderCode}: " . $e->getMessage());
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
         }
-
-        return response()->json(['message' => 'Order already paid, no action needed']);
-    } catch (\Exception $e) {
-        \Log::error("Lỗi expire order {$orderCode}: " . $e->getMessage());
-        return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
     }
-}
     /**
      * API đồng bộ giao dịch từ Google Sheet
      */
     public function syncPayments()
-{
-    try {
-        $url = "https://script.google.com/macros/s/AKfycbzaD9M8fnGXLQnNTKdr4ubPAixSI8_6cj-Z-eP4TaMPgusZ-K8_c2reSGDUalhyQJ0u/exec";
-        $response = Http::get($url);
+    {
+        try {
+            $url = "https://script.google.com/macros/s/AKfycbzaD9M8fnGXLQnNTKdr4ubPAixSI8_6cj-Z-eP4TaMPgusZ-K8_c2reSGDUalhyQJ0u/exec";
+            $response = Http::get($url);
 
-        if ($response->failed()) {
-            return response()->json(['error' => 'Không kết nối được Google Sheet'], 500);
-        }
-
-        $transactions = $response->json();
-
-        if (!is_array($transactions)) {
-            \Log::error(" Sai format dữ liệu từ Google Sheet", $transactions);
-            return response()->json(['error' => 'Sai dữ liệu từ Google Sheet'], 500);
-        }
-
-        foreach ($transactions as $tx) {
-            $note = $tx['Nội dung thanh toán'] ?? null;
-            if (!$note) continue;
-
-            $orders = Order::where('status', 'pending')->get();
-
-            foreach ($orders as $order) {
-                if (str_contains($note, $order->order_code)) {
-    $order->update(['status' => 'paid']); // tránh xử lý lại
-
-    $seats = json_decode($order->seats, true);
-    if (is_array($seats)) {
-        foreach ($seats as $seatId) {
-            SeatHold::where('orderID', $order->id)
-                ->where('seatID', $seatId)
-                ->update([
-                    'status' => 'unavailable',
-                    'expires_at' => null
-                ]);
-
-            Ticket::updateOrCreate(
-                [
-                    'showtimeID' => $order->showtimeID,
-                    'seatID' => $seatId,
-                ],
-                [
-                    'price' => $order->amount / count($seats),
-                    'status' => 'issued',
-                    'qr_token' => (string) Str::uuid(),
-                    'qr_code' => null,
-                    'issueAt' => now(),
-                    'refund_reason' => null,
-                ]
-            );
-        }
-
-        // realtime update
-        $seatHold = \App\Models\ProductModels\SeatHold::where('orderID', $order->id)->first();
-        $showtimeID = $seatHold ? $seatHold->showtimeID : null;
-
-        if ($showtimeID) {
-            broadcast(new \App\Events\SeatStatusUpdated(
-                $showtimeID,
-                $seats,
-                'unavailable'
-            ));
-        }
-
-        // Gửi mail vé
-        $showtime = \App\Models\ProductModels\Showtime::with('movie')->find($order->showtimeID ?? null);
-        $cinema = $showtime ? \App\Models\ProductModels\MovieTheater::find($showtime->theaterID ?? null) : null;
-
-        if ($showtime && $cinema) {
-            try {
-                Mail::to(auth()->user()->email)->send(new TicketPaidMail($order, $showtime, $cinema));
-                \Log::info("Đã gửi mail vé cho đơn {$order->order_code}");
-            } catch (\Exception $mailError) {
-                \Log::error("Gửi mail lỗi: " . $mailError->getMessage());
+            if ($response->failed()) {
+                return response()->json(['error' => 'Không kết nối được Google Sheet'], 500);
             }
-        } else {
-            \Log::warning("Không gửi mail được vì showtime hoặc cinema null", [
-                'order_code' => $order->order_code,
-                'showtime' => $showtime,
-                'cinema' => $cinema,
-            ]);
+
+            $transactions = $response->json();
+
+            if (!is_array($transactions)) {
+                Log::error(" Sai format dữ liệu từ Google Sheet", $transactions);
+                return response()->json(['error' => 'Sai dữ liệu từ Google Sheet'], 500);
+            }
+
+            foreach ($transactions as $tx) {
+                $note = $tx['Nội dung thanh toán'] ?? null;
+                if (!$note) continue;
+
+                $orders = Order::where('status', 'pending')->get();
+
+                foreach ($orders as $order) {
+                    if (str_contains($note, $order->order_code)) {
+                        $order->update(['status' => 'paid']); // tránh xử lý lại
+
+                        $seats = json_decode($order->seats, true);
+                        if (is_array($seats)) {
+                            foreach ($seats as $seatId) {
+                                SeatHold::where('orderID', $order->id)
+                                    ->where('seatID', $seatId)
+                                    ->update([
+                                        'status' => 'unavailable',
+                                        'expires_at' => null
+                                    ]);
+
+                                Ticket::updateOrCreate(
+                                    [
+                                        'showtimeID' => $order->showtimeID,
+                                        'seatID' => $seatId,
+                                    ],
+                                    [
+                                        'price' => $order->amount / count($seats),
+                                        'status' => 'issued',
+                                        'qr_token' => (string) Str::uuid(),
+                                        'qr_code' => null,
+                                        'issueAt' => now(),
+                                        'refund_reason' => null,
+                                    ]
+                                );
+                            }
+
+                            // realtime update
+                            $seatHold = SeatHold::where('orderID', $order->id)->first();
+                            $showtimeID = $seatHold ? $seatHold->showtimeID : null;
+
+                            if ($showtimeID) {
+                                broadcast(new \App\Events\SeatStatusUpdated(
+                                    $showtimeID,
+                                    $seats,
+                                    'unavailable'
+                                ));
+                            }
+
+                            // Gửi mail vé
+                            $showtime = Showtime::with('movie')->find($order->showtimeID ?? null);
+                            $cinema = $showtime ? MovieTheater::find($showtime->theaterID ?? null) : null;
+
+                            if ($showtime && $cinema) {
+                                try {
+                                    Mail::to(auth()->user()->email)->send(new TicketPaidMail($order, $showtime, $cinema));
+                                    \Log::info("Đã gửi mail vé cho đơn {$order->order_code}");
+                                } catch (\Exception $mailError) {
+                                    \Log::error("Gửi mail lỗi: " . $mailError->getMessage());
+                                }
+                            } else {
+                                \Log::warning("Không gửi mail được vì showtime hoặc cinema null", [
+                                    'order_code' => $order->order_code,
+                                    'showtime' => $showtime,
+                                    'cinema' => $cinema,
+                                ]);
+                            }
+                        }
+
+                        \Log::info("Đổi trạng thái: {$order->order_code} thành PAID (note: $note)");
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Đã đồng bộ giao dịch từ Google Sheet']);
+        } catch (\Exception $e) {
+            \Log::error(" Lỗi syncPayments: " . $e->getMessage());
+            return response()->json(['error' => 'Lỗi xử lý dữ liệu'], 500);
         }
     }
-
-    \Log::info("Đổi trạng thái: {$order->order_code} thành PAID (note: $note)");
-}
-
-            }
-        }
-
-        return response()->json(['message' => 'Đã đồng bộ giao dịch từ Google Sheet']);
-    } catch (\Exception $e) {
-        \Log::error(" Lỗi syncPayments: " . $e->getMessage());
-        return response()->json(['error' => 'Lỗi xử lý dữ liệu'], 500);
-    }
-}
-
 }

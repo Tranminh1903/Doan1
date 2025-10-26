@@ -29,7 +29,7 @@ class BookingController extends Controller
         // Nhóm suất chiếu theo rạp
         $groupedShowtimes = $movie->showtimes->groupBy(fn($st) => $st->theater->name);
 
-        return view('select_showtimes', compact('movie', 'availableDates', 'groupedShowtimes'));
+        return view('payment.select_showtimes', compact('movie', 'availableDates', 'groupedShowtimes'));
     }
 
     public function start($showtimeID)
@@ -78,7 +78,7 @@ class BookingController extends Controller
             ->get()
             ->groupBy('verticalRow');
 
-        return view('booking', [
+        return view('payment.booking', [
             'seats'      => $seats,
             'showtimeID' => $showtimeID,
             'showtime'   => $showtime
@@ -98,49 +98,47 @@ class BookingController extends Controller
         $expiresAt = Carbon::now()->addMinutes(1);
 
         try {
-    DB::transaction(function () use ($seatID, $showtimeID, $userID, $expiresAt) {
-        $exists = DB::table('seat_holds')
-            ->where('seatID', $seatID)
-            ->where('showtimeID', $showtimeID)
-            ->where(function ($q) {
-                $q->where('status', 'unavailable')
-                    ->orWhere(function ($q2) {
-                        $q2->where('status', 'held')
-                            ->where('expires_at', '>', now());
-                    });
-            })
-            ->lockForUpdate()
-            ->exists();
+            DB::transaction(function () use ($seatID, $showtimeID, $userID, $expiresAt) {
+                $exists = DB::table('seat_holds')
+                    ->where('seatID', $seatID)
+                    ->where('showtimeID', $showtimeID)
+                    ->where(function ($q) {
+                        $q->where('status', 'unavailable')
+                            ->orWhere(function ($q2) {
+                                $q2->where('status', 'held')
+                                    ->where('expires_at', '>', now());
+                            });
+                    })
+                    ->lockForUpdate()
+                    ->exists();
 
-        if ($exists) {
-            throw new \Exception('Ghế này đã có người giữ hoặc đặt.');
+                if ($exists) {
+                    throw new \Exception('Ghế này đã có người giữ hoặc đặt.');
+                }
+
+                DB::table('seat_holds')->insert([
+                    'seatID'     => $seatID,
+                    'showtimeID' => $showtimeID,
+                    'user_id'    => $userID,
+                    'status'     => 'held',
+                    'expires_at' => $expiresAt,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            });
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã giữ ghế trong 5 phút.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 409);
         }
-
-        DB::table('seat_holds')->insert([
-            'seatID'     => $seatID,
-            'showtimeID' => $showtimeID,
-            'user_id'    => $userID,
-            'status'     => 'held',
-            'expires_at' => $expiresAt,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-    });
-    return response()->json([
-        'success' => true,
-        'message' => 'Đã giữ ghế trong 5 phút.'
-    ]);
-
-} catch (\Exception $e) {
-    return response()->json([
-        'success' => false,
-        'message' => $e->getMessage()
-    ], 409);
-}
     }
-        public function checkExpiredSeats($showtimeID)
+    public function checkExpiredSeats($showtimeID)
     {
-        // Lấy danh sách ghế đang "held" nhưng đã hết hạn
         $expiredSeats = DB::table('seat_holds')
             ->where('showtimeID', $showtimeID)
             ->where('status', 'held')
@@ -161,5 +159,3 @@ class BookingController extends Controller
         ]);
     }
 }
-
-

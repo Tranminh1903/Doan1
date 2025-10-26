@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('releaseDate')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_banner')->default(false)->index(); 
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
@@ -30,5 +31,7 @@ return new class extends Migration
         Schema::table('movies', function (Blueprint $table) {
             $table->dropColumn('is_banner');
         });
+
+        Schema::dropIfExists('movies');
     }
 };
