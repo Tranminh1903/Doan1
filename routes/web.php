@@ -11,6 +11,7 @@ use App\Http\Controllers\UserController\BookingController;
 use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
+use App\Http\Controllers\UserController\PromotionController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -70,7 +71,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
     // Kiểm tra và giải phóng ghế hết hạn
     Route::get('/check-expired-seats/{showtimeID}', [\App\Http\Controllers\UserController\BookingController::class, 'checkExpiredSeats']);
-
+    // Promotion 
+    Route::prefix('promotion')->group(function () {
+        Route::get('/active', [PromotionController::class, 'getActivePromotions']);
+        Route::post('/apply', [PromotionController::class, 'applyPromotion']);
+        Route::post('/mark-used/{code}', [PromotionController::class, 'markAsUsed']);
+        });
     }); 
 
 Route::middleware('auth','admin')->group(function() {

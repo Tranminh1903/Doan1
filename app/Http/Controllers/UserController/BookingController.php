@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\ProductModels\Movie;
 use Illuminate\Support\Facades\Redis;
 use App\Models\ProductModels\Showtime;
+use App\Models\UserModels\Promotion;
 use App\Http\Controllers\UserController\Controller;
 
 class BookingController extends Controller
@@ -77,6 +78,13 @@ class BookingController extends Controller
             ->orderBy('seats.horizontalRow')
             ->get()
             ->groupBy('verticalRow');
+        
+        // Lọc khuyến mãi hợp lệ
+        $promotions = Promotion::where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->whereColumn('used_count', '<', 'limit_count')
+            ->get();
 
         return view('payment.booking', [
             'seats'      => $seats,

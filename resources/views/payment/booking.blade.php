@@ -74,6 +74,20 @@
     @endforeach
   </div>
 
+  <div class="text-center mt-4">
+    <div class="mb-3">
+      <label for="promo_code" class="form-label fw-bold">Mã khuyến mãi:</label>
+      <select id="promo_code" class="form-select d-inline-block w-auto">
+        <option value="">-- Chọn mã khuyến mãi --</option>
+      </select>
+    </div>
+
+    <div class="fw-bold">
+      <p>Tổng tiền: <span id="total_price" data-value="0">0</span> VND</p>
+      <p>Giảm giá: <span id="discount_amount">0</span> VND</p>
+      <h5>Thành tiền: <span id="final_price">0</span> VND</h5>
+    </div>
+  </div>
   <div class="text-center">
     <button class="btn btn-danger" onclick="confirmSeats()">Thanh toán</button>
   </div>
@@ -119,15 +133,80 @@ document.addEventListener("DOMContentLoaded", () => {
   
   console.log(" Initializing booking UI for showtime:", showtimeID);
 
+  // === Biến toàn cục ===
+  let currentDiscount = 0;
+  let selectedPromoCode = null;
+
   // === Tổng tiền ===
   function updateTotal() {
     let total = 0;
-    seats.forEach(s => {
-      if (s.classList.contains('selected')) {
-        total += parseInt(s.dataset.price || 0);
-      }
+    document.querySelectorAll('.seat.selected').forEach(s => {
+      total += parseInt(s.dataset.price || 0);
     });
-    totalDisplay.textContent = total.toLocaleString('vi-VN');
+
+    document.getElementById('total_price').textContent = total.toLocaleString('vi-VN');
+    document.getElementById('total_price').setAttribute('data-value', total);
+
+    if (selectedPromoCode) applyPromotion(selectedPromoCode, total);
+    else updateFinal(total, 0);
+  }
+
+  // === Hàm cập nhật hiển thị tiền ===
+  function updateFinal(total, discount) {
+    document.getElementById('discount_amount').textContent = discount.toLocaleString('vi-VN');
+    document.getElementById('final_price').textContent = (total - discount).toLocaleString('vi-VN');
+  }
+
+  // === Tải danh sách khuyến mãi hợp lệ ===
+  fetch('/promotion/active')
+    .then(res => res.json())
+    .then(data => {
+      const select = document.getElementById('promo_code');
+      data.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.code;
+        option.textContent = `${p.code} - ${p.description}`;
+        select.appendChild(option);
+      });
+    });
+
+  // === Khi chọn mã khuyến mãi ===
+  document.getElementById('promo_code').addEventListener('change', function() {
+    selectedPromoCode = this.value;
+    const total = parseInt(document.getElementById('total_price').getAttribute('data-value')) || 0;
+
+    if (!selectedPromoCode) {
+      currentDiscount = 0;
+      updateFinal(total, 0);
+      return;
+    }
+
+    applyPromotion(selectedPromoCode, total);
+  });
+
+  // === Gọi API áp dụng khuyến mãi ===
+  function applyPromotion(code, total) {
+    fetch('/promotion/apply', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ code, total })
+    })
+    .then(res => res.json())
+    .then(data => {
+    if (data.success) {
+      currentDiscount = data.discount;
+      updateFinal(total, data.discount);
+    } else {
+      alert(data.message);
+      document.getElementById('promo_code').value = '';
+      currentDiscount = 0;
+      updateFinal(total, 0);
+    }
+    })
+    .catch(err => console.error('Lỗi áp mã:', err));
   }
 
   // === Click chọn ghế ===
@@ -149,7 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedSeats = [...document.querySelectorAll('.seat.selected')];
     if (!selectedSeats.length) return alert('Chưa chọn ghế!');
 
-    const totalAmount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0);
+    const totalBeforeDiscount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0);
+    const discount = parseInt(document.getElementById('discount_amount').textContent.replace(/\D/g, '')) || 0;
+    const totalAmount = totalBeforeDiscount - discount;
     const seatIds = selectedSeats.map(s => s.dataset.seatId);
 
     fetch("{{ route('orders.create') }}", {
@@ -220,6 +301,15 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => console.log(" Expired:", data));
 
         closeQR();
+        // Nếu có chọn mã khuyến mãi thì ghi nhận lượt dùng
+        if (selectedPromoCode) {
+        fetch(`/promotion/mark-used/${selectedPromoCode}`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+        }
+          }).then(() => console.log("Đã ghi nhận lượt dùng mã:", selectedPromoCode));
+      }
         alert(" QR hết hạn, vui lòng thử lại!");
       }
     }, 1000);
