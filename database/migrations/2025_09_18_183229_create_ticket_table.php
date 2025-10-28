@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->decimal('price', 10, 2);
             $table->string('status', 20)->default('issued');
             $table->uuid('qr_token')->unique();   
-            $table->string('qr_code')->nullable();
+            $table->string('order_code')->unique();
             $table->dateTime('issueAt')->nullable();
             $table->string('refund_reason')->nullable();
             $table->timestamps();

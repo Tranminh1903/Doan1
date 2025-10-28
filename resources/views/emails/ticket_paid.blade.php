@@ -62,7 +62,7 @@
         </div>
 
         <p><strong>Mã đơn:</strong> {{ $order->order_code }}</p>
-        <p><strong>Ghế đã đặt:</strong> {{ implode(', ', json_decode($order->seats, true)) }}</p>
+        <p><strong>Ghế đã đặt:</strong> {{ isset($seatsFormatted) ? implode(', ', $seatsFormatted) : 'Chưa có dữ liệu' }}</p>
 
         <div class="qr">
             <h3>Mã QR vé của bạn</h3>

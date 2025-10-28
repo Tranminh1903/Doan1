@@ -11,7 +11,7 @@ class Ticket extends Model
     public $incrementing = true;
     protected $keyType = 'int';
     protected $fillable = [
-        'orderID','showtimeID','seatID','price','status','qr_token','issueAt','refund_reason'
+        'orderID','showtimeID','seatID','price','status','qr_token','order_code','issueAt','refund_reason'
     ];
     protected $casts = [
         'issueAt' => 'datetime',

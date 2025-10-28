@@ -16,6 +16,8 @@ use App\Http\Controllers\UserController\ForgetPasswordController;
     Route::get('/', [HomeController::class,'index'])->name('home');
 // Trang chủ và chi tiết phim — công khai
     Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
+Route::post('/movies/{movieID}/rate', [App\Http\Controllers\UserController\MovieController::class, 'rate'])->name('movies.rate');
+
 // Guest only (chưa đăng nhập)
 Route::middleware('guest')->group(function () {
 

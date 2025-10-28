@@ -7,16 +7,34 @@ use App\Models\UserModels\Order;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Http\Controllers\UserController\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ProductModels\Ticket;
 
 class CustomerController extends Controller
 {
 public function showProfile(Request $request): View
     {
+        $user = Auth::user();
         // Lấy customer kèm quan hệ user
         $customer = Customer::with('user')->where('user_id', $request->user()->id)->firstOrFail();
-        //Tổng tiêu dùng của 1 khách hàng
-        $totalAmount = Order::where('username', $request->user()->id)->sum('amount');
-        return view('user.profile', compact('customer', 'totalAmount'));
+        // Lịch sử vé đã mua
+      $tickets = Ticket::query()
+            ->join('orders', 'ticket.order_code', '=', 'orders.order_code') 
+            ->where('orders.username', $user->username) 
+            ->select('ticket.*')
+            ->with([
+                'showtime:showtimeID,movieID,startTime',
+                'showtime.movie:movieID,title',
+                'seat:seatID',
+            ])
+            ->orderByDesc('ticket.created_at')
+            ->get();
+             $total_order_amount = $tickets->pluck('order_code')->unique()->count();
+             $totalAmount = $tickets->sum('price');
+             
+
+        return view('user.profile', compact('customer', 'totalAmount', 'tickets','total_order_amount','totalAmount'));
+
     }
 
 public function updateProfile(Request $request)

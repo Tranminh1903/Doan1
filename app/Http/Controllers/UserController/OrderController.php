@@ -181,77 +181,90 @@ class OrderController extends Controller
             }
 
             foreach ($transactions as $tx) {
-                $note = $tx['Nội dung thanh toán'] ?? null;
-                if (!$note) continue;
+    $note = $tx['Nội dung thanh toán'] ?? null;
+    $paidAmount = isset($tx['Số tiền']) 
+        ? floatval(str_replace([',', '.'], '', preg_replace('/[^\d,\.]/', '', $tx['Số tiền']))) 
+        : 0;
 
-                $orders = Order::where('status', 'pending')->get();
+    if (!$note || $paidAmount <= 0) continue;
 
-                foreach ($orders as $order) {
-                    if (str_contains($note, $order->order_code)) {
-                        $order->update(['status' => 'paid']); // tránh xử lý lại
+    $orders = Order::where('status', 'pending')->get();
 
-                        $seats = json_decode($order->seats, true);
-                        if (is_array($seats)) {
-                            foreach ($seats as $seatId) {
-                                SeatHold::where('orderID', $order->id)
-                                    ->where('seatID', $seatId)
-                                    ->update([
-                                        'status' => 'unavailable',
-                                        'expires_at' => null
-                                    ]);
+    foreach ($orders as $order) {
+        // So khớp order_code trong nội dung và số tiền khớp chính xác
+        if (str_contains($note, $order->order_code) && intval($order->amount) == intval($paidAmount)) {
 
-                                Ticket::updateOrCreate(
-                                    [
-                                        'showtimeID' => $order->showtimeID,
-                                        'seatID' => $seatId,
-                                    ],
-                                    [
-                                        'price' => $order->amount / count($seats),
-                                        'status' => 'issued',
-                                        'qr_token' => (string) Str::uuid(),
-                                        'qr_code' => null,
-                                        'issueAt' => now(),
-                                        'refund_reason' => null,
-                                    ]
-                                );
-                            }
+            $order->update(['status' => 'paid']);
 
-                            // realtime update
-                            $seatHold = SeatHold::where('orderID', $order->id)->first();
-                            $showtimeID = $seatHold ? $seatHold->showtimeID : null;
+            $seats = json_decode($order->seats, true);
+            if (is_array($seats)) {
+                foreach ($seats as $seatId) {
+                    SeatHold::where('orderID', $order->id)
+                        ->where('seatID', $seatId)
+                        ->update([
+                            'status' => 'unavailable',
+                            'expires_at' => null
+                        ]);
 
-                            if ($showtimeID) {
-                                broadcast(new \App\Events\SeatStatusUpdated(
-                                    $showtimeID,
-                                    $seats,
-                                    'unavailable'
-                                ));
-                            }
+                    Ticket::updateOrCreate(
+                        [
+                            'showtimeID' => $order->showtimeID,
+                            'seatID' => $seatId,
+                        ],
+                        [
+                            'price' => $order->amount / count($seats),
+                            'status' => 'issued',
+                            'qr_token' => (string) Str::uuid(),
+                            'order_code' => $order->order_code,
+                            'issueAt' => now(),
+                            'refund_reason' => null,
+                        ]
+                    );
+                }
 
-                            // Gửi mail vé
-                            $showtime = Showtime::with('movie')->find($order->showtimeID ?? null);
-                            $cinema = $showtime ? MovieTheater::find($showtime->theaterID ?? null) : null;
+                $seatHold = SeatHold::where('orderID', $order->id)->first();
+                $showtimeID = $seatHold ? $seatHold->showtimeID : null;
 
-                            if ($showtime && $cinema) {
-                                try {
-                                    Mail::to(auth()->user()->email)->send(new TicketPaidMail($order, $showtime, $cinema));
-                                    \Log::info("Đã gửi mail vé cho đơn {$order->order_code}");
-                                } catch (\Exception $mailError) {
-                                    \Log::error("Gửi mail lỗi: " . $mailError->getMessage());
-                                }
-                            } else {
-                                \Log::warning("Không gửi mail được vì showtime hoặc cinema null", [
-                                    'order_code' => $order->order_code,
-                                    'showtime' => $showtime,
-                                    'cinema' => $cinema,
-                                ]);
-                            }
-                        }
+                if ($showtimeID) {
+                    broadcast(new \App\Events\SeatStatusUpdated(
+                        $showtimeID,
+                        $seats,
+                        'unavailable'
+                    ));
+                }
 
-                        \Log::info("Đổi trạng thái: {$order->order_code} thành PAID (note: $note)");
+                // Gửi mail
+                $showtime = Showtime::with('movie')->find($order->showtimeID ?? null);
+                $cinema = $showtime ? MovieTheater::find($showtime->theaterID ?? null) : null;
+
+                if ($showtime && $cinema) {
+                    try {
+                        $seatIDs = json_decode($order->seats, true);
+                        $seatsFormatted = \App\Models\ProductModels\Seat::whereIn('seatID', $seatIDs)
+                            ->select('verticalRow', 'seatID')
+                            ->get()
+                            ->map(fn($s) => $s->verticalRow . $s->seatID)
+                            ->toArray();
+
+                        Mail::to(auth()->user()->email)->send(new TicketPaidMail(
+                            $order,
+                            $showtime,
+                            $cinema,
+                            $seatsFormatted
+                        ));
+
+                        \Log::info("Đã gửi mail vé cho đơn {$order->order_code}");
+                    } catch (\Exception $mailError) {
+                        \Log::error("Gửi mail lỗi: " . $mailError->getMessage());
                     }
                 }
             }
+
+            \Log::info(" Đổi trạng thái: {$order->order_code} thành PAID (note: $note, amount: $paidAmount)");
+        }
+    }
+}
+
 
             return response()->json(['message' => 'Đã đồng bộ giao dịch từ Google Sheet']);
         } catch (\Exception $e) {
