@@ -6,761 +6,624 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/*THEME & GLOBAL VARIABLES*/
+/* =========================================================
+   THEME & GLOBAL VARIABLES
+   ========================================================= */
 @theme {
-  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
 
 :root {
-  --card-radius: 1rem;
-  --radius: 16px;
-  --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
-  --muted: #6b7280;
+    --card-radius: 1rem;
+    --radius: 16px;
+    --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
+    --muted: #6b7280;
+
+    /* Kích thước thanh điều hướng */
+    --navbar-h: 68px; /* đổi nếu header bạn cao hơn/thấp hơn */
+    --subbar-h: 44px;
 }
 
-/*GLOBAL STYLES*/
+/* =========================================================
+   GLOBAL
+   ========================================================= */
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
-
 a {
-  text-decoration: none;
+    text-decoration: none;
 }
-
 a:hover,
 a:focus {
-  text-decoration: none;
+    text-decoration: none;
+}
+.text-muted {
+    color: var(--muted) !important;
 }
 
-/*HOME PAGE / MOVIE LISTING*/
-
-/* Container chính */
-.ns-wrap {
-  max-width: 1200px;
-  margin: 48px auto;
+/* =========================================================
+   HEADER (Main navbar) – light, sticky
+   ========================================================= */
+.navbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1200; /* > sub-header & content */
+    height: var(--navbar-h);
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--navbar-h);
+}
+.navbar-logo {
+    max-height: 40px;
+    width: auto;
+    margin-right: 24px;
 }
 
-.ns-row {
-  row-gap: 24px;
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .dropdown-item {
+    color: #111 !important;
+    font-weight: 500;
+}
+.navbar .nav-link:hover {
+    color: #0d6efd !important;
 }
 
-/* Movie Card */
-.movie-card {
-  border-radius: var(--card-radius);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: var(--shadow);
+.navbar .dropdown-menu {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.navbar .dropdown-item:hover {
+    background: #f8f9fa;
 }
 
-.movie-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.12);
+/* Search box trong header */
+.dmm-search {
+    display: flex;
+    align-items: center;
+    margin: 0 48px;
+    flex: 1;
+    max-width: 720px;
+}
+.dmm-search .input-group {
+    width: 100%;
+}
+.dmm-search input[type="search"] {
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid #dee2e6;
+    padding: 0 16px;
+}
+.dmm-search input[type="search"]:focus {
+    border-color: #6ea8fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.18) !important;
+    outline: none;
 }
 
-.movie-card img {
-  aspect-ratio: auto;
+/* =========================================================
+   SUB-HEADER – gradient bar, sticky ngay dưới header
+   ========================================================= */
+.sub-header {
+    position: sticky;
+    top: var(--navbar-h); /* bám ngay dưới header */
+    z-index: 1100; /* < navbar, > content */
+    background: linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%);
+    color: #fff;
+    min-height: var(--subbar-h);
+    display: flex;
+    align-items: center;
+    margin-top: -1px; /* chống hở 1px (nếu không hở, có thể xoá) */
+}
+.sub-header .container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.sub-header a {
+    color: #fff;
+    font-weight: 500;
+    text-decoration: none;
+}
+.sub-header a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
-.poster-wrap {
-  border-top-left-radius: var(--card-radius);
-  border-top-right-radius: var(--card-radius);
-}
-
-.poster-img {
-  transition: transform 0.35s ease;
-}
-
-.movie-card:hover .poster-img {
-  transform: scale(1.04);
-}
-
-.actions-float {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  gap: 10px;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: all 0.18s ease;
-}
-
-.movie-card:hover .actions-float {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.card-quick-actions {
-  transition: opacity 0.25s ease;
-}
-
-.movie-card:hover .card-quick-actions {
-  opacity: 1;
+/* Anchor offset khi cuộn tới section */
+#showtime-section {
+    scroll-margin-top: calc(var(--navbar-h) + 12px);
 }
 
 /* Banner / Carousel */
 .banner-wrapper {
-  max-height: 720px;
-  overflow: visible;
+    max-height: 720px;
+    overflow: visible;
 }
-
 .banner-img {
-  aspect-ratio: 2 / 1;
-  object-fit: cover;
-  transform: scale(1);
-  transition: transform 4s ease, box-shadow 0.3s ease-in-out; 
-  border-radius: 10px; 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); 
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 4s ease, box-shadow 0.3s ease-in-out;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
-
 .banner-img:hover {
-  transform: scale(1.08); 
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7); 
+    transform: scale(1.08);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
 }
-
 .carousel-item.active .banner-img {
-  transform: scale(1.06);
+    transform: scale(1.06);
 }
-
 .banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
 }
-
 .banner-caption {
-  position: absolute;
-  left: 1rem;
-  bottom: 1rem;
-  right: 1rem;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); 
-  transform: translateY(10px);
-  opacity: 0;
-  transition: all 0.5s ease;
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    transform: translateY(10px);
+    opacity: 0;
+    transition: all 0.5s ease;
 }
-
 .carousel-item.active .banner-caption {
-  transform: translateY(0);
-  opacity: 1;
+    transform: translateY(0);
+    opacity: 1;
 }
-
 .banner-caption h5 {
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  background: rgba(0, 0, 0, 0.35);
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    background: rgba(0, 0, 0, 0.35);
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
 }
-
 .banner-caption p {
-  background: rgba(0, 0, 0, 0.25);
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.5rem;
-  margin-top: 0.25rem;
+    background: rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
 }
 
 
-/* Điều chỉnh Header */
-
-.navbar {
-  position: sticky !important;    
-  top: 0;               
-  width: 100%;         
-  z-index: 2;       
-  background-color: #1a1a1a;
-  color: #070707;       
-  padding: 5px 0;   
-  transition: top 0.5s;   
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.navbar .container {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center;            
-}
-
-.navbar-logo {
-  max-height: 60px; 
-  width: auto; 
-  margin-right: 50px;
-}
-
-.form-control:focus {
-  border-color: transparent !important; 
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important; 
-  outline: none !important; 
-}
-
-.dmm-search input[type="search"] {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  width: 100%;                 
-}
-
-
-.dmm-search {
-  display: flex;
-  align-items: center;
-  margin: 0 100px; 
-}
-
-.input-group {
-  width: 100%;
-}
-
-.form-control {
-  border-radius: 30px; 
-  padding-left: 40px; 
-}
-
-.fas.fa-search {
-  color: #007bff; 
-}
-
-
-/* Sub header*/
-.sub-header {
-  position: sticky;        
-  top: 86px;               
-  background-color: #454AF2;
-  padding: 5px 0;
-  z-index: 1000;           
-}
-.sub-header .container{
-  display: flex;            
-  align-items: center;
-  gap: 20px;
-}
-.sub-header a{
-  text-decoration: none;
-  text-underline-offset: 2px;
-  color: white;
-}
-.sub-header a:hover{
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.banner-caption h5 {
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  background: rgba(0, 0, 0, 0.35);
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-}
-
-.banner-caption p {
-  background: rgba(0, 0, 0, 0.25);
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-/*PROFILE PAGE*/
-.cinema-title {
-  color: #e71a0f;
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 1.3rem;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.5rem;
-}
-
-.card-header {
-  display: flex;
-  position: center;
-  align-items: center;
-  gap: 50px;
-}
-
-/*ADMIN DASHBOARD*/
-.ad-wrapper {
-  position: relative;
-}
-
-.ad-sidebar {
-  background: linear-gradient(180deg, #27c2a6 0%, #1aa3f1 100%);
-  border-radius: 18px;
-  color: #fff;
-  width: 260px;
-  min-height: calc(100vh - 180px);
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 12px;
-}
-
-.ad-brand {
-  padding: 18px 18px 10px;
-  font-weight: 700;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.ad-menu {
-  padding: 6px 10px 18px;
-}
-
-.ad-menu h6 {
-  font-size: 0.75rem;
-  opacity: 0.85;
-  margin: 12px 10px 6px;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-
-.ad-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  margin: 4px 8px;
-  color: #eaf7ff;
-  text-decoration: none;
-  border-radius: 12px;
-}
-
-.ad-link:hover,
-.ad-link.active {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.ad-main {
-  padding-left: 12px;
-}
-
-.ad-topbar {
-  background: #fff;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.ad-card {
-  border: 0;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.text-muted {
-  color: var(--muted) !important;
-}
-
-.action-list a {
-  text-decoration: none;
-}
-
-@media (max-width: 992px) {
-  .ad-sidebar {
-    width: 100%;
-    border-radius: 12px;
-  }
-  .ad-main {
-    padding-left: 0;
-  }
-}
-
-/*FOOTER - DUMANMINH CINEMA*/
+/* =========================================================
+   FOOTER - DUMANMINH CINEMA
+   ========================================================= */
 .footer-dmm {
-  background: #fff;
-  color: #4a4a4a;
-  font-size: 14px;
-  border-top: 1px solid #ededed;
+    background: #fff;
+    color: #4a4a4a;
+    font-size: 14px;
+    border-top: 1px solid #ededed;
 }
-
 .footer-dmm__wrap {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 28px 20px 30px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 20px 30px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
 }
-
-/* Footer Titles */
 .footer-dmm__title {
-  margin: 0 0 12px;
-  color: #2f2f2f;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.2px;
+    margin: 0 0 12px;
+    color: #2f2f2f;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.2px;
 }
-
-/* Footer Lists */
 .footer-dmm__list,
 .footer-dmm__info {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
-
 .footer-dmm__list li,
 .footer-dmm__info li {
-  line-height: 1.9;
+    line-height: 1.9;
 }
-
 .footer-dmm__list a {
-  color: #4a4a4a;
-  text-decoration: none;
-  transition: color 0.2s ease, text-decoration-color 0.2s ease;
-  text-decoration-color: transparent;
+    color: #4a4a4a;
+    text-decoration: none;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-decoration-color: transparent;
 }
-
 .footer-dmm__list a:hover {
-  color: #111;
-  text-decoration: underline;
-  text-decoration-color: #cfcfcf;
+    color: #111;
+    text-decoration: underline;
+    text-decoration-color: #cfcfcf;
 }
 
-/* Footer Social Buttons */
 .footer-dmm__socials {
-  display: flex;
-  gap: 10px;
-  margin: 8px 0 12px;
+    display: flex;
+    gap: 10px;
+    margin: 8px 0 12px;
 }
-
 .social-btn {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  color: #2f2f2f;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    color: #2f2f2f;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-
 .social-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-
 .social-btn.fb {
-  background: #3b5998;
-  border-color: #2f4a87;
-  color: #fff;
+    background: #3b5998;
+    border-color: #2f4a87;
+    color: #fff;
 }
-
 .social-btn.yt {
-  background: #ff0000;
-  border-color: #cf0000;
-  color: #fff;
+    background: #ff0000;
+    border-color: #cf0000;
+    color: #fff;
 }
-
 .social-btn.ig {
-  background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
-  border-color: #d6249f;
-  color: #fff;
+    background: radial-gradient(
+        circle at 30% 110%,
+        #fdf497 0%,
+        #fd5949 45%,
+        #d6249f 60%,
+        #285aeb 90%
+    );
+    border-color: #d6249f;
+    color: #fff;
 }
-
 .social-btn.zalo {
-  background: #017fff;
-  border-color: #006ad6;
-  color: #fff;
+    background: #017fff;
+    border-color: #006ad6;
+    color: #fff;
 }
-
 .footer-dmm__badge img {
-  display: block;
-  width: 156px;
-  margin-top: 8px;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.02));
+    display: block;
+    width: 156px;
+    margin-top: 8px;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.02));
 }
 
-/* Footer Info Links */
 .footer-dmm__info li strong {
-  color: #1a1a1a;
-  font-weight: 600;
+    color: #1a1a1a;
+    font-weight: 600;
 }
-
 .footer-dmm__info a {
-  color: #1a73e8;
-  text-decoration: none;
+    color: #1a73e8;
+    text-decoration: none;
 }
-
 .footer-dmm__info a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .footer-dmm a:focus-visible,
 .social-btn:focus-visible {
-  outline: 3px solid rgba(0, 115, 230, 0.25);
-  outline-offset: 2px;
-  border-radius: 6px;
+    outline: 3px solid rgba(0, 115, 230, 0.25);
+    outline-offset: 2px;
+    border-radius: 6px;
 }
 
-/* Responsive Footer */
 @media (max-width: 992px) {
-  .footer-dmm__wrap {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-  }
+    .footer-dmm__wrap {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
 }
-
 @media (max-width: 560px) {
-  .footer-dmm__wrap {
-    grid-template-columns: 1fr;
-  }
-  .footer-dmm__socials {
-    justify-content: flex-start;
-  }
+    .footer-dmm__wrap {
+        grid-template-columns: 1fr;
+    }
+    .footer-dmm__socials {
+        justify-content: flex-start;
+    }
+}
+.footer-dmm__logo {
+    width: 300px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.footer-dmm__logo{
-  width: 300px;          /* chỉnh 28–48px tùy ý */
-  height: 50px;
-  object-fit: contain;
-  border-radius: 6px;   /* nếu logo vuông, bo nhẹ cho đẹp */
-  box-shadow: 0 1px 2px rgba(0,0,0,.06);
-}
-
-/*PAGE: SELECT SHOWTIMES (ĐẶT VÉ) */
-.page-select-showtime body {
-  background: none !important;
-}
-
-.page-select-showtime .container {
-  background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  padding: 40px;
-}
-
-.page-select-showtime .min-vh-75 {
-  min-height: 75vh;
-}
-
-/* Nút chọn ngày */
-.page-select-showtime .date-btn {
-  width: 85px;
-  text-align: center;
-  line-height: 1.3;
-  border-radius: 12px;
-  padding: 8px;
-  font-weight: 600;
-  border: none;
-  background-color: #f8f9fa;
-  transition: 0.25s;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-}
-
-.page-select-showtime .date-btn.active {
-  background-color: #0d6efd;
-  color: #fff;
-  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
-}
-
-/* Nút chọn suất chiếu */
-.page-select-showtime .time-btn {
-  min-width: 70px;
-  font-weight: 500;
-  border: none;
-  background-color: #f8f9fa;
-  transition: 0.25s;
-  border-radius: 10px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.05);
-}
-
-.page-select-showtime .time-btn:hover {
-  background-color: #0d6efd;
-  color: #fff;
-}
-
-/* Hiệu ứng hover cho thẻ rạp */
-.page-select-showtime .showtime-card {
-  transition: 0.3s;
-}
-
-.page-select-showtime .showtime-card:hover {
-  transform: translateY(-3px);
-}
-
-/* Hiệu ứng fade khi đổi ngày */
-.page-select-showtime .fade-container {
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-
-.page-select-showtime .fade-container.fade-out {
-  opacity: 0;
-}
-
-
-/* Movie detail*/
-.movie-info p {
-    margin-bottom: 5px;
-}
-
-
-/* ============================
-   ADMIN MOVIES (scoped by .adm-movies)
-   ============================ */
-
-/* Khung tổng */
-.adm-movies .card-like{
-  background:#fff;
-  border:1px solid #EAECF0;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(16,24,40,.06);
-  overflow:hidden;
-}
-
-/* Toolbar (tìm kiếm + CSV + Thêm phim) */
-.adm-movies .toolbar{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:12px;
-  margin: 16px 0 12px;
-}
-
-.adm-movies .toolbar .search{
-  flex:1 1 320px;
-  max-width: 560px;
-}
-
-.adm-movies .toolbar .search input[type="search"]{
-  height:44px;
-  border-radius: 999px;
-  border:1px solid #EAECF0;
-  padding: 0 16px;
-  box-shadow: 0 1px 2px rgba(16,24,40,.04);
-}
-.adm-movies .toolbar .search input[type="search"]:focus{
-  outline:none;
-  border-color:#B8BDFD;
-  box-shadow: 0 0 0 4px rgba(69,74,242,.12);
-}
-
-/* Nút “mềm” & nút thương hiệu – chỉ trong trang này */
-.adm-movies .btn-soft{
-  background:#F9FAFB;
-  border:1px solid #EAECF0;
-  color:#101828;
-}
-.adm-movies .btn-soft:hover{ background:#fff; }
-
-.adm-movies .btn-brand{
-  background:#454AF2;
-  border-color:#454AF2;
-  color:#fff;
-}
-.adm-movies .btn-brand:hover{ filter:brightness(.95); }
-
-/* Input file CSV (ẩn input thật, dùng label/nút giả) */
-.adm-movies .csv-input{
-  position:relative;
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-}
-.adm-movies .csv-input input[type="file"]{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  cursor:pointer;
-}
-.adm-movies .csv-input .fake-btn{
-  pointer-events:none; /* để click vào vùng nào cũng kích hoạt input */
-}
-
-/* Bảng phim */
-.adm-movies .table-movies{
-  margin:0;
-}
-.adm-movies .table-movies thead th{
-  background:#F6F7FB;
-  color:#667085;
-  font-weight:600;
-  font-size:.85rem;
-  border-bottom:1px solid #EAECF0 !important;
-  white-space:nowrap;
-}
-.adm-movies .table-movies tbody td{
-  vertical-align:middle;
-  border-color:#EAECF0;
-  color:#101828;
-}
-
-/* Cột poster + ảnh poster */
-.adm-movies .poster-col{ width:64px; }
-.adm-movies .poster-thumb{
-  width:48px; height:48px;
-  border-radius:8px;
-  object-fit:cover;
-  box-shadow:0 2px 6px rgba(16,24,40,.06);
-}
-
-/* Nhãn “mềm” cho thời lượng/chỉ số */
-.adm-movies .badge-soft{
-  background:#F9FAFB;
-  color:#667085;
-  border:1px solid #EAECF0;
-  font-weight:500;
-}
-
-/* Cột thao tác */
-.adm-movies .table-actions{
-  display:flex;
-  gap:8px;
-  justify-content:flex-end;
-}
-
-/* Bo viền + bóng nhẹ cho cụm toolbar (tuỳ chọn) */
-.adm-movies .toolbar-wrap{
-  background:#fff;
-  border:1px solid #EAECF0;
-  border-radius:12px;
-  padding:10px;
-  box-shadow:0 10px 30px rgba(16,24,40,.06);
-}
-
-/* Responsive: chuyển bảng thành block trên màn nhỏ */
-@media (max-width: 992px){
-  .adm-movies .table-movies thead{ display:none; }
-  .adm-movies .table-movies tbody tr{
-    display:block;
-    border-bottom:1px solid #EAECF0;
-    padding:12px 12px;
-  }
-  .adm-movies .table-movies tbody td{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    padding:8px 0;
-    border:0;
-  }
-  .adm-movies .table-movies tbody td::before{
-    content: attr(data-label);
-    color:#667085;
-    font-weight:600;
-  }
-  .adm-movies .table-actions{ justify-content:flex-start; }
-}
-/* ===== FIX MODAL BỊ CHE BỞI HEADER / SUBHEADER ===== */
+/* =========================================================
+   MODAL – đảm bảo phủ lên header/sub-header
+   ========================================================= */
 .modal {
-  z-index: 2000 !important;
+    z-index: 2000 !important;
 }
-
 .modal-backdrop {
-  z-index: 1999 !important;
+    z-index: 1999 !important;
 }
 
-/* Hạ z-index của sub-header để modal phủ lên */
-.sub-header {
-  z-index: 1020 !important;
+/* =========================================================
+   ADMIN DASHBOARD
+   ========================================================= */
+
+:root {
+    --radius: 16px; /* giữ đồng bộ biến đã có */
+    --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
+}
+
+/* --- Layout chính --- */
+.ad-wrapper {
+    position: relative;
+    display: flex;
+    gap: 12px;
+}
+.ad-sidebar {
+    background: linear-gradient(180deg, #27c2a6 0%, #1aa3f1 100%);
+    border-radius: 18px;
+    color: #fff;
+    width: 260px;
+    min-height: calc(100vh - 180px);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 12px;
+    flex: 0 0 260px;
+}
+.ad-main {
+    flex: 1 1 auto;
+    padding-left: 12px;
+    width: 100%;
+}
+
+/* Mở rộng full-width, bỏ khoảng trắng 2 bên */
+.ad-main .container,
+.ad-main .container-sm,
+.ad-main .container-md,
+.ad-main .container-lg,
+.ad-main .container-xl,
+.ad-main .container-xxl,
+.ad-main .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+.ad-main .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+.ad-main [class*="col-"] {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* --- Brand & menu giữ nguyên --- */
+.ad-brand {
+    padding: 18px 18px 10px;
+    font-weight: 700;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.ad-menu {
+    padding: 6px 10px 18px;
+}
+.ad-menu h6 {
+    font-size: 0.75rem;
+    opacity: 0.85;
+    margin: 12px 10px 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.ad-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin: 4px 8px;
+    color: #eaf7ff;
+    text-decoration: none;
+    border-radius: 12px;
+}
+.ad-link:hover,
+.ad-link.active {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* --- Topbar + Card chung --- */
+.ad-topbar {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.ad-card {
+    border: 0;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* --- Trang tiêu đề + nút làm mới --- */
+.ad-page-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 20px;
+}
+.ad-page-title h3 {
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+.btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #0d6efd;
+    border: 1px solid #dbe3f0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(16, 24, 40, 0.05);
+    transition: transform 0.08s ease, box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+.btn-refresh:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 24, 40, 0.08);
+    border-color: #c9d6ea;
+}
+
+
+
+/* --- Section card (Lịch sử, Top phim, Suất chiếu) --- */
+.section-card {
+    background: #fff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    padding: 12px 14px;
+}
+.section-card .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.section-card .section-head h6 {
+    margin: 0;
+    font-weight: 800;
+}
+
+/* --- Bảng gọn --- */
+.table-clean {
+    margin: 0;
+}
+.table-clean thead th {
+    background: #f6f7fb;
+    color: #667085;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e9edf3 !important;
+}
+.table-clean tbody td {
+    vertical-align: middle;
+    border-color: #eef2f6;
+    color: #111827;
+}
+
+/* --- Empty state --- */
+.empty {
+    padding: 22px;
+    text-align: center;
+    color: #667085;
+    border: 1px dashed #e5e7eb;
+    border-radius: 12px;
+    background: #fafbff;
+}
+
+/* --- Link hành động --- */
+.action-list a {
+    text-decoration: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .ad-sidebar {
+        width: 100%;
+        border-radius: 12px;
+        position: relative;
+        top: 0;
+    }
+    .ad-wrapper {
+        flex-direction: column;
+    }
+    .ad-main {
+        padding-left: 0;
+    }
+}
+/* ===== Admin Dashboard – Greeting Banner ===== */
+.ad-greeting {
+    border-radius: 16px;
+    background: #fff; /* đổi sang gradient nhẹ nếu thích */
+    /* Ví dụ gradient:
+     background: linear-gradient(90deg,#ffffff 0%,#f7fbff 50%,#f3f9ff 100%);
+  */
+}
+.ad-greeting .card-body {
+    padding: 16px 20px;
+    min-height: 92px;
+}
+.ad-greeting__avatar {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+}
+@media (min-width: 768px) {
+    .ad-greeting .card-body {
+        padding: 20px 28px;
+    }
+}
+
+/* ===== Admin Dashboard – Cards / Tables (nhẹ) ===== */
+.ad-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.table-clean thead th {
+    font-weight: 600;
+    color: #6b7280;
+    background: #f9fafb;
+    border-bottom: 1px solid #eef2f7;
+}
+.table-clean td,
+.table-clean th {
+    vertical-align: middle;
+}
+/* ===== User Management polish ===== */
+.adm-users .users-toolbar {
+    background: #fff;
+    border: 1px solid #eaecf0;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+}
+.adm-users .users-search input {
+    height: 48px;
+    padding: 0 16px;
+    border: 1px solid #eaecf0;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+.adm-users .users-search input:focus {
+    outline: none;
+    border-color: #b8bdfd;
+    box-shadow: 0 0 0 4px rgba(69, 74, 242, 0.12);
+}
+.adm-users .users-table thead th {
+    background: #f6f7fb;
+    color: #667085;
+    font-weight: 600;
+}
+.adm-users .users-table .badge {
+    font-weight: 600;
 }

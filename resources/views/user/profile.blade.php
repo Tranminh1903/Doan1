@@ -190,3 +190,25 @@
   </div>
 </div>
 @endsection
+
+
+@push('styles')
+<style>
+  /* =========================================================
+   PROFILE PAGE
+   ========================================================= */
+.cinema-title {
+    color: #e71a0f;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+</style>
+@endpush

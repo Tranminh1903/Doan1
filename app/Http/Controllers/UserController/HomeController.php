@@ -17,6 +17,6 @@ class HomeController extends Controller
             ->where('status', 'active')
             ->get();
 
-        return view('home', compact('movies', 'bannerMovies'));
+        return view('layouts.home', compact('movies', 'bannerMovies'));
     }
 }

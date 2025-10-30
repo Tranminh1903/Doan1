@@ -36,10 +36,10 @@ class ReportController extends Controller
 
 public function ajaxRevenueByMovie()
 {
-    $revenue = \DB::table('orders')
+    $revenue = DB::table('orders')
         ->join('showtime', 'orders.showtimeID', '=', 'showtime.showtimeID')
         ->join('movies', 'showtime.movieID', '=', 'movies.movieID')
-        ->select('movies.title', \DB::raw('SUM(orders.amount) as total'))
+        ->select('movies.title', DB::raw('SUM(orders.amount) as total'))
         ->where('orders.status', 'paid')
         ->groupBy('movies.movieID', 'movies.title')
         ->orderByDesc('total')

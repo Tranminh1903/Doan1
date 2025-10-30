@@ -13,13 +13,12 @@ return new class extends Migration {
             $table->decimal('price', 10, 2);
             $table->string('status', 20)->default('issued');
             $table->uuid('qr_token')->unique();   
-            $table->string('order_code')->unique();
+            $table->string('order_code')->nullable();
             $table->dateTime('issueAt')->nullable();
             $table->string('refund_reason')->nullable();
             $table->timestamps();
             $table->unique(['showtimeID', 'seatID']);
             $table->index(['status', 'showtimeID']);
-
             $table->foreignId('showtimeID')->constrained('showtime', 'showtimeID')->cascadeOnDelete();
             $table->foreignId('seatID')->constrained('seats', 'seatID')->cascadeOnDelete();            
         });

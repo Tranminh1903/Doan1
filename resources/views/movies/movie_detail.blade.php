@@ -92,3 +92,12 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 @endsection
+
+@push('styles')
+<style>
+/* Movie detail */
+.movie-info p {
+    margin-bottom: 5px;
+}
+</style>
+@endpush

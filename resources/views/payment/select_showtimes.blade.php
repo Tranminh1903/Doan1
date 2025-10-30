@@ -215,3 +215,74 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 @endsection
+
+
+@push('styles')
+<style>
+  /* =========================================================
+   PAGE: SELECT SHOWTIMES (ĐẶT VÉ)
+   ========================================================= */
+/* NOTE: gán <body class="page-select-showtime"> ở view */
+body.page-select-showtime {
+    background: none !important;
+}
+body.page-select-showtime .container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+}
+body.page-select-showtime .min-vh-75 {
+    min-height: 75vh;
+}
+
+/* Nút chọn ngày */
+body.page-select-showtime .date-btn {
+    width: 85px;
+    text-align: center;
+    line-height: 1.3;
+    border-radius: 12px;
+    padding: 8px;
+    font-weight: 600;
+    border: none;
+    background: #f8f9fa;
+    transition: 0.25s;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+body.page-select-showtime .date-btn.active {
+    background: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+}
+
+/* Nút chọn suất chiếu */
+body.page-select-showtime .time-btn {
+    min-width: 70px;
+    font-weight: 500;
+    border: none;
+    background: #f8f9fa;
+    transition: 0.25s;
+    border-radius: 10px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.05);
+}
+body.page-select-showtime .time-btn:hover {
+    background: #0d6efd;
+    color: #fff;
+}
+
+/* Card rạp & fade */
+body.page-select-showtime .showtime-card {
+    transition: 0.3s;
+}
+body.page-select-showtime .showtime-card:hover {
+    transform: translateY(-3px);
+}
+body.page-select-showtime .fade-container {
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+body.page-select-showtime .fade-container.fade-out {
+    opacity: 0;
+}
+</style>
+@endpush

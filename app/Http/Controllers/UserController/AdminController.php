@@ -2,30 +2,152 @@
 
 namespace App\Http\Controllers\UserController;
 
-
-use id;
+use App\Http\Controllers\UserController\Controller;
+use Carbon\Carbon;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Models\UserModels\User;
+use App\Models\UserModels\Order;
 use App\Models\ProductModels\Movie;
+use App\Models\ProductModels\Ticket;
+use App\Models\ProductModels\Showtime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\Password;   
-use App\Http\Controllers\UserController\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\Rules\Password;
 
 class AdminController extends Controller
 {
     public function showAdminDashboard(): View
     {
-        return view('adminDashboard.index');
+        $tz    = 'Asia/Ho_Chi_Minh';
+        $today = Carbon::today($tz);
+        $now   = Carbon::now($tz);
+
+
+        $paidStatuses = ['paid', 'success', 'completed', 1, '1'];
+        $paidDateColumn = Schema::hasColumn('orders', 'paid_at')
+            ? 'orders.paid_at'
+            : 'orders.created_at';
+
+        $kpi = [];
+        $kpi['revenue_today'] = Order::query()
+            ->whereIn('orders.status', $paidStatuses)
+            ->whereDate($paidDateColumn, $today)
+            ->sum('orders.amount');
+
+        $kpi['tickets_today'] = Ticket::query()
+            ->whereDate('created_at', $today)
+            ->count();
+
+        $kpi['users_total']   = User::query()->count();
+
+        $kpi['movies_active'] = Movie::query()
+            ->where('status', 'active')
+            ->count();
+
+        $recentTickets = Ticket::query()
+            ->with(['showtime.movie', 'seat'])
+            ->latest('created_at')
+            ->take(10)
+            ->get()
+            ->map(function ($t) use ($tz) {
+                return (object)[
+                    'code'  => $t->ticketCode ?? '',
+                    'movie' => optional(optional($t->showtime)->movie)->title ?? '',
+                    'seat'  => optional($t->seat)->seatName ?? '',
+                    'price' => (int)($t->price ?? 0),
+                    'time'  => optional($t->created_at)->setTimezone($tz)->format('H:i'),
+                ];
+            });
+
+        $topMovies = Order::query()
+            ->whereIn('orders.status', $paidStatuses)
+            ->join('showtime', 'showtime.showtimeID', '=', 'orders.showtimeID')
+            ->join('movies',  'movies.movieID',      '=', 'showtime.movieID')
+            ->groupBy('movies.movieID', 'movies.title')
+            ->selectRaw('movies.title as title, SUM(orders.amount) as revenue')
+            ->orderByRaw('SUM(orders.amount) DESC')
+            ->limit(5)
+            ->get();
+
+        if ($topMovies->isEmpty()) {
+            $topMovies = Ticket::query()
+                ->join('showtime', 'showtime.showtimeID', '=', 'ticket.showtimeID')
+                ->join('movies',  'movies.movieID',       '=', 'showtime.movieID')
+                ->groupBy('movies.movieID', 'movies.title')
+                ->selectRaw('movies.title as title, SUM(ticket.price) as revenue')
+                ->orderByRaw('SUM(ticket.price) DESC')
+                ->limit(5)
+                ->get();
+        }
+
+        $upcomingShowtimes = Showtime::query()
+            ->with(['movie', 'theater'])
+            ->whereBetween('startTime', [$now, $now->copy()->addDays(7)])
+            ->orderBy('startTime')
+            ->limit(10)
+            ->get();
+
+        if ($upcomingShowtimes->isEmpty()) {
+            $upcomingShowtimes = Showtime::query()
+                ->with(['movie', 'theater'])
+                ->orderByDesc('startTime')
+                ->limit(10)
+                ->get();
+        }
+
+        $upcomingShowtimes = $upcomingShowtimes->map(function ($s) use ($tz, $paidStatuses) {
+            $sold  = $s->orders()->whereIn('status', $paidStatuses)->count();
+            $total = (int) (optional($s->theater)->capacity ?? 0);
+            return (object)[
+                'time'    => optional($s->startTime)->setTimezone($tz)->format('H:i'),
+                'movie'   => optional($s->movie)->title ?? '',
+                'theater' => optional($s->theater)->name ?? (optional($s->theater)->roomName ?? ''),
+                'seats'   => $sold . '/' . $total,
+            ];
+        });
+
+        $theaterMini = DB::table('movie_theaters')
+            ->orderBy('roomName')
+            ->limit(5)
+            ->get(['roomName', 'capacity']);
+
+        return view('adminDashboard.index', compact(
+            'kpi',
+            'recentTickets',
+            'topMovies',
+            'upcomingShowtimes',
+            'theaterMini'
+        ));
     }
 
-    public function showMainManagementUser(Request $request): View
+
+    public function showMainManagementUser(Request $request)
     {
-        return view('adminDashboard.userManagement.main');
+        $q = trim((string) $request->get('q', ''));
+
+        $users = User::query()
+            ->when($q, function ($qr) use ($q) {
+                $qr->where(function($x) use ($q) {
+                    $x->where('name','like',"%$q%")
+                      ->orWhere('email','like',"%$q%")
+                      ->orWhere('role','like',"%$q%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        $kpi = [
+            'users_total'  => User::count(),
+            'users_active' => User::where('status','active')->count(),
+        ];
+
+        return view('adminDashboard.userManagement.main', compact('users','kpi','q'));
     }
 
     public function showUpdateUser(Request $request): View
@@ -36,7 +158,7 @@ class AdminController extends Controller
             $q = $request->q;
             $query->where(function ($x) use ($q) {
                 $x->where('username', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%");
+                    ->orWhere('email', 'like', "%{$q}%");
             });
         }
         if ($request->filled('role'))   $query->where('role',   $request->role);
@@ -65,7 +187,7 @@ class AdminController extends Controller
         ]);
 
         $birthday = null;
-        if ($request->filled(['day','month','year'])) {
+        if ($request->filled(['day', 'month', 'year'])) {
             $birthday = sprintf('%04d-%02d-%02d', $request->year, $request->month, $request->day);
         }
 
@@ -89,31 +211,36 @@ class AdminController extends Controller
         }
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'username' => 'required|string|max:100|unique:users,username,' . $user->id,
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'role'     => 'required|in:admin,customers',
-            'status'   => 'required|in:active,blocked',
-            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'remove_avatar' => 'sometimes|boolean',
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','email','max:255',"unique:users,email,{$user->id}"],
+            'password' => ['nullable','string','min:6'],
+            'role'     => ['nullable','in:Admin,Staff,User'],
+            'status'   => ['nullable','in:active,locked'],
+            'avatar'   => ['nullable','string','max:1024'],
+            'phone'    => ['nullable','string','max:50'],
+            'note'     => ['nullable','string','max:2000'],
         ]);
 
-        if ($request->boolean('remove_avatar')) {
-            $this->removeOldAvatarIfAny($user);
-            $data['avatar'] = null;
+        $user->fill([
+            'name'   => $data['name'],
+            'email'  => $data['email'],
+            'role'   => $data['role']   ?? $user->role,
+            'status' => $data['status'] ?? $user->status,
+            'avatar' => $data['avatar'] ?? $user->avatar,
+            'phone'  => $data['phone']  ?? $user->phone,
+            'note'   => $data['note']   ?? $user->note,
+        ]);
+
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
         }
 
-        if ($request->hasFile('avatar')) {
-            $this->removeOldAvatarIfAny($user);
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = 'storage/' . $path;
-        }
+        $user->save();
 
-        $user->update($data);
-
-        return back()->with('UpdateProfileSuccess', 'Cập nhật người dùng thành công!');
+        return back()->with('success','Đã cập nhật người dùng.');
     }
 
     public function delete(User $user): RedirectResponse
@@ -130,20 +257,47 @@ class AdminController extends Controller
             return back()->with('error', 'Không thể xóa người dùng. Kiểm tra ràng buộc dữ liệu.');
         }
     }
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'file' => ['required','image','max:2048'] // 2MB
+        ]);
 
+        $file = $request->file('file');
+
+        // Lưu vào storage/app/public/avatars
+        $path = $file->store('public/avatars');
+        // Trả đường dẫn public
+        $publicPath = Str::replaceFirst('public/', 'storage/', $path);
+
+        return response()->json(['path' => $publicPath]);
+    }
     public function showMain(Request $request): View
     {
         $q = (string) $request->query('q', '');
-        $movies = Movie::when($q, function ($qr) use ($q) {
-                $qr->where('title','like',"%$q%")
-                   ->orWhere('genre','like',"%$q%")
-                   ->orWhere('rating','like',"%$q%");
-            })
+
+        // Query danh sách phim (có tìm kiếm)
+        $moviesQuery = Movie::query();
+        if ($q !== '') {
+            $moviesQuery->where(function ($qr) use ($q) {
+                $qr->where('title', 'like', "%{$q}%")
+                    ->orWhere('genre', 'like', "%{$q}%")
+                    ->orWhere('rating', 'like', "%{$q}%");
+            });
+        }
+
+        $movies = $moviesQuery
             ->latest('movieID')
             ->paginate(12)
             ->withQueryString();
 
-        return view('adminDashboard.moviesManagement.main', compact('movies','q'));
+        // KPI
+        $kpi = [
+            'movies_active' => Movie::where('status', 'active')->count(),
+            'movies_total'  => Movie::count(),
+        ];
+
+        return view('adminDashboard.moviesManagement.main', compact('movies', 'q', 'kpi'));
     }
 
     public function movieStore(Request $req): RedirectResponse
@@ -164,7 +318,7 @@ class AdminController extends Controller
         }
 
         Movie::create($data);
-        return back()->with('status','Đã thêm phim.');
+        return back()->with('status', 'Đã thêm phim.');
     }
 
     public function movieUpdate(Request $req, Movie $movie): RedirectResponse
@@ -181,21 +335,21 @@ class AdminController extends Controller
         ]);
 
         $movie->update($data);
-        return back()->with('status','Đã cập nhật.');
+        return back()->with('status', 'Đã cập nhật.');
     }
 
     public function movieDestroy(Movie $movie): RedirectResponse
     {
         $movie->delete();
-        return back()->with('status','Đã xoá phim.');
+        return back()->with('status', 'Đã xoá phim.');
     }
     ////////////////////////// CSV //////////////////////////
     public function movieTemplateCsv()
     {
-        $header = ['movieID','title','poster','durationMin','genre','rating','releaseDate','description','status'];
+        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
         return response()->streamDownload(function () use ($header) {
-            $out = fopen('php://output','w');
-            fputcsv($out,$header);
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $header);
             fputcsv($out, ['', 'MAI', 'https://.../mai.jpg', 120, 'Drama', 'T13', '2024-02-10', 'Mô tả...', 'active']);
             fclose($out);
         }, 'movies_template.csv', ['Content-Type' => 'text/csv']);
@@ -203,22 +357,29 @@ class AdminController extends Controller
 
     public function movieExportCsv(Request $request)
     {
-        $q = (string) $request->query('q','');
+        $q = (string) $request->query('q', '');
         $rows = Movie::when($q, function ($qr) use ($q) {
-                $qr->where('title','like',"%$q%")
-                ->orWhere('genre','like',"%$q%")
-                ->orWhere('rating','like',"%$q%");
-            })->orderBy('movieID')->get();
+            $qr->where('title', 'like', "%$q%")
+                ->orWhere('genre', 'like', "%$q%")
+                ->orWhere('rating', 'like', "%$q%");
+        })->orderBy('movieID')->get();
 
-        $header = ['movieID','title','poster','durationMin','genre','rating','releaseDate','description','status'];
+        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
 
-        return response()->streamDownload(function () use ($rows,$header) {
-            $out = fopen('php://output','w');
-            fputcsv($out,$header);
+        return response()->streamDownload(function () use ($rows, $header) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $header);
             foreach ($rows as $m) {
                 fputcsv($out, [
-                    $m->movieID, $m->title, $m->poster, $m->durationMin,
-                    $m->genre, $m->rating, $m->releaseDate, $m->description, $m->status,
+                    $m->movieID,
+                    $m->title,
+                    $m->poster,
+                    $m->durationMin,
+                    $m->genre,
+                    $m->rating,
+                    $m->releaseDate,
+                    $m->description,
+                    $m->status,
                 ]);
             }
             fclose($out);
@@ -233,41 +394,42 @@ class AdminController extends Controller
         ]);
 
         $fp = fopen($req->file('file')->getRealPath(), 'r');
-        if (!$fp) return back()->with('error','Không mở được file CSV.');
+        if (!$fp) return back()->with('error', 'Không mở được file CSV.');
 
         $header = fgetcsv($fp) ?: [];
         $map = array_change_key_case(array_flip($header), CASE_LOWER);
 
-        foreach (['title','durationmin'] as $need) {
+        foreach (['title', 'durationmin'] as $need) {
             if (!array_key_exists($need, $map)) {
                 fclose($fp);
                 return back()->with('error', "Thiếu cột: $need");
             }
         }
 
-        $created=0; $updated=0;
-        $get = fn($row,$key,$def=null)=> $row[$map[$key]] ?? $def;
+        $created = 0;
+        $updated = 0;
+        $get = fn($row, $key, $def = null) => $row[$map[$key]] ?? $def;
 
         while (($row = fgetcsv($fp)) !== false) {
-            if (count(array_filter($row))===0) continue;
+            if (count(array_filter($row)) === 0) continue;
 
-            $status = strtolower((string) $get($row,'status','active'));
+            $status = strtolower((string) $get($row, 'status', 'active'));
             if (!in_array($status, self::MOVIE_STATUSES, true)) {
                 $status = 'active';
             }
 
             $payload = [
-                'title'        => $get($row,'title',''),
-                'poster'       => $get($row,'poster'),
-                'durationMin'  => (int) $get($row,'durationmin',0),
-                'genre'        => $get($row,'genre'),
-                'rating'       => $get($row,'rating'),
-                'releaseDate'  => $get($row,'releasedate'),
-                'description'  => $get($row,'description'),
+                'title'        => $get($row, 'title', ''),
+                'poster'       => $get($row, 'poster'),
+                'durationMin'  => (int) $get($row, 'durationmin', 0),
+                'genre'        => $get($row, 'genre'),
+                'rating'       => $get($row, 'rating'),
+                'releaseDate'  => $get($row, 'releasedate'),
+                'description'  => $get($row, 'description'),
                 'status'       => $status,
             ];
 
-            $id = $get($row,'movieid');
+            $id = $get($row, 'movieid');
             if ($id && ($movie = Movie::find($id))) {
                 $movie->update($payload);
                 $updated++;
@@ -303,10 +465,10 @@ class AdminController extends Controller
     public function uploadPoster(Request $request)
     {
         $request->validate([
-            'file' => ['required','image','max:2048'],
+            'file' => ['required', 'image', 'max:2048'],
         ]);
         $path = $request->file('file')->store('pictures', 'public');
-        return response()->json(['path' => 'storage/'.$path]);
+        return response()->json(['path' => 'storage/' . $path]);
     }
 
     ////////////////////////// Movie Theater //////////////////////////

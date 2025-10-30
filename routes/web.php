@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController\HomeController;
 use App\Http\Controllers\UserController\AdminController;
 use App\Http\Controllers\UserController\MovieController;
 use App\Http\Controllers\UserController\OrderController;
+use App\Http\Controllers\UserController\ReportController;
 use App\Http\Controllers\UserController\TicketController;
 use App\Http\Controllers\UserController\BookingController;
 use App\Http\Controllers\UserController\CustomerController;
@@ -49,8 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
     Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
-   
-    Route::get('/tickets/history', [TicketController::class, 'index'])->name('tickets.history');
+
     //Order
     // Đặt hàng mới
     Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
@@ -80,19 +80,19 @@ Route::middleware('auth')->group(function () {
     }); 
 
 Route::middleware('auth','admin')->group(function() {
-     //Admin Dashboard - Manage User
-    Route::post('/adminDashboard/userManagement/_createUser', [AdminController::class, 'createUser'])->name('admin_userManagement.Create');
+    //Admin Dashboard - Manage User
     Route::get('/adminDashboard', [AdminController::class, 'showAdminDashboard'])->name('admin.form');
-    Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('userManagement_main.form');
-    Route::get('/adminDashboard/userManagement/_updateUser', [AdminController::class, 'showUpdateUser'])->name('userManagement_updateUser.form');
-    Route::get('/adminDashboard/userManagement/_createUser', [AdminController::class, 'showCreateUser'])->name('userManagement_createUser.form');
+
+    //Admin Dashboard - User Management
+    Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
 
     //Admin Dashboard - Button for _updateUser 
     Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/admin/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
-
+    Route::post('/admin/users', [AdminController::class, 'store'])->name('users.store');
+    Route::post('/admin/users/upload-avatar', [AdminController::class, 'uploadAvatar'])->name('users.upload_avatar');
     //Admin Dashboard - Manage Movies
-    Route::get('/adminDashboard/moviesManagement/main',[AdminController::class,'showMain'])->name('moviesManagement_main.form');
+    Route::get('/adminDashboard/moviesManagement/main',[AdminController::class,'showMain'])->name('admin.moviesManagement_main.form');
 
     Route::post('/admin/movies', [AdminController::class, 'movieStore'])->name('moviesManage.store');
     Route::put('/admin/movies/{movie}', [AdminController::class, 'movieUpdate'])->name('moviesManage.update');
@@ -107,4 +107,9 @@ Route::middleware('auth','admin')->group(function() {
     //Set Banner
     Route::post('admin/movies/{movie}/banner',  [AdminController::class, 'setBanner'])->name('moviesManage.banner_set');
     Route::delete('admin/movies/{movie}/banner', [AdminController::class, 'unsetBanner'])->name('moviesManage.banner_unset');
+    
+    Route::get('reports/revenue', [ReportController::class, 'index'])->name('admin.reports.revenue');
+    Route::get('reports/revenue-data', [ReportController::class, 'ajaxData'])->name('reports.revenue.ajax');
+    Route::get('reports/revenue-movie', [ReportController::class, 'revenueByMovie'])->name('reports.revenue.movie');
+    Route::get('reports/revenue-movie-data', [ReportController::class, 'ajaxRevenueByMovie'])->name('reports.revenue.movie.ajax');
 });

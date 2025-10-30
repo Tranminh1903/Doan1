@@ -55,10 +55,10 @@
         <a href="{{ $b['url'] }}" class="d-block position-relative" aria-label="{{ $b['title'] ?? 'Banner '.($i+1) }}">
           <img class="w-100 banner-img" src="{{ $b['img'] }}" alt="{{ $b['title'] ?? 'Banner '.($i+1) }}" loading="lazy">
           <span class="banner-overlay"></span>
-          <div class="banner-caption">
-            @isset($b['title']) <h5 class="mb-1">{{ $b['title'] }}</h5> @endisset
-            @isset($b['desc'])  <p class="mb-0">{{ $b['desc'] }}</p>   @endisset
-          </div>
+            <div class="banner-caption">
+              @isset($b['title']) <h5 class="mb-1">{{ $b['title'] }}</h5> @endisset
+              @isset($b['desc'])  <p class="mb-0">{{ $b['desc'] }}</p>   @endisset
+            </div>
         </a>
       </div>
     @endforeach
@@ -162,3 +162,68 @@
   </div>
 </section>
 @endsection
+
+
+@push('styles')
+<style>
+  /* =========================================================
+   HOME PAGE / MOVIE LISTING
+   ========================================================= */
+.ns-wrap {
+    max-width: 1200px;
+    margin: 48px auto;
+}
+.ns-row {
+    row-gap: 24px;
+}
+
+.movie-card {
+    border-radius: var(--card-radius);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.12);
+}
+.movie-card img {
+    aspect-ratio: auto;
+}
+
+.poster-wrap {
+    border-top-left-radius: var(--card-radius);
+    border-top-right-radius: var(--card-radius);
+    overflow: hidden;
+}
+.poster-img {
+    transition: transform 0.35s ease;
+}
+.movie-card:hover .poster-img {
+    transform: scale(1.04);
+}
+
+.actions-float {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 0.18s ease;
+}
+.movie-card:hover .actions-float {
+    opacity: 1;
+    transform: translateY(0);
+}
+.card-quick-actions {
+    transition: opacity 0.25s ease;
+}
+.movie-card:hover .card-quick-actions {
+    opacity: 1;
+}
+</style>
+@endpush

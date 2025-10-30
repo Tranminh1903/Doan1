@@ -13,6 +13,7 @@
   <style>
   </style>
   @stack('head')
+  @stack('styles')
 </head>
 <body>
 
@@ -79,7 +80,7 @@
   </div>
 </nav>
 
-  @if (((!request()->routeIs('login.form') && !request()->routeIs('register.form')) && !request()->routeIs('moviesManagement_main.form')))
+  @if (((!request()->routeIs('login.form') && !request()->routeIs('register.form')) && !request()->routeIs('admin.*')))
     <section class="sub-header py-4">
       <div class="container">
           <a href="" class="text-white">Trang chủ</a>
