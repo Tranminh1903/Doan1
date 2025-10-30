@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('overlay').style.display = 'none';
   };
 });
-const showtimeID = "{{ $showtimeID }}";
+const showtimeID = "{{ $showtime->showtimeID ?? 8 }}";
 
     // Hàm gọi API kiểm tra ghế hết hạn
     async function checkExpiredSeats() {
@@ -355,12 +355,13 @@ const showtimeID = "{{ $showtimeID }}";
 
                 // Đổi màu ghế hết hạn về trắng (available)
                 data.expiredSeats.forEach(id => {
-                    const seatEl = document.querySelector(`#seat-${id}`);
-                    if (seatEl) {
-                        seatEl.classList.remove('bg-yellow-400', 'cursor-not-allowed');
-                        seatEl.classList.add('bg-white', 'hover:bg-green-200', 'cursor-pointer');
-                    }
-                });
+                const seatEl = document.querySelector(`[data-seat-id="${id}"]`);
+  if (seatEl) {
+    seatEl.classList.remove('held', 'booked'); 
+    seatEl.classList.remove('selected');       
+    seatEl.style.backgroundColor = '';         
+  }
+});
             }
         } catch (err) {
             console.error("Lỗi khi check ghế hết hạn:", err);

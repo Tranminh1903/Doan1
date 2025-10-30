@@ -11,6 +11,7 @@ use App\Models\ProductModels\Movie;
 use Illuminate\Support\Facades\Redis;
 use App\Models\ProductModels\Showtime;
 use App\Models\UserModels\Promotion;
+use App\Events\SeatStatusUpdated;
 use App\Http\Controllers\UserController\Controller;
 
 class BookingController extends Controller
@@ -160,6 +161,8 @@ class BookingController extends Controller
                 ->whereIn('seatID', $expiredSeats)
                 ->where('showtimeID', $showtimeID)
                 ->update(['status' => 'available']);
+
+                broadcast(new SeatStatusUpdated($showtimeID, $expiredSeats, 'available'))->toOthers();
         }
 
         return response()->json([
