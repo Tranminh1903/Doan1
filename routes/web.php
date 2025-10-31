@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\StaffController\ReportController;
 use App\Http\Controllers\StaffController\AdminController;
 use App\Http\Controllers\UserController\AuthController;
@@ -12,27 +13,27 @@ use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
-use Illuminate\Support\Facades\Route;
-
-
+use App\Http\Controllers\UserController\GoogleController;
+use Illuminate\Support\Facades\Route
 // ==== Trang chủ ==== //
-Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/', [HomeController::class,'index'])->name('home');
+// Trang chủ và chi tiết phim — công khai
+    Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
+    Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
 
-// ==== Trang chủ và chi tiết phim — công khai ==== //
-Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
-Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
 // ==== Guest only (chưa đăng nhập) ==== //
 Route::middleware('guest')->group(function () {
-    // ==== Login Account ==== //
-
+    // ==== Login ====//
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login.form');
+  
     // ==== Register Account ==== //
-
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register.form');
+  
     // ==== Hạn chế spam, tối đa là 5 lần cho 1 phút - Forget Password ==== //
-
     Route::post('/forgot_password', [ForgetPasswordController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('forget_password.link');
     Route::get('/forget_password', [ForgetPasswordController::class, 'showForget_Password'])->name('forget_password.form');
     // ==== Reset Password ==== //
