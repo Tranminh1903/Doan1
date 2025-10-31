@@ -104,7 +104,7 @@ class BookingController extends Controller
         $seatID = $request->seatID;
         $showtimeID = $request->showtimeID;
         $userID = auth()->id();
-        $expiresAt = Carbon::now()->addMinutes(1);
+        $expiresAt = Carbon::now()->addMinutes(5);
 
         try {
             DB::transaction(function () use ($seatID, $showtimeID, $userID, $expiresAt) {
@@ -147,26 +147,27 @@ class BookingController extends Controller
         }
     }
     public function checkExpiredSeats($showtimeID)
-    {
-        $expiredSeats = DB::table('seat_holds')
+{
+    $now = now();
+
+    $expiredSeats = DB::table('seat_holds')
+        ->where('showtimeID', $showtimeID)
+        ->where('status', 'held')
+        ->where('expires_at', '<', $now)
+        ->pluck('seatID')
+        ->toArray();
+
+    if (!empty($expiredSeats)) {
+        DB::table('seat_holds')
+            ->whereIn('seatID', $expiredSeats)
             ->where('showtimeID', $showtimeID)
-            ->where('status', 'held')
-            ->where('expires_at', '<', now())
-            ->pluck('seatID')
-            ->toArray();
+            ->update(['status' => 'available', 'expires_at' => null]);
 
-        if (!empty($expiredSeats)) {
-            // Cập nhật DB: trả ghế về available
-            DB::table('seat_holds')
-                ->whereIn('seatID', $expiredSeats)
-                ->where('showtimeID', $showtimeID)
-                ->update(['status' => 'available']);
-
-                broadcast(new SeatStatusUpdated($showtimeID, $expiredSeats, 'available'))->toOthers();
-        }
-
-        return response()->json([
-            'expiredSeats' => $expiredSeats,
-        ]);
+        // Phát realtime cho client khác
+        broadcast(new SeatStatusUpdated($showtimeID, $expiredSeats, 'available'))->toOthers();
     }
+
+    return response()->json(['expiredSeats' => $expiredSeats]);
+}
+
 }

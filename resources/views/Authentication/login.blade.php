@@ -31,6 +31,15 @@
       </div>
 
       <button class="btn btn-primary w-100">Đăng nhập</button>
+      <div class="divider my-3 text-center text-light">
+  <span>hoặc</span>
+</div>
+      <div class="google-btn-wrapper text-center">
+  <a href="{{ route('login.google') }}" class="google-btn">
+    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+    <span>Đăng nhập bằng   Google</span>
+  </a>
+</div>
     </form>
 
     <div class="text-center mt-3 auth-utility">
@@ -44,6 +53,40 @@
 
 @push('styles')
 <style>
+  .google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #3c4043;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.google-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.google-btn:hover {
+  background-color: #f7f8f8;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.google-btn:active {
+  background-color: #eee;
+}
+
+.google-btn-wrapper {
+  margin-top: 10px;
+}
   /* ==== BACKGROUND ==== */
   .auth-bg {
     position: relative;
@@ -119,7 +162,7 @@
     padding: .75rem 1rem;
   }
   .glass-card .btn.btn-primary:hover { filter: brightness(1.05); }
-  .glass-card a { color:#e9e1ff; text-decoration: none; }
+  .glass-card a { color:#715959; text-decoration: none; }
   .glass-card a:hover { text-decoration: underline; }
 
   /* bố cục Remember / Forgot */

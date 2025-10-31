@@ -89,7 +89,7 @@
     </div>
   </div>
   <div class="text-center">
-    <button class="btn btn-danger" onclick="confirmSeats()">Thanh toán</button>
+    <button  id="btn-pay" class="btn btn-danger" onclick="confirmSeats()">Thanh toán</button>
   </div>
 </div>
 
@@ -224,43 +224,48 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === Các hàm đặt vé, QR, check thanh toán ===
-  window.confirmSeats = function() {
+ window.confirmSeats = async function() {
     const selectedSeats = [...document.querySelectorAll('.seat.selected')];
     if (!selectedSeats.length) return alert('Chưa chọn ghế!');
 
-    const totalBeforeDiscount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0);
-    const discount = parseInt(document.getElementById('discount_amount').textContent.replace(/\D/g, '')) || 0;
-    const totalAmount = totalBeforeDiscount - discount;
+    const totalAmount = selectedSeats.reduce((sum, s) => sum + parseInt(s.dataset.price || 0), 0) - currentDiscount;
     const seatIds = selectedSeats.map(s => s.dataset.seatId);
 
-    fetch("{{ route('orders.create') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({
-      showtimeID: {{ $showtime->showtimeID ?? 8 }},
-      seats: selectedSeats.map(s => s.dataset.seatId),
-      amount: totalAmount
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.order_code) throw new Error('Không có order_code');
+    try {
+        const res = await fetch("{{ route('orders.create') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ showtimeID, seats: seatIds, amount: totalAmount })
+        });
+        const data = await res.json();
+        if (!data.order_code) throw new Error('Không có order_code');
 
-      console.log(" Order created:", data.order_code);
-      selectedSeats.forEach(s => {
-        s.classList.remove('selected');
-        s.classList.add('held');
-      });
-      document.querySelector('button[onclick="confirmSeats()"]').disabled = true;
-      show_qr(data.order_code, seatIds, totalAmount);
-      startPolling(data.order_code, seatIds);
-    })
-    .catch(e => alert('Lỗi đặt vé: ' + e.message));
-  };
+        selectedSeats.forEach(s => s.classList.replace('selected','held'));
+
+        show_qr(data.order_code, seatIds, totalAmount);
+
+        document.getElementById('btn-pay').disabled = true;
+
+    } catch (e) {
+        alert('Lỗi đặt vé: ' + e.message);
+    }
+};
+
+// Realtime listener
+if (window.Echo) {
+    Echo.channel(`showtime.${showtimeID}`).listen('SeatStatusUpdated', e => {
+    e.seats.forEach(seat => {
+        const el = document.querySelector(`[data-seat-id="${seat.seatID}"]`);
+        if (!el) return;
+        el.classList.remove('selected', 'held', 'booked');
+        if (seat.status === 'held') el.classList.add('held');
+        if (seat.status === 'unavailable') el.classList.add('booked');
+    });
+});
+}
 
   window.show_qr = function(orderCode, seats, amount) {
     const bankCode = "MB";
@@ -315,28 +320,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   };
 
-  window.startPolling = function(orderCode, seats) {
-    checkInterval = setInterval(() => {
-      fetch("/sync-payments")
-        .then(() => fetch(`/check-payment/${orderCode}`))
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'paid') {
-            clearInterval(checkInterval);
-            clearInterval(countdownTimer);
-            seats.forEach(id => {
-              const el = document.querySelector(`[data-seat-id="${id}"]`);
-              if (el) {
-                el.classList.remove('selected', 'held');
-                el.classList.add('booked');
-              }
-            });
-            document.querySelector('button[onclick="confirmSeats()"]').disabled = false;
-            closeQR();
-          }
-        });
-    }, 3000);
-  };
+ Echo.channel(`order.${orderCode}`).listen('OrderPaid', e => {
+    clearInterval(countdownTimer);
+
+    // Cập nhật ghế
+    e.seats.forEach(id => {
+        const el = document.querySelector(`[data-seat-id="${id}"]`);
+        if (!el) return;
+        el.classList.remove('selected', 'held');
+        el.classList.add('booked');
+    });
+
+    document.querySelector('button[onclick="confirmSeats()"]').disabled = false;
+    closeQR();
+});
+
 
   window.closeQR = function() {
     document.getElementById('overlay').style.display = 'none';

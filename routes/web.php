@@ -13,15 +13,20 @@ use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
+use App\Http\Controllers\UserController\GoogleController;
 
 //Trang chủ
     Route::get('/', [HomeController::class,'index'])->name('home');
 // Trang chủ và chi tiết phim — công khai
     Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
-Route::post('/movies/{movieID}/rate', [App\Http\Controllers\UserController\MovieController::class, 'rate'])->name('movies.rate');
+    Route::post('/movies/{movieID}/rate', [App\Http\Controllers\UserController\MovieController::class, 'rate'])->name('movies.rate');
+
 
 // Guest only (chưa đăng nhập)
 Route::middleware('guest')->group(function () {
+    //Google Login
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
     //Login Account
     Route::post('/login', [AuthController::class, 'login'])->name('login');
