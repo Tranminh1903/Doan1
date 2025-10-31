@@ -17,19 +17,26 @@
       <h6>NGƯỜI DÙNG</h6>
       <a class="ad-link {{request()->routeIs('admin.userManagement_main.form') ? 'active' : '' }}" 
         href="{{route('admin.userManagement_main.form')}}">Quản lý người dùng</a>
-       
+      
       <h6>PHIM</h6>
       <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
         href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
+      <h6>KHUYẾN MÃI</h6>
+      <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+
       <h6>PHÒNG CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý phòng chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
+        href="{{ route('admin.movietheaterManagement.form')}}">Quản lý phòng chiếu</a>
 
       <h6>SUẤT CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý suất chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.showtimeManagement.form') ? 'active' : '' }}"
+         href="{{ route('admin.showtimeManagement.form')}}">Quản lý suất chiếu</a>
       
       <h6>BÁO CÁO</h6>
-      <a class="ad-link" href="">Doanh thu</a>
+      <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
+        href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
     </nav>
   </aside>
   @php
@@ -72,8 +79,11 @@
       </div>
     </div>
 
+    <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
+      <h3 class="m-0">Tổng quan</h3>
+    </div>
+
     <div class="adm-users">
-      {{-- KPI --}}
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6">
           <div class="kpi-card kpi--blue p-3 rounded">
@@ -89,10 +99,6 @@
         </div>
       </div>
 
-      <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
-        <h3 class="m-0">Tổng quan</h3>
-      </div>
-      {{-- TOOLBAR --}}
       <div class="toolbar-wrap">
         <div class="toolbar">
           <form method="GET" class="search d-flex gap-2">
@@ -135,19 +141,25 @@
               @forelse ($users as $u)
                 <tr>
                   <td class="avatar-col" data-label="Ảnh">
-                    @if(!empty($u->avatar))
-                      <img src="{{ asset($u->avatar) }}" class="avatar-thumb" alt="avatar">
-                    @else
-                      <div class="avatar-thumb d-flex align-items-center justify-content-center" style="background:#e2e8f0;color:#475569;">
-                        {{ strtoupper(substr($u->name,0,1)) }}
-                      </div>
-                    @endif
+                    @php
+                      $src = null;
+                      if (!empty($u->avatar)) {
+                          $src = Str::startsWith($u->avatar, ['http://','https://']) ? $u->avatar : 'storage/'.$u->avatar;
+                      } else {
+                          $src = 'storage/pictures/dogavatar.jpg';
+                      }
+                    @endphp
+
+                    <img
+                      src="{{ asset($src) }}"
+                      class="avatar-thumb"
+                      alt="Avatar {{ $u->username ?? $u->name ?? 'user' }}">
                   </td>
                   <td class="text-muted" data-label="ID">{{ $u->id }}</td>
-                  <td class="fw-semibold" data-label="Họ tên">{{ $u->name }}</td>
+                  <td class="fw-semibold" data-label="Họ tên">{{ $u->username }}</td>
                   <td data-label="Email">{{ $u->email }}</td>
                   <td data-label="Vai trò">
-                    <span class="badge role-badge">{{ $u->role ?? 'User' }}</span>
+                    <span class="badge role-badge">{{ $u->role ?? 'customers' }}</span>
                   </td>
                   <td data-label="Ngày tạo">{{ optional($u->created_at)->format('Y-m-d') }}</td>
                   <td data-label="Trạng thái">
@@ -159,11 +171,20 @@
                   </td>
                   <td class="text-end" data-label="Thao tác">
                     <div class="table-actions">
+                      @if(($u->status ?? 'active') === 'active')
+                        <form action="{{ route('users.toggleStatus', $u) }}" method="POST" class="d-inline"
+                              onsubmit="return confirm('Khoá tài khoản này?')">
+                          @csrf @method('PATCH')
+                          <button class="btn btn-sm btn-outline-warning">Khoá</button>
+                        </form>
+                      @else
+                        <form action="{{ route('users.toggleStatus', $u) }}" method="POST" class="d-inline"
+                              onsubmit="return confirm('Mở khoá tài khoản này?')">
+                          @csrf @method('PATCH')
+                          <button class="btn btn-sm btn-warning">Mở khoá</button>
+                        </form>
+                      @endif
                       <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#editUser{{ $u->id }}">Sửa</button>
-
-                      {{-- Ví dụ thêm nút reset mật khẩu nếu cần --}}
-                      {{-- <form action="{{ route('users.reset',$u) }}" method="POST" class="d-inline">@csrf<button class="btn btn-sm btn-outline-primary">Reset mật khẩu</button></form> --}}
-
                       <form action="{{ route('users.delete',$u) }}" method="POST" class="d-inline" onsubmit="return confirm('Xoá người dùng này?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-sm btn-outline-danger">Xoá</button>
@@ -179,14 +200,14 @@
                       <form class="modal-content" method="POST" action="{{ route('users.update', $u) }}">
                         @csrf @method('PUT')
                         <div class="modal-header">
-                          <h5 class="modal-title">Sửa: {{ $u->name }}</h5>
+                          <h5 class="modal-title">Sửa: {{ $u->username }}</h5>
                           <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
                         </div>
 
                         <div class="modal-body row g-3">
                           <div class="col-md-6">
                             <label class="form-label">Họ tên</label>
-                            <input name="name" value="{{ $u->name }}" class="form-control" required>
+                            <input name="name" value="{{ $u->username }}" class="form-control" required>
                           </div>
                           <div class="col-md-6">
                             <label class="form-label">Email</label>
@@ -196,9 +217,13 @@
                           <div class="col-md-4">
                             <label class="form-label">Vai trò</label>
                             <select name="role" class="form-select">
-                              @php $roles = ['Admin','Staff','User']; @endphp
-                              @foreach($roles as $r)
-                                <option value="{{ $r }}" @selected(($u->role ?? 'User') === $r)>{{ $r }}</option>
+                              @php
+                                $currentRole   = old('role',   $u->role   ?? 'customers');
+                                $currentStatus = old('status', $u->status ?? 'active');
+                              @endphp
+
+                              @foreach (['admin','customers'] as $r)
+                                <option value="{{ $r }}" @selected($currentRole === $r)>{{ $r }}</option>
                               @endforeach
                             </select>
                           </div>
@@ -213,7 +238,7 @@
 
                           <div class="col-md-4">
                             <label class="form-label">SĐT (tuỳ chọn)</label>
-                            <input name="phone" value="{{ $u->phone }}" class="form-control">
+                            <input name="phone" value="{{ old('phone',$u->phone) }}" class="form-control">
                           </div>
 
                           <div class="col-md-12">
@@ -372,78 +397,181 @@ document.addEventListener('DOMContentLoaded', () => {
 
 @push('styles')
 <style>
-  /* ===== Sidebar ===== */
-.ad-wrapper { gap: 20px; padding-left: 0; }
-.ad-sidebar{
-  width:270px;background:linear-gradient(180deg,#20c997 0%,#0ea5e9 100%);
-  color:#fff;padding:16px;border-radius:12px;height:100%;
-}
-.ad-menu h6{font-size:12px;letter-spacing:.06em;opacity:.9;margin:16px 8px 6px}
-.ad-link{
-  display:block;padding:10px 12px;border-radius:10px;color:#ecfeff;
-  margin:4px 4px;transition:.15s;
-}
-.ad-link:hover{background:rgba(255,255,255,.14);text-decoration:none}
-.ad-link.active{background:#fff;color:#0f172a;font-weight:600}
-
-/* ===== Main ===== */
-.ad-main{padding:10px}
-.card-like{
-  background:#fff;border:1px solid #eef2ff;border-radius:16px;
-  box-shadow:0 12px 30px rgba(18,38,63,.06);
-}
-
-/* ===== KPI ===== */
-.kpi-card{background:#f8fafc;border:1px solid #eef2ff;box-shadow:0 12px 30px rgba(18,38,63,.06)}
-.kpi--blue{border-left:6px solid #0ea5e9}
-.kpi--green{border-left:6px solid #22c55e}
-
-/* ===== Toolbar ===== */
-.toolbar-wrap{margin-top:4px}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.toolbar .csv-input{position:relative}
-.toolbar .csv-input input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-
-.btn{border-radius:10px}
-.btn-soft{background:#f1f5f9;border:1px solid #e2e8f0}
-.btn-soft:hover{background:#e2e8f0}
-.btn-brand{background:#0ea5e9;color:#fff}
-.btn-brand:hover{background:#0284c7}
-
-/* ===== Table (movies & users) ===== */
-.table-movies, .table-users{width:100%}
-.table-movies thead th, .table-users thead th{
-  font-size:.9rem;color:#334155;background:#f8fafc;border-bottom:1px solid #e2e8f0
-}
-.table-movies td,.table-movies th,.table-users td,.table-users th{padding:12px 14px}
-.poster-col{width:72px}
-.poster-thumb{
-  width:48px;height:64px;object-fit:cover;border-radius:8px;
-  box-shadow:0 2px 8px rgba(15,23,42,.12)
-}
-.table-actions{display:inline-flex;gap:6px;align-items:center}
-.badge-soft{background:#eef2ff;color:#475569;font-weight:600;border:1px solid #e2e8f0}
-
-/* ===== Users small tweaks ===== */
-.table-users .avatar-col{width:72px}
-.avatar-thumb{
-  width:42px;height:42px;border-radius:50%;object-fit:cover;
-  box-shadow:0 2px 8px rgba(15,23,42,.12)
-}
-.role-badge{background:#eef2ff;border:1px solid #e2e8f0;color:#334155}
-
-/* ===== Responsive ===== */
-@media (max-width: 768px){
-  .ad-sidebar{display:none}
-  .ad-wrapper{padding:0 10px}
-  .table-movies thead,.table-users thead{display:none}
-  .table-movies tbody tr,.table-users tbody tr{display:block;border-bottom:1px solid #e5e7eb}
-  .table-movies tbody td,.table-users tbody td{display:flex;justify-content:space-between;gap:12px}
-  .table-movies tbody td::before,.table-users tbody td::before{
-    content:attr(data-label);color:#64748b;font-weight:500
+  .modal-backdrop.show {
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.4);
   }
-  .poster-col{width:auto}
-}
 
+  /* ===== KPI cards (đồng bộ với phim/dashboard) ===== */
+  .kpi-card {
+      background: #fff;
+      border: 1px solid #eef2f6;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      transition: transform 0.12s ease, box-shadow 0.18s ease,
+          border-color 0.18s ease;
+  }
+  .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+      border-color: #e3eaf3;
+  }
+  .kpi--blue {
+      border-color: #e4ebff;
+  }
+  .kpi--green {
+      border-color: #dcfce7;
+  }
+
+/* ===== Toolbar trắng có bóng (đồng bộ với trang Phim) ===== */
+  .adm-users .toolbar-wrap {
+    background:#fff;
+    border:1px solid #eaecf0;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(16,24,40,.06);
+    padding:10px;
+    margin-top:4px;
+  }
+  .adm-users .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:12px;
+    margin:16px 0 12px;
+  }
+  .adm-users .toolbar .search{flex:1 1 320px;max-width:560px}
+  .adm-users .toolbar .search input[type="search"]{
+    height:44px;
+    border-radius:999px;
+    border:1px solid #eaecf0;
+    padding:0 16px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .adm-users .toolbar .search input[type="search"]:focus{
+    outline:none;
+    border-color:#b8bdfd;
+    box-shadow:0 0 0 4px rgba(69,74,242,.12);
+  }
+  .adm-users .btn-soft{background:#f9fafb;border:1px solid #eaecf0;color:#101828}
+  .adm-users .btn-soft:hover{background:#fff}
+  .adm-users .btn-brand{background:#454af2;border-color:#454af2;color:#fff}
+  .adm-users .btn-brand:hover{filter:brightness(.95)}
+  .adm-users .csv-input{position:relative;display:inline-flex;align-items:center;gap:8px}
+  .adm-users .csv-input input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .adm-users .csv-input .fake-btn{pointer-events:none}
+  .adm-users .csv-input {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+  }
+  .adm-users .csv-input input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+  }
+  .adm-users .csv-input .fake-btn {
+      pointer-events: none;
+  }
+
+  /* ===== Card & Bảng USERS (đồng bộ tone) ===== */
+  .adm-users .card-like {
+      background: #fff;
+      border: 1px solid #e9edf3;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(2, 8, 23, 0.06);
+      overflow: hidden;
+      margin-top: 12px;
+  }
+  .table-users {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 0;
+  }
+  .table-users thead th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #e2e8f0 !important;
+      white-space: nowrap;
+      padding: 12px 14px;
+  }
+  .table-users td {
+      padding: 12px 14px;
+      vertical-align: middle;
+      border-color: #e9edf3;
+      color: #101828;
+      border-bottom: 1px solid #f4f6fb;
+  }
+  .text-end {
+      text-align: right;
+  }
+
+  /* avatar & badge */
+  .avatar-col {
+      width: 72px;
+  }
+  .avatar-thumb {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  }
+  .role-badge {
+      background: #eef2ff;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.35rem 0.5rem;
+  }
+  .table-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+  }
+
+  /* ===== Modal z-index (đồng bộ) ===== */
+  .modal {
+      z-index: 2000 !important;
+  }
+  .modal-backdrop {
+      z-index: 1999 !important;
+  }
+
+  /* ===== Responsive (đồng bộ với phim) ===== */
+  @media (max-width: 768px) {
+      .adm-users .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+      }
+      .table-users thead {
+          display: none;
+      }
+      .table-users tbody tr {
+          display: block;
+          border-bottom: 1px solid #e5e7eb;
+          padding: 12px;
+      }
+      .table-users tbody td {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 8px 0;
+          border: 0;
+      }
+      .table-users tbody td::before {
+          content: attr(data-label);
+          color: #64748b;
+          font-weight: 600;
+      }
+      .table-actions {
+          justify-content: flex-start;
+      }
+  }
 </style>
 @endpush

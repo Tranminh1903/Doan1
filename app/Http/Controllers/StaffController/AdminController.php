@@ -1,26 +1,30 @@
 <?php
 
-namespace App\Http\Controllers\UserController;
+namespace App\Http\Controllers\StaffController;
 
 use App\Http\Controllers\UserController\Controller;
-use Carbon\Carbon;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
 use App\Models\UserModels\User;
+use App\Models\UserModels\Admin;
 use App\Models\UserModels\Order;
+use App\Models\UserModels\Customer;
 use App\Models\ProductModels\Movie;
 use App\Models\ProductModels\Ticket;
 use App\Models\ProductModels\Showtime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    // =============== Main AdminDashboard ============= //
     public function showAdminDashboard(): View
     {
         $tz    = 'Asia/Ho_Chi_Minh';
@@ -125,17 +129,17 @@ class AdminController extends Controller
         ));
     }
 
-
+    // =============== USER MANAGEMENT ============= //
     public function showMainManagementUser(Request $request)
     {
         $q = trim((string) $request->get('q', ''));
 
         $users = User::query()
             ->when($q, function ($qr) use ($q) {
-                $qr->where(function($x) use ($q) {
-                    $x->where('name','like',"%$q%")
-                      ->orWhere('email','like',"%$q%")
-                      ->orWhere('role','like',"%$q%");
+                $qr->where(function ($x) use ($q) {
+                    $x->where('name', 'like', "%$q%")
+                        ->orWhere('email', 'like', "%$q%")
+                        ->orWhere('role', 'like', "%$q%");
                 });
             })
             ->orderByDesc('id')
@@ -144,64 +148,12 @@ class AdminController extends Controller
 
         $kpi = [
             'users_total'  => User::count(),
-            'users_active' => User::where('status','active')->count(),
+            'users_active' => User::where('status', 'active')->count(),
         ];
 
-        return view('adminDashboard.userManagement.main', compact('users','kpi','q'));
+        return view('adminDashboard.userManagement.main', compact('users', 'kpi', 'q'));
     }
 
-    public function showUpdateUser(Request $request): View
-    {
-        $query = User::query();
-
-        if ($request->filled('q')) {
-            $q = $request->q;
-            $query->where(function ($x) use ($q) {
-                $x->where('username', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%");
-            });
-        }
-        if ($request->filled('role'))   $query->where('role',   $request->role);
-        if ($request->filled('status')) $query->where('status', $request->status);
-
-        $users = $query->latest()->paginate(10)->withQueryString();
-
-        return view('adminDashboard.userManagement._updateUser', compact('users'));
-    }
-
-    public function showCreateUser(Request $request): View
-    {
-        return view('adminDashboard.userManagement._createUser');
-    }
-
-    public function createUser(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'username' => 'required|string|max:20|unique:users,username',
-            'email'    => 'required|email|max:60|unique:users,email',
-            'password' => ['required', Password::min(5)->numbers()],
-            'role'     => 'required|in:customers,admin',
-        ], [
-            'username.unique' => 'Tên đăng nhập đã tồn tại.',
-            'email.unique'    => 'Email này đã được sử dụng.',
-        ]);
-
-        $birthday = null;
-        if ($request->filled(['day', 'month', 'year'])) {
-            $birthday = sprintf('%04d-%02d-%02d', $request->year, $request->month, $request->day);
-        }
-
-        User::create([
-            'username'  => $data['username'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
-            'role'      => $data['role'],
-            'birthday'  => $birthday,
-        ]);
-
-        return redirect()->route('userManagement_updateUser.form')
-            ->with('adminCreateSuccess', 'Tạo tài khoản thành công!');
-    }
 
     protected function removeOldAvatarIfAny(User $user): void
     {
@@ -210,18 +162,89 @@ class AdminController extends Controller
             Storage::disk('public')->delete($path);
         }
     }
+    public function store(Request $request)
+    {
+        // Cho phép form cũ dùng "name" => map sang "username" nếu thiếu
+        if ($request->filled('name') && !$request->filled('username')) {
+            $request->merge(['username' => $request->input('name')]);
+        }
+
+        // Chuẩn hoá role (admin/customers)
+        if ($request->filled('role')) {
+            $request->merge(['role' => Str::of($request->input('role'))->lower()->value()]);
+        }
+
+        // Validate
+        $data = $request->validate([
+            'username' => ['required', 'string', 'max:20', 'unique:users,username'],
+            'email'    => ['required', 'email', 'max:60', 'unique:users,email'],
+            'password' => ['required', Password::min(5)->numbers()],
+            'role'     => ['nullable', 'in:admin,customers'],
+            'status'   => ['nullable', 'in:active,locked'],
+            'avatar'   => ['nullable', 'string', 'max:255'],
+            'phone'    => ['nullable', 'string', 'max:30'],
+            // nếu bạn gửi trực tiếp birthday dạng Y-m-d
+            'birthday' => ['nullable', 'date'],
+            // hoặc gửi theo day/month/year (không bắt buộc)
+            'day'      => ['nullable', 'integer', 'between:1,31'],
+            'month'    => ['nullable', 'integer', 'between:1,12'],
+            'year'     => ['nullable', 'integer', 'between:1900,2100'],
+        ], [
+            'username.unique' => 'Tên đăng nhập đã tồn tại.',
+            'email.unique'    => 'Email này đã được sử dụng.',
+        ]);
+
+        $birthday = $data['birthday'] ?? null;
+        if (empty($birthday) && $request->filled(['day', 'month', 'year'])) {
+            $day   = (int) $request->input('day');
+            $month = (int) $request->input('month');
+            $year  = (int) $request->input('year');
+            $birthday = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        }
+
+        $role   = $data['role']   ?? 'customers';
+        $status = $data['status'] ?? 'active';
+
+        // Tạo user
+        $user = User::create([
+            'username' => $data['username'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role'     => $role,                 
+            'status'   => $status,              
+            'birthday' => $birthday,             
+            'avatar'   => $request->input('avatar'), 
+            'phone'    => $request->input('phone'),
+        ]);
+
+        if ($user->role === 'customers') {
+            Customer::create([
+                'user_id'        => $user->id,
+                'customer_name'  => $user->username,
+                'customer_point' => 0,
+            ]);
+        } elseif ($user->role === 'admin') {
+            Admin::create([
+                'user_id' => $user->id,
+            ]);
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Tạo người dùng thành công!');
+    }
 
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'name'     => ['required','string','max:255'],
-            'email'    => ['required','email','max:255',"unique:users,email,{$user->id}"],
-            'password' => ['nullable','string','min:6'],
-            'role'     => ['nullable','in:Admin,Staff,User'],
-            'status'   => ['nullable','in:active,locked'],
-            'avatar'   => ['nullable','string','max:1024'],
-            'phone'    => ['nullable','string','max:50'],
-            'note'     => ['nullable','string','max:2000'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', "unique:users,email,{$user->id}"],
+            'password' => ['nullable', Password::min(6)],
+            'role'     => ['nullable', 'in:admin,customers'],
+            'status'   => ['nullable', 'in:active,locked'],
+            'avatar'   => ['nullable', 'string', 'max:1024'],
+            'phone'    => ['nullable', 'string', 'max:50'],
+            'note'     => ['nullable', 'string', 'max:2000'],
         ]);
 
         $user->fill([
@@ -240,7 +263,7 @@ class AdminController extends Controller
 
         $user->save();
 
-        return back()->with('success','Đã cập nhật người dùng.');
+        return back()->with('success', 'Đã cập nhật người dùng.');
     }
 
     public function delete(User $user): RedirectResponse
@@ -260,7 +283,7 @@ class AdminController extends Controller
     public function uploadAvatar(Request $request)
     {
         $request->validate([
-            'file' => ['required','image','max:2048'] // 2MB
+            'file' => ['required', 'image', 'max:2048'] // 2MB
         ]);
 
         $file = $request->file('file');
@@ -272,6 +295,16 @@ class AdminController extends Controller
 
         return response()->json(['path' => $publicPath]);
     }
+
+    public function toggleStatus(User $user)
+    {
+        $user->status = ($user->status === 'locked') ? 'active' : 'locked';
+        $user->save();
+
+        return back()->with('ok', $user->status === 'locked' ? 'Đã khoá tài khoản.' : 'Đã mở khoá tài khoản.');
+    }
+
+    // =============== MOVIES MANAGEMENT ============= //
     public function showMain(Request $request): View
     {
         $q = (string) $request->query('q', '');
@@ -343,7 +376,16 @@ class AdminController extends Controller
         $movie->delete();
         return back()->with('status', 'Đã xoá phim.');
     }
-    ////////////////////////// CSV //////////////////////////
+    // =============== UPLOAD POSTER ============= //
+    public function uploadPoster(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'image', 'max:2048'],
+        ]);
+        $path = $request->file('file')->store('pictures', 'public');
+        return response()->json(['path' => 'storage/' . $path]);
+    }
+    // =============== CSV ============= //
     public function movieTemplateCsv()
     {
         $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
@@ -444,7 +486,7 @@ class AdminController extends Controller
     }
 
 
-    ////////////////////////// Set Banner //////////////////////////
+    // =============== BANNER ============= //
     public function setBanner(Movie $movie)
     {
         if (!$movie->is_banner) {
@@ -461,15 +503,20 @@ class AdminController extends Controller
         return back()->with('success', "Đã bỏ banner cho '{$movie->title}'.");
     }
 
-    ////////////////////////// Nut Upload poster //////////////////////////
-    public function uploadPoster(Request $request)
+    // =============== PROMOTION ============= //
+    public function showPromotion(Request $request): View
     {
-        $request->validate([
-            'file' => ['required', 'image', 'max:2048'],
-        ]);
-        $path = $request->file('file')->store('pictures', 'public');
-        return response()->json(['path' => 'storage/' . $path]);
+        return view('adminDashboard.promotionManagement.main');
     }
 
-    ////////////////////////// Movie Theater //////////////////////////
+    // =============== SHOWTIME ============= //
+    public function showShowtime(Request $request): View
+    {
+        return view('adminDashboard.showtimeManagement.main');
+    }
+    // =============== MOVIE THEATER ============= //
+    public function showMovieTheater(Request $request): View
+    {
+        return view('adminDashboard.movietheaterManagement.main');
+    }
 }

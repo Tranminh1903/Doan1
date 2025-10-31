@@ -11,8 +11,7 @@ return new class extends Migration
         Schema::create('seat_holds', function (Blueprint $table) {
             $table->id('holdID');
             $table->unsignedBigInteger('showtimeID');
-            $table->foreign('showtimeID')
-                  ->references('showtimeID')
+            $table->foreign('showtimeID')->references('showtimeID')
                   ->on('showtime')
                   ->cascadeOnDelete();
             $table->unsignedBigInteger('seatID');

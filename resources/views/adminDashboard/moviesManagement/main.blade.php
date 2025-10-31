@@ -8,7 +8,7 @@
 @endphp
 
 <div class="ad-wrapper d-flex container-fluid">
-  <aside class="ad-sidebar">
+   <aside class="ad-sidebar">
     <nav class="ad-menu">
       <h6>TỔNG QUAN</h6>
       <a class="ad-link {{ request()->routeIs('admin.form') ? 'active' : '' }}" 
@@ -22,14 +22,21 @@
       <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
         href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
+      <h6>KHUYẾN MÃI</h6>
+      <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+
       <h6>PHÒNG CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý phòng chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
+        href="{{ route('admin.movietheaterManagement.form')}}">Quản lý phòng chiếu</a>
 
       <h6>SUẤT CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý suất chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.showtimeManagement.form') ? 'active' : '' }}"
+         href="{{ route('admin.showtimeManagement.form')}}">Quản lý suất chiếu</a>
       
       <h6>BÁO CÁO</h6>
-      <a class="ad-link" href="">Doanh thu</a>
+      <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
+        href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
     </nav>
   </aside>
   @php
@@ -74,8 +81,8 @@
 
     <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
       <h3 class="m-0">Tổng quan</h3>
-    </div>
-    
+    </div> 
+
     <div class="adm-movies">
       @php $kpi = $kpi ?? []; @endphp
 
@@ -410,188 +417,169 @@ document.addEventListener('DOMContentLoaded', () => {
 
 @push('styles')
 <style>
-.modal-backdrop.show {
-  backdrop-filter: blur(4px);
-  background-color: rgba(0,0,0,.4);
-}
-.ad-wrapper { gap: 18px; }
-/* =========================================================
-   ADMIN MOVIES (scoped by .adm-movies)
-   ========================================================= */
-.adm-movies .card-like {
-    background: #fff;
-    border: 1px solid #eaecf0;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-    overflow: hidden;
-}
-.adm-movies .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin: 16px 0 12px;
-}
-.adm-movies .toolbar .search {
-    flex: 1 1 320px;
-    max-width: 560px;
-}
-.adm-movies .toolbar .search input[type="search"] {
-    height: 44px;
-    border-radius: 999px;
-    border: 1px solid #eaecf0;
-    padding: 0 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-}
-.adm-movies .toolbar .search input[type="search"]:focus {
-    outline: none;
-    border-color: #b8bdfd;
-    box-shadow: 0 0 0 4px rgba(69, 74, 242, 0.12);
-}
-.adm-movies .btn-soft {
-    background: #f9fafb;
-    border: 1px solid #eaecf0;
-    color: #101828;
-}
-.adm-movies .btn-soft:hover {
-    background: #fff;
-}
-.adm-movies .btn-brand {
-    background: #454af2;
-    border-color: #454af2;
-    color: #fff;
-}
-.adm-movies .btn-brand:hover {
-    filter: brightness(0.95);
-}
-.adm-movies .csv-input {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-.adm-movies .csv-input input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-.adm-movies .csv-input .fake-btn {
-    pointer-events: none;
-}
+  .modal-backdrop.show {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0,0,0,.4);
+  }
+  /* =========================================================
+    ADMIN MOVIES (scoped by .adm-movies)
+    ========================================================= */
+  .adm-movies .card-like {
+      background: #fff;
+      border: 1px solid #eaecf0;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      overflow: hidden;
+  }
+  .adm-movies .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 12px;
+  }
+  .adm-movies .toolbar .search {
+      flex: 1 1 320px;
+      max-width: 560px;
+  }
+  .adm-movies .toolbar .search input[type="search"] {
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid #eaecf0;
+      padding: 0 16px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
+  .adm-movies .toolbar .search input[type="search"]:focus {
+      outline: none;
+      border-color: #b8bdfd;
+      box-shadow: 0 0 0 4px rgba(69, 74, 242, 0.12);
+  }
+  .adm-movies .btn-soft {
+      background: #f9fafb;
+      border: 1px solid #eaecf0;
+      color: #101828;
+  }
+  .adm-movies .btn-soft:hover {
+      background: #fff;
+  }
+  .adm-movies .btn-brand {
+      background: #454af2;
+      border-color: #454af2;
+      color: #fff;
+  }
+  .adm-movies .btn-brand:hover {
+      filter: brightness(0.95);
+  }
+  .adm-movies .csv-input {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+  }
+  .adm-movies .csv-input input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+  }
+  .adm-movies .csv-input .fake-btn {
+      pointer-events: none;
+  }
 
-.adm-movies .table-movies {
-    margin: 0;
-}
-.adm-movies .table-movies thead th {
-    background: #f6f7fb;
-    color: #667085;
-    font-weight: 600;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #eaecf0 !important;
-    white-space: nowrap;
-}
-.adm-movies .table-movies tbody td {
-    vertical-align: middle;
-    border-color: #eaecf0;
-    color: #101828;
-}
-.adm-movies .poster-col {
-    width: 64px;
-}
-.adm-movies .poster-thumb {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    object-fit: cover;
-    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06);
-}
-.adm-movies .badge-soft {
-    background: #f9fafb;
-    color: #667085;
-    border: 1px solid #eaecf0;
-    font-weight: 500;
-}
-.adm-movies .table-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-.adm-movies .toolbar-wrap {
-    background: #fff;
-    border: 1px solid #eaecf0;
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-}
+  .adm-movies .table-movies {
+      margin: 0;
+  }
+  .adm-movies .table-movies thead th {
+      background: #f6f7fb;
+      color: #667085;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #eaecf0 !important;
+      white-space: nowrap;
+  }
+  .adm-movies .table-movies tbody td {
+      vertical-align: middle;
+      border-color: #eaecf0;
+      color: #101828;
+  }
+  .adm-movies .poster-col {
+      width: 64px;
+  }
+  .adm-movies .poster-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06);
+  }
+  .adm-movies .badge-soft {
+      background: #f9fafb;
+      color: #667085;
+      border: 1px solid #eaecf0;
+      font-weight: 500;
+  }
+  .adm-movies .table-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+  }
+  .adm-movies .toolbar-wrap {
+      background: #fff;
+      border: 1px solid #eaecf0;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+  }
 
-/* Responsive bảng */
-@media (max-width: 992px) {
-    .adm-movies .table-movies thead {
-        display: none;
-    }
-    .adm-movies .table-movies tbody tr {
-        display: block;
-        border-bottom: 1px solid #eaecf0;
-        padding: 12px 12px;
-    }
-    .adm-movies .table-movies tbody td {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 8px 0;
-        border: 0;
-    }
-    .adm-movies .table-movies tbody td::before {
-        content: attr(data-label);
-        color: #667085;
-        font-weight: 600;
-    }
-    .adm-movies .table-actions {
-        justify-content: flex-start;
-    }
-}
-.kpi-card {
-    background: #fff;
-    border: 1px solid #eef2f6;
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-    transition: transform 0.12s ease, box-shadow 0.18s ease,
-        border-color 0.18s ease;
-}
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
-    border-color: #e3eaf3;
-}
-.kpi--blue {
-    border-color: #e4ebff;
-}
-.kpi--green {
-    border-color: #dcfce7;
-}
-/* ===== Admin Dashboard – Greeting Banner ===== */
-.ad-greeting {
-    border-radius: 16px;
-    background: #fff; /* đổi sang gradient nhẹ nếu thích */
-    /* Ví dụ gradient:
-     background: linear-gradient(90deg,#ffffff 0%,#f7fbff 50%,#f3f9ff 100%);
-  */
-}
-.ad-greeting .card-body {
-    padding: 16px 20px;
-    min-height: 92px;
-}
-.ad-greeting__avatar {
-    width: 72px;
-    height: 72px;
-    object-fit: cover;
-}
-@media (min-width: 768px) {
-    .ad-greeting .card-body {
-        padding: 20px 28px;
-    }
-}
+  /* Responsive bảng */
+  @media (max-width: 992px) {
+      .adm-movies .table-movies thead {
+          display: none;
+      }
+      .adm-movies .table-movies tbody tr {
+          display: block;
+          border-bottom: 1px solid #eaecf0;
+          padding: 12px 12px;
+      }
+      .adm-movies .table-movies tbody td {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 8px 0;
+          border: 0;
+      }
+      .adm-movies .table-movies tbody td::before {
+          content: attr(data-label);
+          color: #667085;
+          font-weight: 600;
+      }
+      .adm-movies .table-actions {
+          justify-content: flex-start;
+      }
+  }
+
+  /* KPI CARD*/
+  .kpi-card {
+      background: #fff;
+      border: 1px solid #eef2f6;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      transition: transform 0.12s ease, box-shadow 0.18s ease,
+          border-color 0.18s ease;
+  }
+  .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+      border-color: #e3eaf3;
+  }
+  .kpi--blue {
+      border-color: #e4ebff;
+  }
+  .kpi--green {
+      border-color: #dcfce7;
+  }
+  /* ===== Admin Dashboard – Greeting Banner ===== */
+
 </style>
 @endpush

@@ -369,7 +369,7 @@ a:focus {
 .ad-wrapper {
     position: relative;
     display: flex;
-    gap: 12px;
+    gap: 12px !important;
 }
 .ad-sidebar {
     background: linear-gradient(180deg, #27c2a6 0%, #1aa3f1 100%);
@@ -400,14 +400,6 @@ a:focus {
     width: 100% !important;
     padding-left: 16px;
     padding-right: 16px;
-}
-.ad-main .row {
-    margin-left: 0;
-    margin-right: 0;
-}
-.ad-main [class*="col-"] {
-    padding-left: 8px;
-    padding-right: 8px;
 }
 
 /* --- Brand & menu giữ nguyên --- */
@@ -532,7 +524,7 @@ a:focus {
     color: #111827;
 }
 
-/* --- Empty state --- */
+/* ===== Empty Status ===== */
 .empty {
     padding: 22px;
     text-align: center;
@@ -542,33 +534,15 @@ a:focus {
     background: #fafbff;
 }
 
-/* --- Link hành động --- */
+/* ===== Link Action ===== */
 .action-list a {
     text-decoration: none;
 }
 
-/* --- Responsive --- */
-@media (max-width: 992px) {
-    .ad-sidebar {
-        width: 100%;
-        border-radius: 12px;
-        position: relative;
-        top: 0;
-    }
-    .ad-wrapper {
-        flex-direction: column;
-    }
-    .ad-main {
-        padding-left: 0;
-    }
-}
 /* ===== Admin Dashboard – Greeting Banner ===== */
 .ad-greeting {
     border-radius: 16px;
-    background: #fff; /* đổi sang gradient nhẹ nếu thích */
-    /* Ví dụ gradient:
-     background: linear-gradient(90deg,#ffffff 0%,#f7fbff 50%,#f3f9ff 100%);
-  */
+    background: #fff;
 }
 .ad-greeting .card-body {
     padding: 16px 20px;
@@ -578,11 +552,6 @@ a:focus {
     width: 72px;
     height: 72px;
     object-fit: cover;
-}
-@media (min-width: 768px) {
-    .ad-greeting .card-body {
-        padding: 20px 28px;
-    }
 }
 
 /* ===== Admin Dashboard – Cards / Tables (nhẹ) ===== */
@@ -601,29 +570,4 @@ a:focus {
 .table-clean td,
 .table-clean th {
     vertical-align: middle;
-}
-/* ===== User Management polish ===== */
-.adm-users .users-toolbar {
-    background: #fff;
-    border: 1px solid #eaecf0;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-}
-.adm-users .users-search input {
-    height: 48px;
-    padding: 0 16px;
-    border: 1px solid #eaecf0;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-}
-.adm-users .users-search input:focus {
-    outline: none;
-    border-color: #b8bdfd;
-    box-shadow: 0 0 0 4px rgba(69, 74, 242, 0.12);
-}
-.adm-users .users-table thead th {
-    background: #f6f7fb;
-    color: #667085;
-    font-weight: 600;
-}
-.adm-users .users-table .badge {
-    font-weight: 600;
 }

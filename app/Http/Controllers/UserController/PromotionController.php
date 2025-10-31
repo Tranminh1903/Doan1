@@ -8,23 +8,19 @@ use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
-    /**
-     * 1️⃣ Lấy danh sách mã khuyến mãi còn hiệu lực
-     */
+    // ==== Lấy danh sách mã khuyến mãi còn hiệu lực ==== //
     public function getActivePromotions()
     {
         $promotions = Promotion::where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->whereColumn('used_count', '<', 'limit_count')
-            ->get(['id', 'code', 'description', 'type', 'value']); // chỉ lấy trường cần thiết
+            ->get(['id', 'code', 'description', 'type', 'value']);
 
         return response()->json($promotions);
     }
+    // ==== Áp dụng mã khuyến mãi (AJAX) ==== //
 
-    /**
-     * 2️⃣ Áp dụng mã khuyến mãi (AJAX)
-     */
     public function applyPromotion(Request $request)
     {
         $request->validate([
@@ -58,10 +54,7 @@ class PromotionController extends Controller
             'message' => 'Áp dụng khuyến mãi thành công!'
         ]);
     }
-
-    /**
-     * 3️⃣ Cập nhật số lượt dùng sau khi thanh toán thành công
-     */
+    // ==== Cập nhật số lượt dùng sau khi thanh toán thành công ==== //
     public function markAsUsed($promotionCode)
     {
         $promotion = Promotion::where('code', $promotionCode)->first();
