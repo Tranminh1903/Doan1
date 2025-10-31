@@ -17,14 +17,21 @@
       <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
         href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
+      <h6>KHUYẾN MÃI</h6>
+      <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+
       <h6>PHÒNG CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý phòng chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
+        href="{{ route('admin.movietheaterManagement.form')}}">Quản lý phòng chiếu</a>
 
       <h6>SUẤT CHIẾU</h6>
-      <a class="ad-link" href="">Quản lý suất chiếu</a>
+      <a class="ad-link {{ request()->routeIs('admin.showtimeManagement.form') ? 'active' : '' }}"
+         href="{{ route('admin.showtimeManagement.form')}}">Quản lý suất chiếu</a>
       
       <h6>BÁO CÁO</h6>
-      <a class="ad-link" href="">Doanh thu</a>
+      <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
+        href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
     </nav>
   </aside>
 
@@ -48,7 +55,7 @@
           $dateVN = $now->format('d/m/Y');
         @endphp
 
-      <div class="ad-greeting card shadow-sm border-0 mb-4 w-100">
+      <div class="ad-greeting card shadow-sm border-0 w-100">
         <div class="card-body d-flex align-items-center gap-3 flex-wrap">
           <img
             src="{{ $user?->avatar ? asset('storage/'.$user->avatar) : asset('storage/pictures/dogavatar.jpg') }}"
@@ -78,7 +85,7 @@
 
       {{-- KPI --}}
       @php $kpi = $kpi ?? []; @endphp
-      <div class="row g-3 mb-4">
+      <div class="row g-3">
         <div class="col-12 col-sm-6 col-lg-3">
           <div class="kpi-card kpi--blue p-3 rounded">
             <div class="text-muted">Doanh thu hôm nay</div>
@@ -109,7 +116,7 @@
       <div class="row g-3">
         <div class="col-lg-7">
           <div class="ad-card p-3">
-            <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="d-flex align-items-center justify-content-between mb-3">
               <h6 class="m-0">Lịch sử vé gần đây</h6>
               <a href="{{ url('/adminDashboard') }}">Xem tất cả</a>
             </div>
@@ -145,7 +152,7 @@
         </div>
 
         <div class="col-lg-5">
-          <div class="ad-card p-3">
+          <div class="ad-card p-2">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="m-0">Top phim</h6>
               <a href="{{ route('admin.reports.revenue') }}">Báo cáo</a>
@@ -171,7 +178,7 @@
       </div>
 
       {{-- Suất chiếu sắp tới --}}
-      <div class="ad-card p-3 mt-3">
+      <div class="ad-card p-2 mt-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="m-0">Suất chiếu sắp tới</h6>
           <a href="{{ url('/adminDashboard/moviesManagement/main') }}">Lịch chiếu</a>
@@ -204,7 +211,7 @@
         </div>
       </div>
 
-      <div class="ad-card p-3 mt-3" style="max-width: 1040px;">
+      <div class="ad-card p-2 mt-3" style="max-width: 1040px;">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="m-0">Phòng chiếu phim</h6>
           {{-- Nếu có trang quản lý rạp, giữ link; không có thì bỏ dòng dưới --}}
@@ -244,77 +251,77 @@
 @push('styles')
 <style>
   /* --- KPI Grid --- */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-}
-.kpi-grid > .kpi-col {
-    grid-column: span 3;
-} /* 4 items */
-@media (max-width: 1200px) {
-    .kpi-grid > .kpi-col {
-        grid-column: span 4;
-    }
-} /* 3 */
-@media (max-width: 992px) {
-    .kpi-grid > .kpi-col {
-        grid-column: span 6;
-    }
-} /* 2 */
-@media (max-width: 576px) {
-    .kpi-grid > .kpi-col {
-        grid-column: span 12;
-    }
-} /* 1 */
+  .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+  }
+  .kpi-grid > .kpi-col {
+      grid-column: span 3;
+  } /* 4 items */
+  @media (max-width: 1200px) {
+      .kpi-grid > .kpi-col {
+          grid-column: span 4;
+      }
+  } /* 3 */
+  @media (max-width: 992px) {
+      .kpi-grid > .kpi-col {
+          grid-column: span 6;
+      }
+  } /* 2 */
+  @media (max-width: 576px) {
+      .kpi-grid > .kpi-col {
+          grid-column: span 12;
+      }
+  } /* 1 */
 
-.kpi-card {
-    background: #fff;
-    border: 1px solid #eef2f6;
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-    transition: transform 0.12s ease, box-shadow 0.18s ease,
-        border-color 0.18s ease;
-}
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
-    border-color: #e3eaf3;
-}
-.kpi-card .kpi-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #667085;
-    font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 0.2px;
-    margin-bottom: 6px;
-}
-.kpi-card .kpi-value {
-    font-size: 2rem;
-    font-weight: 800;
-    line-height: 1.1;
-    color: #111827;
-}
-.kpi-card .kpi-sub {
-    margin-top: 6px;
-    color: #667085;
-    font-size: 0.85rem;
-}
-.kpi--blue {
-    border-color: #e4ebff;
-}
-.kpi--green {
-    border-color: #dcfce7;
-}
-.kpi--orange {
-    border-color: #ffedd5;
-}
-.kpi--purple {
-    border-color: #ede9fe;
-}
+  .kpi-card {
+      background: #fff;
+      border: 1px solid #eef2f6;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      transition: transform 0.12s ease, box-shadow 0.18s ease,
+          border-color 0.18s ease;
+  }
+  .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+      border-color: #e3eaf3;
+  }
+  .kpi-card .kpi-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #667085;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.2px;
+      margin-bottom: 6px;
+  }
+  .kpi-card .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #111827;
+  }
+  .kpi-card .kpi-sub {
+      margin-top: 6px;
+      color: #667085;
+      font-size: 0.85rem;
+  }
+  .kpi--blue {
+      border-color: #e4ebff;
+  }
+  .kpi--green {
+      border-color: #dcfce7;
+  }
+  .kpi--orange {
+      border-color: #ffedd5;
+  }
+  .kpi--purple {
+      border-color: #ede9fe;
+  }
 </style>
 @endpush

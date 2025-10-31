@@ -4,7 +4,7 @@ namespace App\Http\Controllers\UserController;
 
 use Illuminate\Http\Request;
 use App\Models\ProductModels\Movie;
-use App\Models\ProductModels\MovieRating; 
+use App\Models\ProductModels\MovieRating;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -24,14 +24,13 @@ class MovieController
             'stars' => 'required|integer|min:1|max:5'
         ]);
 
-        // Nếu chưa đăng nhập thì chặn luôn
+        // ==== Bắt buộc đăng nhập ==== //
         if (!Auth::check()) {
             return back()->with('error', 'Bạn cần đăng nhập để đánh giá phim.');
         }
 
         $userID = Auth::id();
-
-        // Kiểm tra nếu user đã từng đánh giá phim này -> cập nhật
+        // ==== Kiểm tra nếu user đã từng đánh giá phim này -> cập nhật ==== //
         $existing = DB::table('movie_ratings')
             ->where('movieID', $movieID)
             ->where('userID', $userID)

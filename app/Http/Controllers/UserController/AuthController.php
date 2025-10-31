@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
-    ////////////////////////// Register //////////////////////////
+    // =============== Register ============= //
     public function showRegister()
     {
         return view('authentication.register');
@@ -55,7 +55,7 @@ class AuthController extends Controller
         return redirect()->route('home')->with('RegisterSuccess', 'Đăng ký tài khoản thành công!');
     }
 
-    ////////////////////////// Login //////////////////////////
+    // =============== Login ============= //
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -81,7 +81,7 @@ class AuthController extends Controller
         return view('authentication.login');
     }
 
-    ////////////////////////// Logout //////////////////////////
+    // =============== Logout ============= //
     public function logout(Request $request)
     {
         Auth::logout();

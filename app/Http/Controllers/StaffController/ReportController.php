@@ -1,5 +1,6 @@
 <?php
-namespace App\Http\Controllers\UserController;
+
+namespace App\Http\Controllers\StaffController;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController\Controller;
@@ -30,21 +31,21 @@ class ReportController extends Controller
         return response()->json($data);
     }
     public function revenueByMovie()
-{
-    return view('reports.revenue_movie');
-}
+    {
+        return view('reports.revenue_movie');
+    }
 
-public function ajaxRevenueByMovie()
-{
-    $revenue = DB::table('orders')
-        ->join('showtime', 'orders.showtimeID', '=', 'showtime.showtimeID')
-        ->join('movies', 'showtime.movieID', '=', 'movies.movieID')
-        ->select('movies.title', DB::raw('SUM(orders.amount) as total'))
-        ->where('orders.status', 'paid')
-        ->groupBy('movies.movieID', 'movies.title')
-        ->orderByDesc('total')
-        ->get();
+    public function ajaxRevenueByMovie()
+    {
+        $revenue = DB::table('orders')
+            ->join('showtime', 'orders.showtimeID', '=', 'showtime.showtimeID')
+            ->join('movies', 'showtime.movieID', '=', 'movies.movieID')
+            ->select('movies.title', DB::raw('SUM(orders.amount) as total'))
+            ->where('orders.status', 'paid')
+            ->groupBy('movies.movieID', 'movies.title')
+            ->orderByDesc('total')
+            ->get();
 
-    return response()->json($revenue);
-}
+        return response()->json($revenue);
+    }
 }
