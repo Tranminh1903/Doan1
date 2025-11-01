@@ -28,7 +28,8 @@
     <div class="dmm-search flex-grow-1 ms-3">
       <div class="input-group">
       @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
-        <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+        <input type="search" id="searchInput" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+<div id="searchResults" class="list-group position-absolute"></div>
       @endif
       </div>
     </div>
@@ -63,7 +64,7 @@
 
       <div class="dmm-search flex-grow-1 ms-3">
         <div class="input-group">
-          <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+          <input type="search" id="searchInput" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
         </div>
       </div>
 
@@ -232,6 +233,23 @@
             progressBar: true,
         });
     @endif
+        const searchInput = document.getElementById('searchInput');
+const movieListContainer = document.getElementById('movieListContainer');
+
+if (searchInput && movieListContainer) {
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key !== 'Enter') return;
+        const query = this.value.trim();
+
+        fetch(`/movies/search?q=${encodeURIComponent(query)}`)
+            .then(res => res.text())
+            .then(html => {
+                movieListContainer.innerHTML = html;
+            })
+            .catch(err => console.error(err));
+    });
+}
+
 </script>
 </body>
 </html>

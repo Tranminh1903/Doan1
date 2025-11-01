@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
-use App\Events\SeatStatusChanged;
+use App\Events\SeatStatusUpdated;
 
 class OrderController extends Controller
 {
@@ -67,15 +67,21 @@ class OrderController extends Controller
                     ]
                 );
                 // ==== Phát realtime event cho frontend ==== //
-                broadcast(new \App\Events\SeatStatusUpdated(
-                    $request->showtimeID,
-                    $request->seats,
-                    'held'
-                ));
-
-
+                
                 \Log::info(" SeatHeldEvent fired for seat $seatId showtime {$request->showtimeID}");
             }
+            // Sau vòng lặp SeatHold::updateOrCreate
+$seatObjects = collect($request->seats)->map(fn($seatId) => [
+    'seatID' => $seatId,
+    'status' => 'held'
+])->toArray();
+
+broadcast(new SeatStatusUpdated(
+    $request->showtimeID,
+    $seatObjects,
+    'held'
+))->toOthers();
+
 
             return response()->json([
                 'order_code' => $order->order_code,
@@ -124,14 +130,22 @@ class OrderController extends Controller
                 // ==== Phát realtime event cho tất cả client khác ==== // 
                 $seatHold = SeatHold::where('orderID', $order->id)->first();
 
-                if ($seatHold) {
-                    $showtimeID = $seatHold->showtimeID;
-                    broadcast(new \App\Events\SeatStatusUpdated(
-                        $showtimeID,
-                        $seats,
-                        'available'
-                    ))->toOthers();
-                }
+                $seatHold = SeatHold::where('orderID', $order->id)->first();
+$showtimeID = $order->showtimeID;
+
+if ($showtimeID) {
+    $seatObjects = collect($seats)->map(fn($seatId) => [
+        'seatID' => $seatId,
+        'status' => 'available'
+    ])->toArray();
+
+    broadcast(new SeatStatusUpdated(
+        $showtimeID,
+        $seatObjects,
+        'available'
+    ))->toOthers();
+}
+
 
 
 
@@ -215,12 +229,18 @@ class OrderController extends Controller
                             $showtimeID = $seatHold ? $seatHold->showtimeID : null;
 
                             if ($showtimeID) {
-                                broadcast(new \App\Events\SeatStatusUpdated(
-                                    $showtimeID,
-                                    $seats,
-                                    'unavailable'
-                                ));
-                            }
+    $seatObjects = collect($seats)->map(fn($seatId) => [
+        'seatID' => $seatId,
+        'status' => 'unavailable'
+    ])->toArray();
+
+    broadcast(new SeatStatusUpdated(
+        $showtimeID,
+        $seatObjects,
+        'unavailable'
+    ));
+}
+
 
                             // ==== Gửi email ==== //
                             $showtime = Showtime::with('movie')->find($order->showtimeID ?? null);
@@ -261,4 +281,18 @@ class OrderController extends Controller
             return response()->json(['error' => 'Lỗi xử lý dữ liệu'], 500);
         }
     }
+    // Kết hợp đồng bộ Google Sheet + trả trạng thái order
+public function checkAndSyncPayment($orderCode)
+{
+    // Đồng bộ với Google Sheet trước
+    $this->syncPayments();
+
+    // Trả trạng thái order
+    $order = Order::where('order_code', $orderCode)->first();
+    if (!$order) return response()->json(['status' => 'not_found']);
+
+    return response()->json(['status' => $order->status]);
+}
+
+
 }

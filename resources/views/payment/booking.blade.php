@@ -218,9 +218,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+<<<<<<< Updated upstream
   // === Khởi tạo realtime ===
   if (window.initSeatRealtime) {
     window.initSeatRealtime(showtimeID);
+=======
+  // --- Realtime sơ đồ ghế (có Echo thì mới lắng nghe) ---
+  if (window.Echo) {
+    window.Echo.channel(`showtime.${showtimeID}`).listen('.SeatStatusUpdated', e => {
+      e.seats.forEach(seat => {
+        const el = document.querySelector(`[data-seat-id="${seat.seatID}"]`);
+        if (!el) return;
+        el.classList.remove('selected', 'held', 'booked');
+        if (seat.status === 'held')        el.classList.add('held');
+        if (seat.status === 'unavailable') el.classList.add('booked');
+      });
+    });
+>>>>>>> Stashed changes
   }
 
   // === Các hàm đặt vé, QR, check thanh toán ===
@@ -318,6 +332,72 @@ if (window.Echo) {
         alert(" QR hết hạn, vui lòng thử lại!");
       }
     }, 1000);
+<<<<<<< Updated upstream
+=======
+    // Sau khi show QR
+const controller = new AbortController();
+const signal = controller.signal;
+
+checkInterval = setInterval(async () => {
+  try {
+    const res = await fetch(`/orders/check-sync/${orderCode}`, { signal });
+    const data = await res.json();
+
+    if (data.status === 'paid') {
+      clearInterval(countdownTimer);
+      clearInterval(checkInterval);
+      controller.abort(); // hủy tất cả request pending
+
+      seats.forEach(id => {
+        const el = document.querySelector(`[data-seat-id="${id}"]`);
+        if (el) el.classList.remove('held', 'selected');
+        if (el) el.classList.add('booked');
+      });
+
+      alert('Thanh toán thành công!');
+      closeQR();
+      document.getElementById('btn-pay').disabled = false;
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') console.error('Lỗi poll:', err);
+  }
+}, 5000);
+
+// Nếu user đóng overlay hoặc QR hết hạn thì clear luôn
+window.closeQR = function closeQR() {
+  document.getElementById('overlay').style.display = 'none';
+  clearInterval(checkInterval);
+  controller.abort();
+};
+
+
+    // Lắng nghe đơn hàng đã thanh toán (nếu có Echo)
+    if (window.Echo) {
+      window.Echo.channel(`order.${orderCode}`).listen('OrderPaid', e => {
+        clearInterval(countdownTimer);
+        if (checkInterval) clearInterval(checkInterval);
+
+        // Cập nhật ghế đã đặt
+        e.seats.forEach(id => {
+          const el = document.querySelector(`[data-seat-id="${id}"]`);
+          if (!el) return;
+          el.classList.remove('selected', 'held');
+          el.classList.add('booked');
+        });
+
+        document.getElementById('btn-pay').disabled = false;
+        closeQR();
+
+        // Ghi nhận mã KM (nếu cần: chỉ khi thanh toán thành công)
+        if (selectedPromoCode) {
+          fetch(`/promotion/mark-used/${selectedPromoCode}`, {
+            method: "POST",
+            headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content }
+          }).then(() => console.log("Đã ghi nhận lượt dùng mã:", selectedPromoCode));
+        }
+      });
+    }
+>>>>>>> Stashed changes
   };
 
  Echo.channel(`order.${orderCode}`).listen('OrderPaid', e => {

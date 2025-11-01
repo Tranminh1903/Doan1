@@ -55,4 +55,24 @@ class MovieController
 
         return back()->with('success', 'Đánh giá của bạn đã được ghi nhận!');
     }
+    public function search(Request $request)
+{
+    $query = $request->input('q');
+
+    if (!$query) {
+        // Nếu query trống, trả tất cả phim
+        $movies = Movie::with('showtimes')->get();
+    } else {
+        // Tìm kiếm bằng LIKE, có thể match tiếng Việt
+        $movies = Movie::with('showtimes')
+        ->whereRaw('title COLLATE utf8mb4_unicode_ci LIKE ?', ["%{$query}%"])
+        ->get();
+
+    }
+
+    // Nếu muốn AJAX trả view partial (HTML movie_list)
+    return view('layouts.movie_list', compact('movies'))->render();
+}
+
+
 }
