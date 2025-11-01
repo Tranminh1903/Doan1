@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id('theaterID'); 
             $table->string('roomName');
             $table->integer('capacity')->default(100);
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

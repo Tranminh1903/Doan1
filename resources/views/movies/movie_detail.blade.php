@@ -14,7 +14,7 @@
             <h3>{{ $movie->title }}</h3>
             <p><strong>Thể loại:</strong> {{ $movie->genre }}</p>
             <p><strong>Thời lượng:</strong> {{ $movie->durationMin }} phút</p>
-
+            <p>{{ $movie->description }}</p>
             <hr>
 
             <!-- Hiển thị đánh giá trung bình -->
@@ -64,11 +64,6 @@
             @else
                 <p><a href="{{ route('login') }}">Đăng nhập</a> để gửi đánh giá cho phim này.</p>
             @endauth
-
-            <hr>
-
-            <!-- Mô tả phim -->
-            <p>{{ $movie->description }}</p>
         </div>
     </div>
 </div>

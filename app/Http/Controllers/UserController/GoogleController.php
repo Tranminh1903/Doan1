@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\UserController;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 use App\Models\UserModels\User;
 use App\Models\UserModels\Customer;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
@@ -19,31 +21,48 @@ class GoogleController extends Controller
 
     public function handleGoogleCallback()
     {
-        
-        $googleUser = Socialite::driver('google')->user();
+        $googleUser = Socialite::driver('google')->stateless()->user();
+        $avatarUrl  = $googleUser->getAvatar();
+        $savedImagePath = null;
 
-        $user = User::updateOrCreate(
-            ['email' => $googleUser->getEmail()],
-    [
-        'name' => $googleUser->getName(),
-        'username' => Str::slug($googleUser->getName()) . rand(100,999),
-        'google_id' => $googleUser->getId(),
-        'avatar' => $googleUser->getAvatar(),
-        'password' => bcrypt(Str::random(16)),
-    ]
-        );
+        if ($avatarUrl) {
+            try {
+                //Tải nội dung ảnh từ URL của Google
+                $imgGoogle = Http::get($avatarUrl)->body();
 
-        Customer::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'customer_name' => $user->name,
+                if ($imgGoogle) {
+
+                    // => Sẽ lưu vào storage\app\public\avatars
+                    $imgName = 'avatars/' . Str::random(40) . '.jpg';
+                    Storage::disk('public')->put($imgName,$imgGoogle);
+                    $savedImagePath = $imgName; 
+                }
+            } catch (\Exception $e) {
+
+            }
+        }
+        $user = User::where('email',$googleUser->getEmail())->first();
+        if($user) { // Nếu user đã tồn tại thì update thêm google_id và cập nhật avatar 
+
+            $user->update([
+                'google_id' => $googleUser->getId(),
+                'avatar'    => $user->avatar ?? $savedImagePath, //Nếu user đã có avatar rồi thì sử dụng savedImagePath
+            ]);
+        } else { //Nếu user không tồn tại
+            $user = User::create([
+                'username'  => $googleUser->getName(),
+                'email'     => $googleUser->getEmail(),
+                'avatar'    => $googleUser->$savedImagePath,
+                'status'    => 'active',
+                'role'      => 'customers',
+                'password'  => null,
+            ]);
+            Customer::create([ // Đồng thời kéo dữ liệu qua bảng Customer
+                'user_id'        => $user->id,
+                'customer_name'  => $user->username,
                 'customer_point' => 0,
-                'tier' => 'bronze',
-                'total_order_amount' => 0,
-                'total_promotions_unused' => 0,
-            ]
-        );
-
+            ]);
+        }
         Auth::login($user);
 
         return redirect('/')->with('success', 'Đăng nhập Google thành công!');

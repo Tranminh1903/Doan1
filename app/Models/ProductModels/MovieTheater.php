@@ -11,7 +11,15 @@ class MovieTheater extends Model
     protected $primaryKey = 'theaterID';
     public $incrementing = true;
     protected $keyType = 'int';
-    protected $fillable = ['roomName','seat_map_id'];
+    protected $fillable = [
+        'roomName',
+        'seat_map_id',
+        'capacity',
+        'status',
+    ];
+    protected $cast = [
+        'capacity' => 'integer',
+    ];
 
     public function seats()
     {

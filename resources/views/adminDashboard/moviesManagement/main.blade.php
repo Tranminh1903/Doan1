@@ -8,7 +8,7 @@
 @endphp
 
 <div class="ad-wrapper d-flex container-fluid">
-   <aside class="ad-sidebar">
+  <aside class="ad-sidebar">
     <nav class="ad-menu">
       <h6>TỔNG QUAN</h6>
       <a class="ad-link {{ request()->routeIs('admin.form') ? 'active' : '' }}" 
@@ -18,13 +18,13 @@
       <a class="ad-link {{request()->routeIs('admin.userManagement_main.form') ? 'active' : '' }}" 
         href="{{route('admin.userManagement_main.form')}}">Quản lý người dùng</a>
       
-      <h6>PHIM</h6>
-      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
-        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
-
       <h6>KHUYẾN MÃI</h6>
       <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
         href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+        
+      <h6>PHIM</h6>
+      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
+        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
       <h6>PHÒNG CHIẾU</h6>
       <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
@@ -84,7 +84,10 @@
     </div> 
 
     <div class="adm-movies">
-      @php $kpi = $kpi ?? []; @endphp
+      @php
+        $kpi = $kpi ?? []; 
+        $q   = $q ?? request('q','');
+      @endphp
 
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-6">
@@ -94,12 +97,13 @@
           </div>
         </div>
 
-      <div class="col-12 col-sm-6 col-lg-6">
-            <div class="kpi-card kpi--green p-3 rounded">
-              <div class="text-muted">Tổng phim đang có</div>
-              <div class="fs-4 fw-bold">{{ number_format((int)($kpi['movies_total'] ?? 0)) }}</div>
-            </div>
+        <div class="col-12 col-sm-6 col-lg-6">
+          <div class="kpi-card kpi--green p-3 rounded">
+            <div class="text-muted">Tổng phim đang có</div>
+            <div class="fs-4 fw-bold">{{ number_format((int)($kpi['movies_total'] ?? 0)) }}</div>
           </div>
+        </div>     
+      </div>
 
       <div class="toolbar-wrap">
         <div class="toolbar">
@@ -116,6 +120,7 @@
             <button type="button" class="btn btn-soft fake-btn">Nhập CSV</button>
             <input type="file" name="file" accept=".csv" onchange="this.form.submit()">
           </form>
+
           <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreate">+ Thêm phim</button>
           <a href="{{ route('admin.form') }}" class="btn btn-soft fake-btn">Trở về trang tổng quan</a>
         </div>
@@ -431,28 +436,16 @@ document.addEventListener('DOMContentLoaded', () => {
       box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
       overflow: hidden;
   }
-  .adm-movies .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin: 16px 0 12px;
+  .adm-movies .toolbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:16px 0 12px;
+    flex-wrap: nowrap; 
   }
   .adm-movies .toolbar .search {
       flex: 1 1 320px;
       max-width: 560px;
-  }
-  .adm-movies .toolbar .search input[type="search"] {
-      height: 44px;
-      border-radius: 999px;
-      border: 1px solid #eaecf0;
-      padding: 0 16px;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  }
-  .adm-movies .toolbar .search input[type="search"]:focus {
-      outline: none;
-      border-color: #b8bdfd;
-      box-shadow: 0 0 0 4px rgba(69, 74, 242, 0.12);
   }
   .adm-movies .btn-soft {
       background: #f9fafb;
@@ -485,7 +478,14 @@ document.addEventListener('DOMContentLoaded', () => {
   .adm-movies .csv-input .fake-btn {
       pointer-events: none;
   }
-
+  .adm-movies .toolbar .btn,
+  .adm-movies .csv-input .btn{
+      white-space:nowrap;  
+      flex-shrink:0;     
+      line-height:1.2;
+      padding-left:12px;
+      padding-right:12px;
+  }
   .adm-movies .table-movies {
       margin: 0;
   }
@@ -523,14 +523,25 @@ document.addEventListener('DOMContentLoaded', () => {
       gap: 8px;
       justify-content: flex-end;
   }
-  .adm-movies .toolbar-wrap {
-      background: #fff;
-      border: 1px solid #eaecf0;
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+  .adm-movies .toolbar-wrap{
+    background:#fff;
+    border:1px solid #eaecf0;
+    border-radius:12px;
+    padding:10px;
+    box-shadow:0 10px 30px rgba(16,24,40,.06);
   }
-
+  .adm-movies .toolbar .search .form-control{
+    height:38px;                 
+    border-radius:.375rem;       
+    padding:.375rem .75rem;
+    border:1px solid #dee2e6;
+    box-shadow:none;
+  }
+  .adm-movies .toolbar .search .form-control:focus{
+    outline:0;
+    border-color:#b8bdfd;
+    box-shadow:0 0 0 .25rem rgba(69,74,242,.12);
+  }
   /* Responsive bảng */
   @media (max-width: 992px) {
       .adm-movies .table-movies thead {
@@ -555,6 +566,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       .adm-movies .table-actions {
           justify-content: flex-start;
+      }
+      .adm-movies .toolbar{ 
+        flex-wrap:nowrap; 
       }
   }
 

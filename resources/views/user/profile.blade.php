@@ -39,7 +39,9 @@
 
       </div>
     </aside>
-
+    @php     
+      $user  = Auth::user();
+    @endphp
     <section class="col-md-9">
       <div class="card shadow-sm rounded-3">
         <div class="card-header bg-secondary text-white">
@@ -55,16 +57,16 @@
                         <a class="btn btn-outline-primary m-1" href="{{ route('admin.form') }}">Admin Dashboard</a>
                     </div>
                   @endif
-                  <img src="{{ asset('storage/pictures/dogavatar.jpg') }}"
+                  <img src="{{ $user?->avatar ?? asset('storage/pictures/dogavatar.jpg') }}"
                        class="rounded-circle shadow-sm"
                        style="width:100px;height:100px;object-fit:cover" alt="avatar">
                   <form action="{{ route('avatar.update')}}" method="POST" class="d-inline">
-                    @csrf
+                  @csrf
                     <button class="btn btn-primary btn-sm rounded m-1">Thay đổi avatar</button>
                   </form>
                 </div>
                 <div class="col-md-9">
-                  <p class="mb-1"><i class="bi bi-envelope me-2"></i>Xin chào khách hàng {{ $customer->customer_name }}</p>
+                  <p class="mb-1"><i class="bi bi-envelope me-2"></i>Xin chào khách hàng, {{ $customer->customer_name }}</p>
                   <p class="mb-1"><i class="bi bi-star me-2"></i>Hạng thành viên:
                     <span class="badge bg-success">{{ $customer->tier }}</span>
                   </p>

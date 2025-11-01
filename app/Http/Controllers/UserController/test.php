@@ -10,81 +10,66 @@
 </section>
 
 @php
-  use Illuminate\Support\Str;
+use Illuminate\Support\Str;
 
-  // Promo fallback (hiển thị khi không có banner phim)
-  $promoBanners = [
-    ['img' => asset('storage/pictures/mai.jpg'),             'url' => url('/promo/member-day'), 'title' => 'Member Day',  'desc' => 'X2 điểm thưởng'],
-    ['img' => asset('storage/pictures/muado.jpg'),           'url' => url('/promo/combo'),      'title' => 'Combo Bắp Nước','desc' => 'Chỉ từ 49K'],
-    ['img' => asset('storage/pictures/tuchientrenkhong.jpg'), 'url' => url('/promo/early-bird'), 'title' => 'Early Bird',  'desc' => 'Đặt sớm -20%'],
-  ];
+$normalizeImg = fn ($path) =>
+    $path && Str::startsWith($path, ['http', '/storage']) ? $path : ($path ? asset($path) : null);
 
-  // Chuẩn hoá URL ảnh: nếu đã là http|/storage thì giữ nguyên, ngược lại bọc asset()
-  $normalizeImg = fn ($path) =>
-      $path && Str::startsWith($path, ['http', '/storage']) ? $path : ($path ? asset($path) : null);
-
-  // Gom tất cả phim đang là banner
-  $movieBanners = collect($bannerMovies ?? [])
-    ->filter(fn ($m) => !empty($m->poster))
-    ->map(fn ($m) => [
+if (!empty($poster)) {
+  $movieBanners = collect([[
+    'img'   => $normalizeImg($poster),
+    'url'   => '#',
+    'title' => $movie->title ?? 'Phim',
+    'desc'  => $description ?? ($movie->description ?? ''),
+  ]]);
+} else {
+  $movieBanners = collect($bannerMovies ?? [])->filter(fn($m) => !empty($m->poster))
+    ->map(fn($m) => [
       'img'   => $normalizeImg($m->poster),
       'url'   => route('movies.show', ['movieID' => $m->movieID]),
       'title' => $m->title,
-      'desc'  => Str::limit((string) $m->description, 100),
+      'desc'  => Str::limit((string)$m->description, 100),
     ]);
+}
 
-  // Fallback 1 phim nếu middleware chỉ share $bannerMovie
-  if ($movieBanners->isEmpty() && !empty($bannerMovie) && !empty($bannerMovie->poster)) {
-    $movieBanners = collect([[
-      'img'   => $normalizeImg($bannerMovie->poster),
-      'url'   => route('movies.show', ['movieID' => $bannerMovie->movieID]),
-      'title' => $bannerMovie->title,
-      'desc'  => Str::limit((string) $bannerMovie->description, 100),
-    ]]);
-  }
+$promoBanners = [
+  ['img' => asset('storage/pictures/mai.jpg'), 'url' => url('/promo/member-day'), 'title' => 'Member Day', 'desc' => 'X2 điểm thưởng'],
+  ['img' => asset('storage/pictures/muado.jpg'), 'url' => url('/promo/combo'), 'title' => 'Combo Bắp Nước', 'desc' => 'Chỉ từ 49K'],
+  ['img' => asset('storage/pictures/tuchientrenkhong.jpg'), 'url' => url('/promo/early-bird'), 'title' => 'Early Bird', 'desc' => 'Đặt sớm -20%'],
+];
 
-  // Chọn nguồn banner: phim > promo
-  $banners = $movieBanners->isNotEmpty() ? $movieBanners->values()->all() : $promoBanners;
+$banners = $movieBanners->isNotEmpty() ? $movieBanners->values()->all() : $promoBanners;
 @endphp
 
 @if (!empty($banners))
-<div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="3200">
+<div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="4000">
   <div class="carousel-inner banner-wrapper rounded shadow-sm">
     @foreach ($banners as $i => $b)
       <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
         <a href="{{ $b['url'] }}" class="d-block position-relative" aria-label="{{ $b['title'] ?? 'Banner '.($i+1) }}">
           <img class="w-100 banner-img" src="{{ $b['img'] }}" alt="{{ $b['title'] ?? 'Banner '.($i+1) }}" loading="lazy">
           <span class="banner-overlay"></span>
-            <div class="banner-caption">
-              @isset($b['title']) <h5 class="mb-1">{{ $b['title'] }}</h5> @endisset
-              @isset($b['desc'])  <p class="mb-0">{{ $b['desc'] }}</p>   @endisset
-            </div>
+
+          {{-- 👇 Nội dung hiển thị trên banner --}}
+          <div class="banner-caption text-white">
+            @isset($b['title'])
+              <h2 class="fw-bold display-5 mb-3">{{ $b['title'] }}</h2>
+            @endisset
+            @isset($b['desc'])
+              <p class="lead mb-0">{!! nl2br(e($b['desc'])) !!}</p>
+            @endisset
+          </div>
         </a>
       </div>
     @endforeach
   </div>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev" aria-label="Slide trước">
+  <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
   </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next" aria-label="Slide sau">
+  <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
   </button>
-
-  <div class="carousel-indicators">
-    @foreach ($banners as $i => $_)
-      <button
-        type="button"
-        data-bs-target="#bannerCarousel"
-        data-bs-slide-to="{{ $i }}"
-        class="{{ $i === 0 ? 'active' : '' }}"
-        @if($i===0) aria-current="true" @endif
-        aria-label="Chuyển đến banner {{ $i + 1 }}">
-      </button>
-    @endforeach
-  </div>
 </div>
 @endif
 
@@ -163,19 +148,47 @@
 </section>
 @endsection
 
-
 @push('styles')
 <style>
   /* =========================================================
-   HOME PAGE / MOVIE LISTING
-   ========================================================= */
-  .ns-wrap {
-      max-width: 1200px;
-      margin: 48px auto;
+     BANNER STYLE (đưa tên phim lên trên + mô tả đầy đủ)
+  ========================================================= */
+  .banner-wrapper {
+    height: clamp(340px, 40vw, 520px);
   }
-  .ns-row {
-      row-gap: 24px;
+  .banner-img {
+    object-fit: cover;
+    height: 100%;
   }
+  .banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.65) 75%, rgba(0,0,0,.75) 100%);
+  }
+  .banner-caption {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    bottom: 10%;
+    color: #fff;
+    text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+    max-width: 800px;
+  }
+  .banner-caption h2 {
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 700;
+  }
+  .banner-caption p {
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+
+  /* =========================================================
+     MOVIE LISTING (giữ nguyên)
+  ========================================================= */
+  .ns-wrap { max-width: 1200px; margin: 48px auto; }
+  .ns-row { row-gap: 24px; }
 
   .movie-card {
       border-radius: var(--card-radius);
@@ -188,21 +201,9 @@
       transform: translateY(-4px);
       box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.12);
   }
-  .movie-card img {
-      aspect-ratio: auto;
-  }
-
-  .poster-wrap {
-      border-top-left-radius: var(--card-radius);
-      border-top-right-radius: var(--card-radius);
-      overflow: hidden;
-  }
-  .poster-img {
-      transition: transform 0.35s ease;
-  }
-  .movie-card:hover .poster-img {
-      transform: scale(1.04);
-  }
+  .poster-wrap { border-top-left-radius: var(--card-radius); border-top-right-radius: var(--card-radius); overflow: hidden; }
+  .poster-img { transition: transform 0.35s ease; }
+  .movie-card:hover .poster-img { transform: scale(1.04); }
   .actions-float {
       position: absolute;
       left: 12px;
@@ -214,15 +215,8 @@
       transform: translateY(6px);
       transition: all 0.18s ease;
   }
-  .movie-card:hover .actions-float {
-      opacity: 1;
-      transform: translateY(0);
-  }
-  .card-quick-actions {
-      transition: opacity 0.25s ease;
-  }
-  .movie-card:hover .card-quick-actions {
-      opacity: 1;
-  }
+  .movie-card:hover .actions-float { opacity: 1; transform: translateY(0); }
+  .card-quick-actions { transition: opacity 0.25s ease; }
+  .movie-card:hover .card-quick-actions { opacity: 1; }
 </style>
 @endpush

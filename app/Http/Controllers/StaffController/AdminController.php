@@ -10,6 +10,7 @@ use App\Models\UserModels\Customer;
 use App\Models\ProductModels\Movie;
 use App\Models\ProductModels\Ticket;
 use App\Models\ProductModels\Showtime;
+use App\Models\ProductModels\MovieTheater;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
@@ -178,7 +179,7 @@ class AdminController extends Controller
         $data = $request->validate([
             'username' => ['required', 'string', 'max:20', 'unique:users,username'],
             'email'    => ['required', 'email', 'max:60', 'unique:users,email'],
-            'password' => ['required', Password::min(5)->numbers()],
+            'password' => ['required', Password::min(5)->letters()->numbers()],
             'role'     => ['nullable', 'in:admin,customers'],
             'status'   => ['nullable', 'in:active,locked'],
             'avatar'   => ['nullable', 'string', 'max:255'],
@@ -516,7 +517,59 @@ class AdminController extends Controller
     }
     // =============== MOVIE THEATER ============= //
     public function showMovieTheater(Request $request): View
-    {
-        return view('adminDashboard.movietheaterManagement.main');
+    {        
+        $q = trim((string) $request->get('q', ''));
+        $theaterMini = MovieTheater::select('roomName','capacity')
+            ->orderBy('roomName')
+            ->limit(5)
+            ->get();
+        $kpi = [
+            'movieTheaters_total' => MovieTheater::count(),
+        ];
+
+        $theaters = MovieTheater::query()
+            ->when($q, function ($qr) use ($q) {
+                $qr->where(function ($sub) use ($q) {
+                    $sub->where('roomName', 'like', "%{$q}%")
+                        ->orWhere('note', 'like', "%{$q}%")
+                        ->orWhere('status', 'like', "%{$q}%");
+                });
+            })
+            ->orderBy('roomName')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('adminDashboard.movietheaterManagement.main',compact('theaterMini','kpi','q'));
     }
+    public function theaterStore(Request $request)
+    {
+        $data = $request->validate([
+            'roomName' => ['required','string','max:255','unique:movie_theaters,roomName'],
+            'capacity' => ['required','integer','min:0','max:100'],
+            'status'   => ['required','in:active,unable'],
+        ]);
+
+        MovieTheater::create($data);
+        return back()->with('success','Tạo phòng chiếu thành công.');
+    }
+
+    public function theaterDestroy(MovieTheater $movieTheater)
+    {
+        $movieTheater->delete();
+        return back()->with('success','Đã xoá phòng chiếu.');
+    }
+
+    public function theaterUpdate(Request $request, MovieTheater $movieTheater)
+    {
+        $data = $request->validate([
+            'roomName' => ['required','string','max:255','unique:movie_theaters,roomName,'.$movieTheater->id],
+            'capacity' => ['required','integer','min:0','max:10000'],
+            'status'   => ['required','in:active,unable'],
+            'note'     => ['nullable','string','max:255'],
+        ]);
+
+        $movieTheater->update($data);
+        return back()->with('success','Cập nhật phòng chiếu thành công.');
+    }
+
 }

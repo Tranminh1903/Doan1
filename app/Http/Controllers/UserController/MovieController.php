@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\UserController;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\ProductModels\Movie;
-use App\Models\ProductModels\MovieRating;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\ProductModels\Movie;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ProductModels\MovieRating;
 
 class MovieController
 {
@@ -14,8 +15,8 @@ class MovieController
     {
         $movie = Movie::with('showtimes')->findOrFail($movieID);
         $averageRating = MovieRating::where('movieID', $movieID)->avg('stars') ?? 0;
-
-        return view('movies.movie_detail', compact('movie', 'averageRating'));
+        $bannerMovies = Movie::where('is_banner', true)->whereNotNull('poster')->get(['movieID','poster']);
+        return view('movies.movie_detail', compact('movie', 'averageRating','bannerMovies'));
     }
 
     public function rate(Request $request, $movieID)
