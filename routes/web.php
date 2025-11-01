@@ -14,16 +14,12 @@ use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
 use App\Http\Controllers\UserController\GoogleController;
-use Illuminate\Support\Facades\Route
+use Illuminate\Support\Facades\Route;
 // ==== Trang chủ ==== //
     Route::get('/', [HomeController::class,'index'])->name('home');
-<<<<<<< Updated upstream
-=======
     // ==== Tìm kiếm phim ==== //
     Route::get('/movies/search', [MovieController::class, 'search'])->name('movies.search');
 
-    
->>>>>>> Stashed changes
 // Trang chủ và chi tiết phim — công khai
     Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
     Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
@@ -66,13 +62,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.expire');
     // ==== Đồng bộ thanh toán từ Google Sheet  ==== //
     Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
-<<<<<<< Updated upstream
-=======
+
     // ==== Kiểm tra và đồng bộ thanh toán cho đơn hàng cụ thể ==== //
     Route::get('/orders/check-sync/{orderCode}', [OrderController::class, 'checkAndSyncPayment']);
 
-
->>>>>>> Stashed changes
     // ==== Trang chọn suất chiếu ==== //
     Route::get('/select-showtimes/{movieID}', [BookingController::class, 'selectShowtime'])->name('select.showtime');
     Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
