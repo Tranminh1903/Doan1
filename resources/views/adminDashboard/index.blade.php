@@ -16,7 +16,7 @@
       <h6>KHUYẾN MÃI</h6>
       <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
         href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
-
+        
       <h6>PHIM</h6>
       <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
         href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>

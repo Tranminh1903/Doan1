@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
+use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
 use Illuminate\Support\Facades\Route;
 // ==== Trang chủ ==== //
