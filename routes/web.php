@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController\CustomerController;
 use App\Http\Controllers\UserController\ResetPasswordController;
 use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
+use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
 use Illuminate\Support\Facades\Route;
 // ==== Trang chủ ==== //
@@ -39,6 +40,7 @@ Route::middleware('guest')->group(function () {
     // ==== Hạn chế spam, tối đa là 5 lần cho 1 phút - Forget Password ==== //
     Route::post('/forgot_password', [ForgetPasswordController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('forget_password.link');
     Route::get('/forget_password', [ForgetPasswordController::class, 'showForget_Password'])->name('forget_password.form');
+
     // ==== Reset Password ==== //
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
@@ -56,10 +58,13 @@ Route::middleware('auth')->group(function () {
 
     // ==== Order - Đặt hàng mới ==== //
     Route::post('/create-order', [OrderController::class, 'createOrder'])->name('orders.create');
+
     // ==== Kiểm tra trạng thái thanh toán (frontend gọi để reload) ==== //
     Route::get('/check-payment/{orderCode}', [OrderController::class, 'checkPayment'])->name('orders.check');
+
     // ==== Hủy đơn khi hết hạn (frontend gọi khi timeLeft = 0)  ==== //
     Route::post('/orders/{orderCode}/expire', [OrderController::class, 'expire'])->name('orders.expire');
+    
     // ==== Đồng bộ thanh toán từ Google Sheet  ==== //
     Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
 
@@ -70,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/select-showtimes/{movieID}', [BookingController::class, 'selectShowtime'])->name('select.showtime');
     Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
     Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
+
     // ==== Giữ ghế chỉ 1 người được chọn ==== //
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
     // ==== Kiểm tra và giải phóng ghế hết hạn ==== //
@@ -103,13 +109,16 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::put('/adminDashboard/movies/{movie}', [AdminController::class, 'movieUpdate'])->name('moviesManage.update');
     Route::delete('/adminDashboard/movies/{movie}', [AdminController::class, 'movieDestroy'])->name('moviesManage.delete');
     Route::post('/adminDashboard/movies/upload-poster', [MovieController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
+
     // ==== CSV ==== //
     Route::get('/adminDashboard/movies/export/csv',  [AdminController::class, 'movieExportCsv'])->name('moviesManage.export_csv');
     Route::get('/adminDashboard/movies/template/csv', [AdminController::class, 'movieTemplateCsv'])->name('moviesManage.template_csv');
     Route::post('/adminDashboard/movies/import/csv', [AdminController::class, 'movieImportCsv'])->name('moviesManage.export_csv');
+
     // ==== Banner ==== //
     Route::post('adminDashboard/movies/{movie}/banner',  [AdminController::class, 'setBanner'])->name('moviesManage.banner_set');
     Route::delete('adminDashboard/movies/{movie}/banner', [AdminController::class, 'unsetBanner'])->name('moviesManage.banner_unset');
+    Route::get('/banners.json', [MovieController::class, 'bannersJson'])->name('banners.json');
 
     // ==== Report ==== //
     Route::get('adminDashboard/reports/revenue', [ReportController::class, 'index'])->name('admin.reports.revenue');
@@ -121,6 +130,9 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
-    // ==== Promotion ==== //
+    // ==== Movie Theater ==== //
     Route::get('adminDashboard/movieTheater', [AdminController::class, 'showMovieTheater'])->name('admin.movietheaterManagement.form');
+    Route::get('adminDashboard/movieTheater/store', [AdminController::class, 'theaterStore'])->name('admin.movietheaterManagement.store');
+    Route::get('adminDashboard/movieTheater/destroy', [AdminController::class, 'theaterDestroy'])->name('admin.movietheaterManagement.destroy');
+    Route::get('adminDashboard/movieTheater/update', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
 });

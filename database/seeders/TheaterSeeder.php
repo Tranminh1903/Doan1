@@ -15,9 +15,9 @@ class TheaterSeeder extends Seeder
     public function run(): void
     {
         DB::table('movie_theaters')->upsert([
-            ['theaterID'=>1, 'roomName'=>'Room A', 'capacity'=>120],
-            ['theaterID'=>2, 'roomName'=>'Room B', 'capacity'=> 90],
-            ['theaterID'=>3, 'roomName'=>'Room C', 'capacity'=>150],
+            ['theaterID'=>1, 'roomName'=>'Phòng 1', 'capacity'=>120],
+            ['theaterID'=>2, 'roomName'=>'Phòng 2', 'capacity'=> 90],
+            ['theaterID'=>3, 'roomName'=>'Phòng 3', 'capacity'=>150],
         ], ['theaterID'], ['roomName','capacity']);
     }
 }

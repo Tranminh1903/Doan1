@@ -13,13 +13,13 @@
       <a class="ad-link {{request()->routeIs('admin.userManagement_main.form') ? 'active' : '' }}" 
         href="{{route('admin.userManagement_main.form')}}">Quản lý người dùng</a>
       
-      <h6>PHIM</h6>
-      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
-        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
-
       <h6>KHUYẾN MÃI</h6>
       <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
         href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+        
+      <h6>PHIM</h6>
+      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
+        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
       <h6>PHÒNG CHIẾU</h6>
       <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
@@ -85,7 +85,7 @@
 
       {{-- KPI --}}
       @php $kpi = $kpi ?? []; @endphp
-      <div class="row g-3">
+      <div class="row g-3 mb-3">
         <div class="col-12 col-sm-6 col-lg-3">
           <div class="kpi-card kpi--blue p-3 rounded">
             <div class="text-muted">Doanh thu hôm nay</div>
@@ -152,7 +152,7 @@
         </div>
 
         <div class="col-lg-5">
-          <div class="ad-card p-2">
+          <div class="ad-card p-3">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h6 class="m-0">Top phim</h6>
               <a href="{{ route('admin.reports.revenue') }}">Báo cáo</a>
@@ -178,7 +178,7 @@
       </div>
 
       {{-- Suất chiếu sắp tới --}}
-      <div class="ad-card p-2 mt-3">
+      <div class="ad-card p-3 mt-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="m-0">Suất chiếu sắp tới</h6>
           <a href="{{ url('/adminDashboard/moviesManagement/main') }}">Lịch chiếu</a>
@@ -211,10 +211,9 @@
         </div>
       </div>
 
-      <div class="ad-card p-2 mt-3" style="max-width: 1040px;">
+      <div class="ad-card p-3 mt-3" style="max-width: 1040px;">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="m-0">Phòng chiếu phim</h6>
-          {{-- Nếu có trang quản lý rạp, giữ link; không có thì bỏ dòng dưới --}}
           <a href="" class="small">Quản lý</a>
         </div>
 

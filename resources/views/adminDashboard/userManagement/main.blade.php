@@ -8,7 +8,7 @@
 @endphp
 
 <div class="ad-wrapper d-flex container-fluid">
-  <aside class="ad-sidebar">
+   <aside class="ad-sidebar">
     <nav class="ad-menu">
       <h6>TỔNG QUAN</h6>
       <a class="ad-link {{ request()->routeIs('admin.form') ? 'active' : '' }}" 
@@ -18,13 +18,13 @@
       <a class="ad-link {{request()->routeIs('admin.userManagement_main.form') ? 'active' : '' }}" 
         href="{{route('admin.userManagement_main.form')}}">Quản lý người dùng</a>
       
-      <h6>PHIM</h6>
-      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
-        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
-
       <h6>KHUYẾN MÃI</h6>
       <a class="ad-link {{ request()->routeIs('admin.promotionManagement.form') ? 'active' : '' }}"
         href="{{ route('admin.promotionManagement.form')}}">Quản lý khuyến mãi</a>
+        
+      <h6>PHIM</h6>
+      <a class="ad-link {{ request()->routeIs('admin.moviesManagement_main.form') ? 'active' : '' }}" 
+        href="{{ route('admin.moviesManagement_main.form')}}">Quản lý phim</a>
 
       <h6>PHÒNG CHIẾU</h6>
       <a class="ad-link {{ request()->routeIs('admin.movietheaterManagement.form') ? 'active' : '' }}" 
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
       padding: 16px;
       box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
       transition: transform 0.12s ease, box-shadow 0.18s ease,
-          border-color 0.18s ease;
+      border-color 0.18s ease;
   }
   .kpi-card:hover {
       transform: translateY(-2px);
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 /* ===== Toolbar trắng có bóng (đồng bộ với trang Phim) ===== */
-  .adm-users .toolbar-wrap {
+  .adm-users .toolbar-wrap{
     background:#fff;
     border:1px solid #eaecf0;
     border-radius:12px;
@@ -440,18 +440,21 @@ document.addEventListener('DOMContentLoaded', () => {
     gap:12px;
     margin:16px 0 12px;
   }
-  .adm-users .toolbar .search{flex:1 1 320px;max-width:560px}
-  .adm-users .toolbar .search input[type="search"]{
-    height:44px;
-    border-radius:999px;
-    border:1px solid #eaecf0;
-    padding:0 16px;
-    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  .adm-users .toolbar .search{
+    flex:1 1 420px;              
+    max-width:560px;             
   }
-  .adm-users .toolbar .search input[type="search"]:focus{
-    outline:none;
+  .adm-users .toolbar .search .form-control{
+    height:38px;                 
+    border-radius:.375rem;      
+    padding: .375rem .75rem;     
+    border:1px solid #dee2e6;    
+    box-shadow:none;
+  }
+  .adm-users .toolbar .search .form-control:focus{
+    outline:0;
     border-color:#b8bdfd;
-    box-shadow:0 0 0 4px rgba(69,74,242,.12);
+    box-shadow:0 0 0 .25rem rgba(69,74,242,.12);
   }
   .adm-users .btn-soft{background:#f9fafb;border:1px solid #eaecf0;color:#101828}
   .adm-users .btn-soft:hover{background:#fff}
@@ -474,6 +477,14 @@ document.addEventListener('DOMContentLoaded', () => {
   .adm-users .csv-input .fake-btn {
       pointer-events: none;
   }
+  .adm-users .toolbar .btn,
+  .adm-users .csv-input .btn {
+      white-space: nowrap;      
+      line-height: 1.2;         
+      padding-left: 12px;       
+      padding-right: 12px;
+      flex-shrink: 0;           
+}
 
   /* ===== Card & Bảng USERS (đồng bộ tone) ===== */
   .adm-users .card-like {
@@ -573,5 +584,10 @@ document.addEventListener('DOMContentLoaded', () => {
           justify-content: flex-start;
       }
   }
+  @media (min-width: 992px){
+      .adm-users .toolbar{ 
+        flex-wrap:nowrap; 
+      }
+}
 </style>
 @endpush

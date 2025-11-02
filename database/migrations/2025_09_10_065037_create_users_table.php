@@ -10,7 +10,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // BIGINT UNSIGNED PK
             $table->string('username', 50)->unique();
-            $table->string('password', 255);
+            $table->string('password', 255)->nullable();
             $table->string('email', 100)->unique();
             $table->string('phone', 20)->nullable();
             $table->string('sex', 4)->nullable(); 
