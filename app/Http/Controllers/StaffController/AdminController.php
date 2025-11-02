@@ -7,6 +7,7 @@ use App\Models\UserModels\User;
 use App\Models\UserModels\Admin;
 use App\Models\UserModels\Order;
 use App\Models\UserModels\Customer;
+use App\Models\UserModels\Promotion;
 use App\Models\ProductModels\Movie;
 use App\Models\ProductModels\Ticket;
 use App\Models\ProductModels\Showtime;
@@ -507,7 +508,84 @@ class AdminController extends Controller
     // =============== PROMOTION ============= //
     public function showPromotion(Request $request): View
     {
-        return view('adminDashboard.promotionManagement.main');
+        // Lấy tất cả khuyến mãi
+        $promotions = promotion::orderBy('created_at', 'desc')->get();
+
+        // Lấy thông tin người dùng hiện tại (admin)
+        $user = Auth::user();
+
+        // Trả về view với dữ liệu
+        return view('adminDashboard.promotionManagement.main', compact('promotions', 'user'));
+    }
+
+    /**
+     * Xử lý lưu khuyến mãi mới
+     */
+    public function PromotionStore(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|max:50|unique:promotion,code',
+            'type' => 'required|string|max:50',
+            'value' => 'required|numeric|min:1',
+            'limit_count' => 'required|integer|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        promotion::create([
+            'code' => $request->code,
+            'type' => $request->type,
+            'value' => $request->value,
+            'limit_count' => $request->limit_count,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('admin.promotionManagement.form')->with('success', 'Thêm khuyến mãi thành công!');
+    }
+
+    /**
+     * Cập nhật khuyến mãi
+     */
+    
+    public function PromotionUpdate(Request $request, $id)
+    {
+    $promotion = promotion::findOrFail($id);
+
+    $request->validate([
+        'code' => 'required|string|max:50|unique:promotion,code,' . $promotion->id,
+        'type' => 'required|string|max:50',
+        'value' => 'required|numeric|min:1',
+        'limit_count' => 'required|integer|min:0',
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'description' => 'nullable|string|max:255',
+    ]);
+
+    $promotion->update([
+        'code' => $request->code,
+        'type' => $request->type,
+        'value' => $request->value,
+        'limit_count' => $request->limit_count,
+        'start_date' => $request->start_date,
+        'end_date' => $request->end_date,
+        'description' => $request->description,
+    ]);
+
+    return redirect()->route('admin.promotionManagement.form')->with('success', 'Cập nhật khuyến mãi thành công!');
+    }
+
+    /**
+     * Xóa khuyến mãi
+     */
+    public function PromotionDelete($id)
+    {
+        $promotion = promotion::findOrFail($id);
+        $promotion->delete();
+
+        return redirect()->route('admin.promotionManagement.form')->with('success', 'Xóa khuyến mãi thành công!');
     }
 
     // =============== SHOWTIME ============= //

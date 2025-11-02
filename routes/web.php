@@ -128,6 +128,9 @@ Route::middleware('auth', 'admin')->group(function () {
 
     // ==== Promotion ==== //
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
+    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('admin.promotion.store');
+    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('admin.promotion.update');
+    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDelete'])->name('admin.promotion.delete');
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
     // ==== Movie Theater ==== //
