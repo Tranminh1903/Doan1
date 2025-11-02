@@ -57,13 +57,29 @@
                         <a class="btn btn-outline-primary m-1" href="{{ route('admin.form') }}">Admin Dashboard</a>
                     </div>
                   @endif
-                  <img src="{{ $user?->avatar ?? asset('storage/pictures/dogavatar.jpg') }}"
-                       class="rounded-circle shadow-sm"
-                       style="width:100px;height:100px;object-fit:cover" alt="avatar">
-                  <form action="{{ route('avatar.update')}}" method="POST" class="d-inline">
-                  @csrf
-                    <button class="btn btn-primary btn-sm rounded m-1">Thay đổi avatar</button>
-                  </form>
+                  <form action="{{ route('avatar.update') }}" method="POST" enctype="multipart/form-data" class="d-inline">
+  @csrf
+  <div class="d-flex flex-column align-items-center">
+    <img src="{{ $user && $user->avatar ? asset('storage/'.$user->avatar) : asset('storage/pictures/dogavatar.jpg') }}"
+         class="rounded-circle shadow-sm mb-2"
+         style="width:100px;height:100px;object-fit:cover" alt="avatar">
+    
+    <label class="btn btn-outline-secondary btn-sm mb-2">
+      <input type="file" name="avatar" hidden onchange="this.form.submit()">
+      Chọn ảnh mới
+    </label>
+
+    @if(session('success'))
+      <div class="text-success small mt-1">{{ session('success') }}</div>
+    @endif
+
+    @error('avatar')
+      <div class="text-danger small mt-1">{{ $message }}</div>
+    @enderror
+  </div>
+</form>
+
+
                 </div>
                 <div class="col-md-9">
                   <p class="mb-1"><i class="bi bi-envelope me-2"></i>Xin chào khách hàng, {{ $customer->customer_name }}</p>

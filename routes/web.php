@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController\ForgetPasswordController;
 use App\Http\Controllers\UserController\PromotionController;
 use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
+use App\Http\Controllers\UserController\ProfileController;
 use Illuminate\Support\Facades\Route;
 // ==== Trang chủ ==== //
     Route::get('/', [HomeController::class,'index'])->name('home');
@@ -87,6 +88,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/apply', [PromotionController::class, 'applyPromotion']);
         Route::post('/mark-used/{code}', [PromotionController::class, 'markAsUsed']);
     });
+    // ==== Movie Theater  ==== //
+    Route::post('/user/avatar', [ProfileController::class, 'updateAvatar'])
+    ->middleware('auth')
+    ->name('avatar.update');
 });
 
 Route::middleware('auth', 'admin')->group(function () {
