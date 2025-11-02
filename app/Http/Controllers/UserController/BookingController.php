@@ -150,6 +150,7 @@ class BookingController extends Controller
 {
     $now = now();
 
+    // Tìm ghế đang held nhưng đã hết hạn
     $expiredSeats = DB::table('seat_holds')
         ->where('showtimeID', $showtimeID)
         ->where('status', 'held')
@@ -158,13 +159,24 @@ class BookingController extends Controller
         ->toArray();
 
     if (!empty($expiredSeats)) {
+        // Xóa ghế hết hạn khỏi bảng seat_holds
         DB::table('seat_holds')
             ->whereIn('seatID', $expiredSeats)
             ->where('showtimeID', $showtimeID)
-            ->update(['status' => 'available', 'expires_at' => null]);
+            ->delete();
 
-        // Phát realtime cho client khác
-        broadcast(new SeatStatusUpdated($showtimeID, $expiredSeats, 'available'))->toOthers();
+        // Tạo dữ liệu broadcast chuẩn
+        $seatObjects = collect($expiredSeats)->map(fn($seatId) => [
+            'seatID' => $seatId,
+            'status' => 'available'
+        ])->toArray();
+
+        // Phát event realtime để tất cả client khác cập nhật
+        broadcast(new SeatStatusUpdated(
+            $showtimeID,
+            $seatObjects,
+            'available'
+        ))->toOthers();
     }
 
     return response()->json(['expiredSeats' => $expiredSeats]);

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_banner')->default(false)->index(); 
             $table->string('status')->default('active');
             $table->timestamps();
+            // Full-text index on title for search functionality
+            $table->fullText('title');
         });
     }
 

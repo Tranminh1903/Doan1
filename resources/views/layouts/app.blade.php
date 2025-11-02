@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="vi">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      prefix: 'tw-',
+      corePlugins: { preflight: false },
+      important: '#payment-root'
+    }
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>@yield('title', 'Movie Tickets')</title>
@@ -28,7 +37,8 @@
     <div class="dmm-search flex-grow-1 ms-3">
       <div class="input-group">
       @if (!request()->routeIs('login.form') && !request()->routeIs('register.form'))
-        <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+        <input type="search" id="searchInput" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+<div id="searchResults" class="list-group position-absolute"></div>
       @endif
       </div>
     </div>
@@ -63,7 +73,7 @@
 
       <div class="dmm-search flex-grow-1 ms-3">
         <div class="input-group">
-          <input type="search" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
+          <input type="search" id="searchInput" class="form-control" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim">
         </div>
       </div>
 
@@ -232,6 +242,23 @@
             progressBar: true,
         });
     @endif
+        const searchInput = document.getElementById('searchInput');
+const movieListContainer = document.getElementById('movieListContainer');
+
+if (searchInput && movieListContainer) {
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key !== 'Enter') return;
+        const query = this.value.trim();
+
+        fetch(`/movies/search?q=${encodeURIComponent(query)}`)
+            .then(res => res.text())
+            .then(html => {
+                movieListContainer.innerHTML = html;
+            })
+            .catch(err => console.error(err));
+    });
+}
+
 </script>
 </body>
 </html>
