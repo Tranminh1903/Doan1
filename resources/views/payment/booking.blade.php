@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Đặt Vé CGV')
+@section('title', 'Đặt Vé')
 
 @push('head')
 
@@ -16,82 +16,107 @@
 @endpush
 
 @section('content')
-<div class="container py-4">
-  <h3 class="text-center mb-4">Đặt Vé CGV</h3>
+<div class="container py-4" id="payment-root">
+  <h3 class="text-center mb-4">Đặt Vé</h3>
 
-  {{-- Legend --}}
-  <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 mb-4">
-    <div class="d-flex align-items-center">
-      <div style="width:20px;height:20px;background-color:#ccc;border-radius:4px;margin-right:8px;"></div>
-      <span>Ghế trống</span>
+  <div class="tw-flex tw-flex-col lg:tw-flex-row tw-gap-6 tw-items-start tw-justify-center">
+  
+  {{-- CỘT TRÁI: Gồm poster + thanh toán --}}
+  <div class="tw-w-full lg:tw-w-1/3 tw-flex tw-flex-col tw-space-y-4">
+
+    {{-- KHỐI THÔNG TIN PHIM --}}
+    <div class="tw-bg-white tw-rounded-xl tw-shadow tw-p-4 tw-text-center">
+      <img src="{{ asset($movie->poster) }}" 
+           alt="{{ $movie->title }}" 
+           class="img-fluid rounded">
+           <p></p>
+      <h4 class="tw-font-extrabold tw-text-3xl tw-text-gray-800 tw-uppercase">{{ $movie->title }}</h4>
+      <p class="tw-text-sm tw-text-gray-600">Thời lượng: {{ $movie->duration ?? '120' }} phút</p>
     </div>
-    <div class="d-flex align-items-center">
-      <div style="width:20px;height:20px;background-color:limegreen;border-radius:4px;margin-right:8px;"></div>
-      <span>Ghế đang chọn</span>
+
+    {{-- KHỐI THANH TOÁN --}}
+    <div class="tw-bg-gray-100 tw-rounded-xl tw-p-5 tw-shadow">
+      <h4 class="tw-text-xl tw-font-bold tw-mb-4 tw-text-center">Thanh toán</h4>
+
+      <div class="mb-3">
+        <label for="promo_code" class="tw-font-semibold">Mã khuyến mãi:</label>
+        <select id="promo_code" class="form-select tw-w-full">
+          <option value="">-- Chọn mã khuyến mãi --</option>
+        </select>
+      </div>
+
+      <div class="tw-font-semibold tw-space-y-2">
+        <p>Tổng tiền: <span id="total_price" data-value="0">0</span> VND</p>
+        <p>Giảm giá: <span id="discount_amount">0</span> VND</p>
+        <h5>Thành tiền: <span id="final_price">0</span> VND</h5>
+      </div>
+
+      <div class="tw-text-center tw-mt-4">
+        <button id="btn-pay" class="btn btn-danger tw-w-full" onclick="confirmSeats()">Thanh toán</button>
+      </div>
     </div>
-    <div class="d-flex align-items-center">
-      <div style="width:20px;height:20px;background-color:gold;border-radius:4px;margin-right:8px;"></div>
-      <span>Được giữ chỗ</span>
-    </div>
-    <div class="d-flex align-items-center">
-      <div style="width:20px;height:20px;background-color:red;border-radius:4px;margin-right:8px;"></div>
-      <span>Đã đặt trước</span>
-    </div>
+
   </div>
 
-  <h4 class="text-center mb-4">Giờ chiếu:</h4>
+    {{-- Cột phải: Sơ đồ ghế --}}
+    <div class="tw-w-full lg:tw-w-2/3 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow">
+      {{-- Legend --}}
+      <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 mb-4">
+        <div class="d-flex align-items-center">
+          <div style="width:20px;height:20px;background-color:#ccc;border-radius:4px;margin-right:8px;"></div>
+          <span>Ghế trống</span>
+        </div>
+        <div class="d-flex align-items-center">
+          <div style="width:20px;height:20px;background-color:limegreen;border-radius:4px;margin-right:8px;"></div>
+          <span>Ghế đang chọn</span>
+        </div>
+        <div class="d-flex align-items-center">
+          <div style="width:20px;height:20px;background-color:gold;border-radius:4px;margin-right:8px;"></div>
+          <span>Được giữ chỗ</span>
+        </div>
+        <div class="d-flex align-items-center">
+          <div style="width:20px;height:20px;background-color:red;border-radius:4px;margin-right:8px;"></div>
+          <span>Đã đặt trước</span>
+        </div>
+      </div>
 
-  <div style="
-    border:4px solid #333;
-    border-radius:12px;
-    padding:16px 32px;
-    background-color:#f8f9fa;
-    font-weight:bold;
-    font-size:28px;
-    text-align:center;
-    width:100%;
-    max-width:600px;
-    margin:0 auto;">
-    MÀN HÌNH
-  </div>
+      <h4 class="text-center mb-4">Màn hình</h4>
 
-  {{-- Seat map --}}
-  <div id="seat-map" class="mb-4">
-    @foreach($seats as $row => $rowSeats)
-      <div class="row-label">Hàng {{ $row }}</div>
-      <div class="d-flex flex-wrap justify-content-center mb-2">
-        @foreach($rowSeats as $seat)
-          <div class="seat 
-            {{ $seat->status === 'unavailable' ? 'booked' : '' }} 
-            {{ $seat->status === 'held' ? 'held' : '' }}" 
-            data-seat-id="{{ $seat->seatID }}"
-            data-type="{{ $seat->type }}" 
-            data-price="{{ $seat->type === 'vip' ? 3000 : ($seat->type === 'couple' ? 3000 : 2000) }}">
-            {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
+      <div style="
+        border:4px solid #333;
+        border-radius:12px;
+        padding:16px 32px;
+        background-color:#f8f9fa;
+        font-weight:bold;
+        font-size:28px;
+        text-align:center;
+        width:100%;
+        max-width:600px;
+        margin:0 auto;">
+        MÀN HÌNH
+      </div>
+
+      {{-- Seat map --}}
+      <div id="seat-map" class="mt-4">
+        @foreach($seats as $row => $rowSeats)
+          <div class="d-flex flex-wrap justify-content-center mb-5">
+            @foreach($rowSeats as $seat)
+              <div class="seat 
+                {{ $seat->status === 'unavailable' ? 'booked' : '' }} 
+                {{ $seat->status === 'held' ? 'held' : '' }}" 
+                data-seat-id="{{ $seat->seatID }}"
+                data-type="{{ $seat->type }}" 
+                data-price="{{ $seat->type === 'vip' ? 3000 : ($seat->type === 'couple' ? 3000 : 2000) }}">
+                {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
+              </div>
+            @endforeach
           </div>
         @endforeach
       </div>
-    @endforeach
-  </div>
-
-  <div class="text-center mt-4">
-    <div class="mb-3">
-      <label for="promo_code" class="form-label fw-bold">Mã khuyến mãi:</label>
-      <select id="promo_code" class="form-select d-inline-block w-auto">
-        <option value="">-- Chọn mã khuyến mãi --</option>
-      </select>
     </div>
-
-    <div class="fw-bold">
-      <p>Tổng tiền: <span id="total_price" data-value="0">0</span> VND</p>
-      <p>Giảm giá: <span id="discount_amount">0</span> VND</p>
-      <h5>Thành tiền: <span id="final_price">0</span> VND</h5>
-    </div>
-  </div>
-  <div class="text-center">
-    <button  id="btn-pay" class="btn btn-danger" onclick="confirmSeats()">Thanh toán</button>
   </div>
 </div>
+
 
 {{-- Overlay QR --}}
 <div id="overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9998;">
@@ -159,23 +184,24 @@ document.addEventListener("DOMContentLoaded", () => {
     totalEl.textContent = total.toLocaleString('vi-VN');
     totalEl.setAttribute('data-value', String(total));
 
-    if (selectedPromoCode) applyPromotion(selectedPromoCode, total);
+    if (selectedPromoCode && total > 0) applyPromotion(selectedPromoCode, total);
     else updateFinal(total, 0);
   }
 
-  // --- Khuyến mãi ---
+  // --- Tải danh sách mã khuyến mãi ---
   fetch('/promotion/active')
     .then(res => res.json())
     .then(data => {
       const select = document.getElementById('promo_code');
       data.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.code;
-        option.textContent = `${p.code} - ${p.description}`;
-        select.appendChild(option);
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = `${p.code} - ${p.description}`;
+        select.appendChild(opt);
       });
     });
 
+  // --- Khi chọn mã ---
   document.getElementById('promo_code').addEventListener('change', function() {
     selectedPromoCode = this.value || null;
     const total = parseInt(document.getElementById('total_price').getAttribute('data-value'), 10) || 0;
@@ -187,29 +213,63 @@ document.addEventListener("DOMContentLoaded", () => {
     applyPromotion(selectedPromoCode, total);
   });
 
+  // --- Gửi mã giảm giá đến server ---
   function applyPromotion(code, total) {
-    fetch('/promotion/apply', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ code, total })
-    })
+  const seatCount = document.querySelectorAll('.seat.selected').length;
+
+  fetch('/promotion/apply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ code, total, seat_count: seatCount })
+  })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
         currentDiscount = data.discount;
         updateFinal(total, data.discount);
+
+        // ✅ Toast thông báo nhẹ
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: data.message,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } else {
-        alert(data.message);
+        // ❌ Thông báo lỗi nhẹ, không chặn thao tác
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: data.message,
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true
+        });
+
         document.getElementById('promo_code').value = '';
         currentDiscount = 0;
         updateFinal(total, 0);
       }
     })
-    .catch(err => console.error('Lỗi áp mã:', err));
-  }
+    .catch(err => {
+      console.error('Lỗi áp mã:', err);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Không thể áp dụng mã khuyến mãi!',
+        showConfirmButton: false,
+        timer: 2500
+      });
+    });
+}
 
   // --- Chọn ghế ---
   seats.forEach(seat => {

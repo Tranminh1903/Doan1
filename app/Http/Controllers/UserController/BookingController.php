@@ -42,7 +42,7 @@ class BookingController extends Controller
 
     public function booking($showtimeID)
     {
-        $showtime = Showtime::findOrFail($showtimeID);
+        $showtime = Showtime::with('movie')->findOrFail($showtimeID);
 
         $seats = Seat::where('seats.theaterID', $showtime->theaterID)
             ->leftJoin('seat_holds as sh', function ($join) use ($showtimeID) {
@@ -90,7 +90,8 @@ class BookingController extends Controller
         return view('payment.booking', [
             'seats'      => $seats,
             'showtimeID' => $showtimeID,
-            'showtime'   => $showtime
+            'showtime'   => $showtime,
+            'movie'      => $showtime->movie,
         ]);
     }
 

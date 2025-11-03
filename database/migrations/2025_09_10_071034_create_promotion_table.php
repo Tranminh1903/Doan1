@@ -15,6 +15,8 @@ return new class extends Migration
             $table->decimal('value', 10, 2); // Giá trị giảm (VD: 10% hoặc 50000đ)
             $table->integer('limit_count')->default(0); // Giới hạn lượt dùng
             $table->integer('used_count')->default(0); // Số lượt đã dùng
+            $table->decimal('min_order_value', 10, 2)->nullable(); // Giá trị đơn hàng tối thiểu để áp dụng
+            $table->integer('min_ticket_quantity')->nullable(); // Số ghế tối thiểu để áp dụng
             $table->dateTime('start_date'); // Ngày bắt đầu hiệu lực
             $table->dateTime('end_date'); // Ngày kết thúc hiệu lực
             $table->enum('status', ['active', 'inactive'])->default('active'); // Trạng thái

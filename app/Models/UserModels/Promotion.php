@@ -18,6 +18,8 @@ class Promotion extends Model
         'value',          // Giá trị giảm
         'limit_count',    // Giới hạn lượt dùng
         'used_count',     // Đã dùng
+        'min_order_value',   // Giá trị đơn hàng tối thiểu
+        'min_ticket_quantity', // Số ghế tối thiểu
         'start_date',     // Ngày bắt đầu
         'end_date',       // Ngày kết thúc
         'status',         // active / inactive

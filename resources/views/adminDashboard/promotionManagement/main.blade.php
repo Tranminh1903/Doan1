@@ -100,10 +100,13 @@
               <th>Loại</th>
               <th>Giá trị</th>
               <th>Giới hạn</th>
+              <th>Giá trị tối thiểu</th>
+              <th>Số ghế tối thiểu</th>
               <th>Đã dùng</th>
               <th>Hiệu lực</th>
               <th>Trạng thái</th>
               <th>Hành động</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -113,6 +116,8 @@
                 <td>{{ $promotion->type == 'percent' ? 'Giảm %' : 'Giảm cố định' }}</td>
                 <td>{{ $promotion->type == 'percent' ? $promotion->value.'%' : number_format($promotion->value).'đ' }}</td>
                 <td>{{ $promotion->limit_count }}</td>
+                <td>{{ $promotion->min_order_value ?? '-' }}</td>
+                <td>{{ $promotion->min_ticket_quantity ?? '-' }}</td>
                 <td>{{ $promotion->used_count }}</td>
                 <td>{{ \Carbon\Carbon::parse($promotion->start_date)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($promotion->end_date)->format('d/m/Y') }}</td>
                 <td>
@@ -167,6 +172,14 @@
               <div class="col-md-6">
                 <label class="form-label">Giới hạn lượt dùng</label>
                 <input type="number" name="limit_count" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Giá trị đơn hàng tối thiểu (VNĐ)</label>
+                <input type="number" name="min_order_value" class="form-control" placeholder="VD: 50000">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Số ghế tối thiểu</label>
+                <input type="number" name="min_ticket_quantity" class="form-control" placeholder="VD: 2">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Ngày bắt đầu</label>
@@ -227,6 +240,16 @@
           </div>
 
           <div class="col-md-6">
+            <label class="form-label">Giá trị đơn hàng tối thiểu (VNĐ)</label>
+            <input type="number" name="min_order_value" id="edit_min_order_value" class="form-control" placeholder="VD: 50000">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Số ghế tối thiểu</label>
+            <input type="number" name="min_ticket_quantity" id="edit_min_ticket_quantity" class="form-control" placeholder="VD: 2">
+          </div>
+
+          <div class="col-md-6">
             <label class="form-label">Ngày bắt đầu</label>
             <input type="datetime-local" name="start_date" id="edit_start_date" class="form-control" required>
           </div>
@@ -234,6 +257,14 @@
           <div class="col-md-6">
             <label class="form-label">Ngày kết thúc</label>
             <input type="datetime-local" name="end_date" id="edit_end_date" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_status" class="form-label">Trạng thái</label>
+            <select name="status" id="edit_status" class="form-select">
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Ngừng</option>
+            </select>
           </div>
 
           <div class="col-12">
@@ -254,6 +285,7 @@
   </main>
 </div>
 @endsection
+@push('scripts')
     <script>
 function openEditModal(promotion) {
   console.log(promotion);
@@ -263,15 +295,19 @@ function openEditModal(promotion) {
     document.querySelector('#edit_type').value = promotion.type;
     document.querySelector('#edit_value').value = promotion.value;
     document.querySelector('#edit_limit_count').value = promotion.limit_count;
+    document.querySelector('#edit_min_order_value').value = promotion.min_order_value ?? '';
+    document.querySelector('#edit_min_ticket_quantity').value = promotion.min_ticket_quantity ?? '';
     document.querySelector('#edit_start_date').value = promotion.start_date;
     document.querySelector('#edit_end_date').value = promotion.end_date;
+    document.querySelector('#edit_status').value = promotion.status;
     document.querySelector('#edit_description').value = promotion.description ?? '';
-
+    
     // Hiển thị modal
     const modal = new bootstrap.Modal(document.getElementById('editPromotionModal'));
     modal.show();
 }
 </script>
+@endpush
 @push('styles')
 <style>
   .table th, .table td { vertical-align: middle; }

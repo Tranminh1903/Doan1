@@ -15,7 +15,15 @@ class PromotionController extends Controller
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->whereColumn('used_count', '<', 'limit_count')
-            ->get(['id', 'code', 'description', 'type', 'value']);
+            ->get([
+                'id',
+                'code',
+                'description',
+                'type',
+                'value',
+                'min_order_value',
+                'min_ticket_quantity'
+            ]);
 
         return response()->json($promotions);
     }
@@ -25,11 +33,13 @@ class PromotionController extends Controller
     {
         $request->validate([
             'code' => 'required|string',
-            'total' => 'required|numeric|min:0'
+            'total' => 'required|numeric|min:0',
+            'seat_count' => 'nullable|integer|min:0'
         ]);
 
         $promotion = Promotion::where('code', $request->code)->first();
 
+        // ❌ Không tìm thấy mã
         if (!$promotion) {
             return response()->json([
                 'success' => false,
@@ -37,13 +47,32 @@ class PromotionController extends Controller
             ]);
         }
 
+        // ❌ Hết hạn hoặc ngưng hoạt động
         if (!$promotion->isValid()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Mã khuyến mãi không còn hiệu lực.'
+                'message' => 'Mã khuyến mãi không còn hiệu lực hoặc đã đạt giới hạn sử dụng.'
             ]);
         }
 
+        // 🔹 Kiểm tra điều kiện tối thiểu
+        if ($promotion->min_order_value && $request->total < $promotion->min_order_value) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đơn hàng phải có giá trị tối thiểu ' .
+                    number_format($promotion->min_order_value, 0, ',', '.') . ' VND để sử dụng mã này.'
+            ]);
+        }
+
+        if ($promotion->min_ticket_quantity && $request->seat_count < $promotion->min_ticket_quantity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn cần đặt ít nhất ' .
+                    $promotion->min_ticket_quantity . ' ghế để áp dụng mã này.'
+            ]);
+        }
+
+        // ✅ Tính giảm giá
         $discount = $promotion->calculateDiscount($request->total);
         $final = $request->total - $discount;
 
@@ -54,6 +83,7 @@ class PromotionController extends Controller
             'message' => 'Áp dụng khuyến mãi thành công!'
         ]);
     }
+
     // ==== Cập nhật số lượt dùng sau khi thanh toán thành công ==== //
     public function markAsUsed($promotionCode)
     {
