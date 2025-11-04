@@ -156,8 +156,49 @@
 
             {{-- TAB: DANH SÁCH KHUYẾN MÃI --}}
             <div class="tab-pane fade" id="tab-promos" role="tabpanel" aria-labelledby="link-promos">
-              <p class="text-muted">Bạn chưa có khuyến mãi khả dụng.</p>
-            </div>
+  <h5 class="mb-3 text-danger fw-bold">🎁 Danh sách khuyến mãi khả dụng</h5>
+
+  <div class="row">
+    @forelse($promotions as $promo)
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm h-100 promo-card">
+          <div class="card-body d-flex flex-column justify-content-between">
+
+            {{-- Mã khuyến mãi --}}
+            <h5 class="card-title text-uppercase text-center text-primary fw-bold mb-3">
+              {{ $promo->code }}
+            </h5>
+
+            {{-- Mô tả --}}
+            @if($promo->description)
+              <p class="card-text text-muted small text-center mb-3">
+                {{ $promo->description }}
+              </p>
+            @endif
+
+            {{-- Giá trị giảm --}}
+            <p class="text-center mb-3 fw-semibold">
+              @if($promo->type === 'percent')
+                Giảm <span class="text-success">{{ $promo->value }}%</span>
+              @else
+                Giảm <span class="text-success">{{ number_format($promo->value, 0, ',', '.') }}₫</span>
+              @endif
+            </p>
+
+            {{-- Nút áp dụng --}}
+            <a href="{{ route('home') }}" class="btn btn-outline-danger w-100 fw-bold mt-auto">
+              Áp dụng ngay
+            </a>
+          </div>
+        </div>
+      </div>
+    @empty
+      <div class="col-12 text-center text-muted">
+        Hiện chưa có khuyến mãi khả dụng.
+      </div>
+    @endforelse
+  </div>
+</div>
           </div>
 <div class="tab-pane fade" id="tab-history" role="tabpanel" aria-labelledby="link-history">
     <h5 class="mb-3">Lịch sử vé đã mua</h5>

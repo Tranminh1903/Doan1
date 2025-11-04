@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use App\Http\Controllers\UserController\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ProductModels\Ticket;
+use App\Models\UserModels\Promotion;
 
 class CustomerController extends Controller
 {
@@ -34,8 +35,13 @@ class CustomerController extends Controller
         $total_order_amount = $tickets->pluck('order_code')->unique()->count();
         $totalAmount = $tickets->sum('price');
 
+        // Lấy danh sách khuyến mãi đang hoạt động
+        $promotions = Promotion::where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->get();
 
-        return view('user.profile', compact('customer', 'totalAmount', 'tickets', 'total_order_amount', 'totalAmount'));
+        return view('user.profile', compact('customer', 'totalAmount', 'tickets', 'total_order_amount', 'totalAmount', 'promotions'));
     }
 
     public function updateProfile(Request $request)
