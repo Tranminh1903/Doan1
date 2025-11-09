@@ -2,27 +2,29 @@
 
 namespace App\Http\Controllers\StaffController;
 
-use App\Http\Controllers\UserController\Controller;
-use App\Models\UserModels\User;
-use App\Models\UserModels\Admin;
-use App\Models\UserModels\Order;
-use App\Models\UserModels\Customer;
-use App\Models\UserModels\Promotion;
-use App\Models\ProductModels\Movie;
-use App\Models\ProductModels\Ticket;
-use App\Models\ProductModels\Showtime;
-use App\Models\ProductModels\MovieTheater;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
+use Carbon\Carbon;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\UserModels\User;
+use Illuminate\Validation\Rule;
+use App\Models\UserModels\Admin;
+use App\Models\UserModels\Order;
+use App\Models\ProductModels\Seat;
+use Illuminate\Support\Facades\DB;
+use App\Models\ProductModels\Movie;
+use App\Models\UserModels\Customer;
+use App\Models\ProductModels\Ticket;
+use App\Models\UserModels\Promotion;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
+use App\Models\ProductModels\Showtime;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
-use Carbon\Carbon;
+use App\Models\ProductModels\MovieTheater;
+use App\Http\Controllers\UserController\Controller;
 
 class AdminController extends Controller
 {
@@ -510,17 +512,14 @@ class AdminController extends Controller
     {
         // Lấy tất cả khuyến mãi
         $promotions = promotion::orderBy('created_at', 'desc')->get();
-
-        // Lấy thông tin người dùng hiện tại (admin)
+        
         $user = Auth::user();
 
         // Trả về view với dữ liệu
         return view('adminDashboard.promotionManagement.main', compact('promotions', 'user'));
     }
 
-    /**
-     * Xử lý lưu khuyến mãi mới
-     */
+    // =============== Xử lý lưu khuyến mãi mớ ============= //
     public function PromotionStore(Request $request)
     {
         $request->validate([
@@ -550,10 +549,7 @@ class AdminController extends Controller
 
         return redirect()->route('admin.promotionManagement.form')->with('success', 'Thêm khuyến mãi thành công!');
     }
-
-    /**
-     * Cập nhật khuyến mãi
-     */
+    // =============== Cập nhật khuyến mãi ============= //
     
     public function PromotionUpdate(Request $request, $id)
     {
@@ -585,10 +581,8 @@ class AdminController extends Controller
 
     return redirect()->route('admin.promotionManagement.form')->with('success', 'Cập nhật khuyến mãi thành công!');
     }
+    // =============== Xóa khuyến mãi ============= // 
 
-    /**
-     * Xóa khuyến mãi
-     */
     public function PromotionDelete($id)
     {
         $promotion = promotion::findOrFail($id);
@@ -606,13 +600,13 @@ class AdminController extends Controller
     public function showMovieTheater(Request $request): View
     {        
         $q = trim((string) $request->get('q', ''));
-        $theaterMini = MovieTheater::select('roomName','capacity')
+        $theaterMini = MovieTheater::select('theaterID','roomName','capacity','status')
             ->orderBy('roomName')
-            ->limit(5)
+            ->limit(10)
             ->get();
         $kpi = [
             'movieTheaters_total' => MovieTheater::count(),
-        ];
+        ]; 
 
         $theaters = MovieTheater::query()
             ->when($q, function ($qr) use ($q) {
@@ -625,25 +619,62 @@ class AdminController extends Controller
             ->orderBy('roomName')
             ->paginate(12)
             ->withQueryString();
-
-        return view('adminDashboard.movietheaterManagement.main',compact('theaterMini','kpi','q'));
+        return view('adminDashboard.movietheaterManagement.main',compact('theaterMini','kpi','q','theaters'));
     }
     public function theaterStore(Request $request)
     {
-        $data = $request->validate([
-            'roomName' => ['required','string','max:255','unique:movie_theaters,roomName'],
-            'capacity' => ['required','integer','min:0','max:100'],
-            'status'   => ['required','in:active,unable'],
+    $validated = $request->validate([
+        'roomName' => [
+            'required','string','max:255',
+            Rule::unique('movie_theaters', 'roomName'),
+        ],
+        // Cho phép admin chọn số hàng/số ghế/hàng từ modal
+        'rows'     => ['required','integer','min:1','max:26'],
+        'cols'     => ['required','integer','min:1','max:50'],
+        // capacity sẽ được tính tự động = rows * cols (tránh bất nhất)
+        'status'   => ['required', Rule::in(['active','inactive'])],
+    ]);
+
+    $rows = (int) $validated['rows'];
+    $cols = (int) $validated['cols'];
+    $capacity = $rows * $cols;
+    $letters = range('A','Z');
+
+    return DB::transaction(function () use ($validated, $rows, $cols, $capacity, $letters) {
+        // Tạo phòng chiếu
+        $theater = MovieTheater::create([
+            'roomName' => $validated['roomName'],
+            'capacity' => $capacity,
+            'status'   => $validated['status'],
         ]);
 
-        MovieTheater::create($data);
-        return back()->with('success','Tạo phòng chiếu thành công.');
+        // Tạo ghế hàng loạt (bulk insert)
+        $now = now();
+        $payload = [];
+        for ($r = 0; $r < $rows; $r++) {
+            for ($c = 1; $c <= $cols; $c++) {
+                $payload[] = [
+                    'theaterID'     => $theater->theaterID,
+                    'verticalRow'   => $letters[$r],
+                    'horizontalRow' => $c,
+                    'seatType'      => $r === 0 ? 'vip' : 'normal', // hàng A là VIP
+                    'status'        => 'available',
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ];
+            }
+        }
+        Seat::insert($payload);
+
+        return back()->with('success', 'Tạo phòng chiếu & sơ đồ ghế thành công.');
+    });
     }
 
     public function theaterDestroy(MovieTheater $movieTheater)
     {
+        Seat::where('theaterID', $movieTheater->theaterID)->delete();
         $movieTheater->delete();
-        return back()->with('success','Đã xoá phòng chiếu.');
+        return back()->with('deleteTheaterSuccess', 'Đã xoá phòng chiếu và toàn bộ ghế.');
     }
 
     public function theaterUpdate(Request $request, MovieTheater $movieTheater)
@@ -658,5 +689,16 @@ class AdminController extends Controller
         $movieTheater->update($data);
         return back()->with('success','Cập nhật phòng chiếu thành công.');
     }
+    // ====================== SHOW SEAT ======================
+    public function showSeats($theaterID)
+    {
+        $theater = MovieTheater::findOrFail($theaterID);
+        $seats = Seat::where('theaterID', $theaterID)
+            ->orderBy('verticalRow')
+            ->orderBy('horizontalRow')
+            ->get()
+            ->groupBy('verticalRow');
 
+        return view('adminDashboard.movietheaterManagement.seatmap', compact('theater', 'seats'));
+    }
 }

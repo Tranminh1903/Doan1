@@ -101,12 +101,9 @@
 
       <div class="toolbar-wrap">
         <div class="toolbar">
-          <form method="GET" class="search d-flex gap-2">
-            <input name="q" value="{{ $q }}" class="form-control" placeholder="Tìm theo tên, email, vai trò...">
-            <button class="btn btn-soft">Tìm</button>
-          </form>
+          <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreateUser">+ Thêm người dùng</button>
+          <a href="{{ route('admin.form') }}" class="btn btn-soft">Trở về trang tổng quan</a>
 
-          {{-- Tuỳ bạn map các route CSV nếu có --}}
           <a href="#" class="btn btn-soft">CSV mẫu</a>
           <a href="#" class="btn btn-success">Xuất CSV</a>
 
@@ -116,8 +113,6 @@
             <input type="file" name="file" accept=".csv" onchange="this.form.submit()">
           </form>
 
-          <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreateUser">+ Thêm người dùng</button>
-          <a href="{{ route('admin.form') }}" class="btn btn-soft">Trở về trang tổng quan</a>
         </div>
       </div>
 
@@ -309,7 +304,7 @@
         <div class="col-md-4">
           <label class="form-label">Vai trò</label>
           <select name="role" class="form-select">
-            <option>Admin</option><option>Staff</option><option selected>User</option>
+            <option>admin</option><option>customers</option>
           </select>
         </div>
         <div class="col-md-4">

@@ -77,6 +77,27 @@
     <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
       <h3 class="m-0">Tổng quan</h3>
     </div> 
+    
+      @php
+        $kpi = $kpi ?? []; 
+        $q   = $q ?? request('q','');
+      @endphp
+
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-6">
+          <div class="kpi-card kpi--blue p-3 rounded">
+            <div class="text-muted">Phim đang hoạt động</div>
+            <div class="fs-4 fw-bold">{{ number_format((int)($kpi['movies_active'] ?? 0)) }}</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-6">
+          <div class="kpi-card kpi--green p-3 rounded">
+            <div class="text-muted">Tổng phim đang có</div>
+            <div class="fs-4 fw-bold">{{ number_format((int)($kpi['movies_total'] ?? 0)) }}</div>
+          </div>
+        </div>     
+      </div>
 
     <!-- Page Title -->
     <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
@@ -202,8 +223,7 @@
         </form>
       </div>
     </div>
-    
-    <!-- Modal Sửa khuyến mãi -->
+
 <div class="modal fade" id="editPromotionModal" tabindex="-1" aria-labelledby="editPromotionLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <form id="editPromotionForm" method="POST" class="modal-content">
@@ -312,6 +332,29 @@ function openEditModal(promotion) {
 <style>
   .table th, .table td { vertical-align: middle; }
   .ad-page-title h3 { font-weight: 600; }
+
+   /* KPI CARD ====== */
+  .kpi-card {
+      background: #fff;
+      border: 1px solid #eef2f6;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      transition: transform 0.12s ease, box-shadow 0.18s ease,
+          border-color 0.18s ease;
+  }
+  .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+      border-color: #e3eaf3;
+  }
+  .kpi--blue {
+      border-color: #e4ebff;
+  }
+  .kpi--green {
+      border-color: #dcfce7;
+  }
+</style>
 </style>
 @endpush
 

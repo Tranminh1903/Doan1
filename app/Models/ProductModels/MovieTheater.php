@@ -17,7 +17,7 @@ class MovieTheater extends Model
         'capacity',
         'status',
     ];
-    protected $cast = [
+    protected $casts = [
         'capacity' => 'integer',
     ];
 

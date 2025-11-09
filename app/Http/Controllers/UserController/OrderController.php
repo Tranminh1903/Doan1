@@ -71,16 +71,16 @@ class OrderController extends Controller
                 \Log::info(" SeatHeldEvent fired for seat $seatId showtime {$request->showtimeID}");
             }
             // Sau vòng lặp SeatHold::updateOrCreate
-$seatObjects = collect($request->seats)->map(fn($seatId) => [
-    'seatID' => $seatId,
-    'status' => 'held'
-])->toArray();
+            $seatObjects = collect($request->seats)->map(fn($seatId) => [
+                'seatID' => $seatId,
+                'status' => 'held'
+            ])->toArray();
 
-broadcast(new SeatStatusUpdated(
-    $request->showtimeID,
-    $seatObjects,
-    'held'
-))->toOthers();
+            broadcast(new SeatStatusUpdated(
+                $request->showtimeID,
+                $seatObjects,
+                'held'
+            ))->toOthers();
 
 
             return response()->json([

@@ -25,10 +25,10 @@ class SeatSeeder extends Seeder
             $rows[] = ['theaterID'=>1,'verticalRow'=>'D','horizontalRow'=>$col,'seatType'=>'couple','status'=>'available','created_at'=>$now,'updated_at'=>$now];
         }
 
-        foreach (range(1,12) as $col) {
+        foreach (range(1,10) as $col) {
             $rows[] = ['theaterID'=>2,'verticalRow'=>'A','horizontalRow'=>$col,'seatType'=>'vip','status'=>'available','created_at'=>$now,'updated_at'=>$now];
         }
-        foreach (range(1,12) as $col) {
+        foreach (range(1,10) as $col) {
             $rows[] = ['theaterID'=>2,'verticalRow'=>'B','horizontalRow'=>$col,'seatType'=>'normal','status'=>'available','created_at'=>$now,'updated_at'=>$now];
         }
 

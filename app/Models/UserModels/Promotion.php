@@ -31,12 +31,6 @@ class Promotion extends Model
         'end_date' => 'datetime',
     ];
 
-    // Nếu vẫn muốn giữ quan hệ tới bảng khác
-    public function customerPromotions()
-    {
-        return $this->hasMany(CustomerPromotion::class);
-    }
-
     // 🧠 Hàm kiểm tra khuyến mãi còn hiệu lực không
     public function isValid(): bool
     {
