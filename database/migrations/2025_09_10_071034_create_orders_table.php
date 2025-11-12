@@ -13,6 +13,11 @@ return new class extends Migration
             $table->unsignedBigInteger('showtimeID')->nullable();
             $table->string('username')->nullable();
             $table->string('order_code')->unique();
+            $table->string('promotion_code')->nullable();
+            $table->foreign('promotion_code')
+                ->references('code')
+                ->on('promotion')
+                ->nullOnDelete();
             $table->string('seats')->nullable();
             $table->string('status', 10)->default('created');
             $table->decimal('amount', 12, 2)->nullable();

@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // ==== Profile account  ==== //
-    Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
+Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
     Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
 
@@ -103,7 +103,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
     // ==== Admin Dashboard - Button for _updateUser  ==== //
     Route::put('/adminDashboard/users/{user}', [AdminController::class, 'update'])->name('users.update');
-    Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
+Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
     Route::post('/adminDashboard/users', [AdminController::class, 'store'])->name('users.store');
     Route::post('/adminDashboard/users/upload-avatar', [AdminController::class, 'uploadAvatar'])->name('users.upload_avatar');
     Route::patch('/adminDashboard/users/{user}/toggle-lock', [AdminController::class, 'toggleStatus'])->name('users.toggleStatus');
@@ -135,7 +135,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
     Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('admin.promotion.store');
     Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('admin.promotion.update');
-    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDelete'])->name('admin.promotion.delete');
+Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDelete'])->name('admin.promotion.delete');
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
     // ==== Movie Theater ==== //

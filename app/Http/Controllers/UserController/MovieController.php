@@ -57,23 +57,62 @@ class MovieController
         return back()->with('success', 'Đánh giá của bạn đã được ghi nhận!');
     }
     public function search(Request $request)
-{
-    $query = $request->input('q');
+    {
+        $query = trim($request->input('q'));
 
-    if (!$query) {
-        // Nếu query trống, trả tất cả phim
-        $movies = Movie::with('showtimes')->get();
-    } else {
-        // Tìm kiếm bằng LIKE, có thể match tiếng Việt
-        $movies = Movie::with('showtimes')
-        ->whereRaw('title COLLATE utf8mb4_unicode_ci LIKE ?', ["%{$query}%"])
-        ->get();
+        if (!$query) {
+            $movies = Movie::with('showtimes')->get();
+        } else {
+            $map = [
+                'á'=>'a','à'=>'a','ạ'=>'a','ả'=>'a','ã'=>'a','â'=>'a','ấ'=>'a','ầ'=>'a','ậ'=>'a','ẩ'=>'a','ẫ'=>'a','ă'=>'a','ắ'=>'a','ằ'=>'a','ặ'=>'a','ẳ'=>'a','ẵ'=>'a',
+                'é'=>'e','è'=>'e','ẹ'=>'e','ẻ'=>'e','ẽ'=>'e','ê'=>'e','ế'=>'e','ề'=>'e','ệ'=>'e','ể'=>'e','ễ'=>'e',
+                'í'=>'i','ì'=>'i','ị'=>'i','ỉ'=>'i','ĩ'=>'i',
+                'ó'=>'o','ò'=>'o','ọ'=>'o','ỏ'=>'o','õ'=>'o','ô'=>'o','ố'=>'o','ồ'=>'o','ộ'=>'o','ổ'=>'o','ỗ'=>'o','ơ'=>'o','ớ'=>'o','ờ'=>'o','ợ'=>'o','ở'=>'o','ỡ'=>'o',
+                'ú'=>'u','ù'=>'u','ụ'=>'u','ủ'=>'u','ũ'=>'u','ư'=>'u','ứ'=>'u','ừ'=>'u','ự'=>'u','ử'=>'u','ữ'=>'u',
+                'ý'=>'y','ỳ'=>'y','ỵ'=>'y','ỷ'=>'y','ỹ'=>'y',
+                'đ'=>'d'
+            ];
 
+            $normalized = mb_strtolower($query, 'UTF-8');
+            $normalized = str_replace(array_keys($map), array_values($map), $normalized);
+
+            $tokens = array_values(array_filter(preg_split('/\s+/', $normalized), function($t){ return $t !== ''; }));
+
+            if (count($tokens) === 0) {
+                $movies = Movie::with('showtimes')->get();
+            } else {
+                $sqlNormalize = 'LOWER(title)';
+                foreach ($map as $accent => $base) {
+                    $sqlNormalize = "REPLACE({$sqlNormalize},'{$accent}','{$base}')";
+                }
+
+                $moviesQuery = Movie::with('showtimes')->where(function($q) use ($tokens, $sqlNormalize) {
+                    $first = true;
+                    foreach ($tokens as $token) {
+                        if ($first) {
+                            $q->whereRaw("{$sqlNormalize} LIKE ?", ["%{$token}%"]);
+                            $first = false;
+                        } else {
+                            $q->orWhereRaw("{$sqlNormalize} LIKE ?", ["%{$token}%"]);
+                        }
+                    }
+                });
+
+                $orderParts = [];
+                foreach ($tokens as $t) {
+                    $escaped = str_replace("'", "\\'", $t);
+                    $orderParts[] = "(CASE WHEN {$sqlNormalize} LIKE '%{$escaped}%' THEN 1 ELSE 0 END)";
+                }
+                if (count($orderParts) > 0) {
+                    $moviesQuery->orderByRaw('(' . implode(' + ', $orderParts) . ') DESC');
+                }
+
+                $movies = $moviesQuery->get();
+            }
+        }
+
+        return view('layouts.movie_list', compact('movies'))->render();
     }
-
-    // Nếu muốn AJAX trả view partial (HTML movie_list)
-    return view('layouts.movie_list', compact('movies'))->render();
-}
 
 
 }

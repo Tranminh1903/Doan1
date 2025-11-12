@@ -31,7 +31,7 @@ class Promotion extends Model
         'end_date' => 'datetime',
     ];
 
-    // 🧠 Hàm kiểm tra khuyến mãi còn hiệu lực không
+    // Hàm kiểm tra khuyến mãi còn hiệu lực không
     public function isValid(): bool
     {
         return $this->status === 'active'
@@ -40,7 +40,7 @@ class Promotion extends Model
             && $this->used_count < $this->limit_count;
     }
 
-    // 💰 Hàm tính số tiền giảm
+
     public function calculateDiscount(float $total): float
     {
         if ($this->type === 'percent') {
@@ -51,4 +51,8 @@ class Promotion extends Model
 
         return min($discount, $total); // không vượt quá tổng tiền
     }
-}
+     public function order()
+    {
+    return $this->hasOne(Order::class, 'promotion_code', 'code');
+    }
+}   

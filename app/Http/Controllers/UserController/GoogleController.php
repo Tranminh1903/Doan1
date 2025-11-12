@@ -60,7 +60,6 @@ class GoogleController extends Controller
             Customer::create([ // Đồng thời kéo dữ liệu qua bảng Customer
                 'user_id'        => $user->id,
                 'customer_name'  => $user->username,
-                'customer_point' => 0,
             ]);
         }
         Auth::login($user);

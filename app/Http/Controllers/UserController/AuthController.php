@@ -45,7 +45,7 @@ class AuthController extends Controller
         ]); 
 
         if ($user->role === 'customers') {
-            Customer::create(['user_id' => $user->id, 'customer_name' => $user->username,'customer_point' => 0]);
+            Customer::create(['user_id' => $user->id, 'customer_name' => $user->username]);
         } else {
             Admin::create(['user_id' => $user->id]);
         }
