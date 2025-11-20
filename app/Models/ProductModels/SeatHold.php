@@ -10,7 +10,14 @@ class SeatHold extends Model
 {
     protected $primaryKey = 'holdID';
     protected $table = 'seat_holds';
-    protected $fillable = ['showtimeID', 'seatID', 'user_id', 'expires_at', 'orderID', 'status'];
+    protected $fillable = [
+        'showtimeID',
+         'seatID', 
+         'user_id', 
+         'expires_at', 
+         'orderID', 
+         'status'
+        ];
     protected $casts = ['expires_at' => 'datetime'];
 
     public function showtime()

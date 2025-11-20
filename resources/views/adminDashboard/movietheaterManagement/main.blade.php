@@ -37,6 +37,7 @@
   @php
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\Auth;
 
     $now   = now();
     $hour  = (int) $now->format('G');
@@ -80,7 +81,10 @@
       </div>
 
       <div class="adm-movietheater">
-        @php $kpi = $kpi ?? []; @endphp
+        @php 
+        $kpi = $kpi ?? []; 
+        $q   = $q ?? request('q','');
+        @endphp
         <div class="row g-3 mb-3">
           <div class="col-12 col-sm-6 col-lg-12">
             <div class="kpi-card kpi--blue p-3 rounded">
@@ -103,57 +107,64 @@
           </div>
         </div>
 
-        <div class="ad-card p-3 mt-3" style="max-width: 1040px;">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h6 class="m-0">Phòng chiếu phim</h6>
-            <a href="" class="small">Quản lý</a>
-          </div>
-
+        <div class="card-like mt-3">
           <div class="table-responsive">
             <table class="table table-movietheater align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Tên phòng</th>
-                  <th class="text-end">Số ghế</th>
-                  <th>Trạng thái</th>
-                  <th>Mô tả</th>
-                  <th class="text-end">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                @forelse(($theaterMini ?? collect()) as $t)
-                  <tr>
-                    <td>{{ $t->roomName }}</td>
-                    <td class="text-end">{{ (int) $t->capacity }}</td>
-                    <td>
-                      @if($t->status === 'inactive')
-                        <span class="badge bg-secondary">Không hoạt động</span>
-                      @else
-                        <span class="badge bg-success">Đang hoạt động</span>
-                      @endif
-                    </td>
-                    <td>{{ Str::limit($t->description, 40) }}</td>
-                    <td class="text-end">
-                      <div class="table-actions">
-                        <button class="btn btn-sm btn-soft" data-bs-toggle="modal"
-                                data-bs-target="#edit{{ $t->id }}">Sửa</button>
-                        <form action="{{ route('admin.movietheaterManagement.delete', $t) }}"
-                              method="POST"
-                              onsubmit="return confirm('Xoá phòng chiếu này?')"
-                              class="d-inline">
-                          @csrf
-                          @method('DELETE')
-                          <button class="btn btn-sm btn-outline-danger">Xoá</button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                @empty
-                  <tr>
-                    <td colspan="5" class="text-muted text-center">Chưa có phòng chiếu</td>
-                  </tr>
-                @endforelse
-              </tbody>
+                <thead>
+                    <tr>
+                        <th>Tên phòng</th>
+                        <th class="text-end">Số ghế</th>
+                        <th>Trạng thái</th>
+                        <th>Mô tả</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach($theaterMini as $t)
+                    <tr>
+                        <td data-label="Tên phòng" class="fw-semibold">
+                            {{ $t->roomName }}
+                        </td>
+
+                        <td data-label="Số ghế" class="text-end">
+                            {{ $t->capacity }}
+                        </td>
+
+                        <td data-label="Trạng thái">
+                            @if($t->status === 'active')
+                                <span class="badge bg-success">Đang hoạt động</span>
+                            @else
+                                <span class="badge bg-secondary">Không hoạt động</span>
+                            @endif
+                        </td>
+
+                        <td data-label="Mô tả">
+                            {{ Str::limit($t->description, 35) }}
+                        </td>
+
+                        <td class="text-end" data-label="Thao tác">
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-soft"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#edit{{ $t->theaterID }}">
+                                    Sửa
+                                </button>
+
+                                <form action="{{ route('admin.movietheaterManagement.delete', $t) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Xoá phòng chiếu này?')"
+                                      class="d-inline">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        Xoá
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
             </table>
             @if($theaters->hasPages())
               <div class="mt-3 d-flex justify-content-center">
@@ -162,33 +173,33 @@
             @endif
           </div>
         </div>
+
         <div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="modalCreateLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
+
               <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-semibold" id="modalCreateLabel">Tạo phòng chiếu mới</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <h5 class="modal-title fw-semibold">Tạo phòng chiếu mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
 
-              <form method="POST" action="{{ route('admin.movietheaterManagement.store') }}" class="needs-validation" novalidate>
+              <form method="POST" action="{{ route('admin.movietheaterManagement.store') }}">
                 @csrf
+
                 <div class="modal-body">
                   <div class="row g-4">
-                    <!-- ==== Thông tin cơ bản ==== -->
+
+                    <!-- ================= Left form ================= -->
                     <div class="col-md-4">
+                      
                       <div class="mb-3">
                         <label class="form-label">Tên phòng chiếu</label>
-                        <input type="text" name="roomName" class="form-control" required maxlength="255" placeholder="VD: Phòng 1, Phòng VIP, Rạp 3D...">
-                      </div>
-
-                      <div class="mb-3">
-                        <label class="form-label">Sức chứa (số ghế)</label>
-                        <input type="number" name="capacity" id="capacityInput" class="form-control" min="10" max="300" value="40" required>
+                        <input type="text" name="roomName" class="form-control" required>
                       </div>
 
                       <div class="mb-3">
                         <label class="form-label">Trạng thái</label>
-                        <select name="status" class="form-select" required>
+                        <select name="status" class="form-select">
                           <option value="active">Đang hoạt động</option>
                           <option value="inactive">Không hoạt động</option>
                         </select>
@@ -197,22 +208,36 @@
                       <div class="row">
                         <div class="col-6 mb-3">
                           <label class="form-label">Số hàng ghế</label>
-                          <input type="number" id="rowCount" name="rows" class="form-control" value="4" min="1" max="10">
+                          <input type="number" name="rows" id="rowCount" class="form-control"
+                                min="1" max="26" value="4" required>
                         </div>
                         <div class="col-6 mb-3">
                           <label class="form-label">Ghế mỗi hàng</label>
-                          <input type="number" id="seatPerRow" name="cols" class="form-control" value="10" min="1" max="20">
+                          <input type="number" name="cols" id="seatPerRow" class="form-control"
+                                min="1" max="50" value="10" required>
                         </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Giá ghế thường</label>
+                        <input type="number" name="normal_price" class="form-control" required value="50000">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Giá ghế VIP (hàng A)</label>
+                        <input type="number" name="vip_price" class="form-control" required value="70000">
                       </div>
                     </div>
 
-                    <!-- ==== Sơ đồ ghế preview ==== -->
+                    <!-- ================= Right preview ================= -->
                     <div class="col-md-8">
                       <div class="text-center mb-3">
-                        <div class="screen border rounded p-2 fw-semibold bg-light">MÀN HÌNH</div>
+                        <div class="screen">MÀN HÌNH</div>
                       </div>
+
                       <div id="seatPreview" class="text-center"></div>
                     </div>
+
                   </div>
                 </div>
 
@@ -220,12 +245,119 @@
                   <button type="button" class="btn btn-light" data-bs-dismiss="modal">Huỷ</button>
                   <button type="submit" class="btn btn-primary">Tạo phòng chiếu</button>
                 </div>
+
               </form>
+
             </div>
           </div>
         </div>
-      </div>
 
+        @foreach ($theaters as $t)
+        <div class="modal fade" id="edit{{ $t->theaterID }}" tabindex="-1" aria-labelledby="editLabel{{ $t->theaterID }}" aria-hidden="true">
+          <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-semibold">Chỉnh sửa phòng chiếu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+
+              <form method="POST" action="{{ route('admin.movietheaterManagement.update', $t->theaterID) }}">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-body">
+
+                  <div class="row g-4">
+                    <!-- ================= Left form ================= -->
+                    <div class="col-md-4">
+
+                      <div class="mb-3">
+                        <label class="form-label">Tên phòng chiếu</label>
+                        <input type="text" name="roomName" class="form-control"
+                              required value="{{ $t->roomName }}">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="status" class="form-select" required>
+                          <option value="active"  {{ $t->status === 'active' ? 'selected' : '' }}>Đang hoạt động</option>
+                          <option value="inactive" {{ $t->status === 'inactive' ? 'selected' : '' }}>Không hoạt động</option>
+                        </select>
+                      </div>
+
+                      @php
+                        // Lấy số hàng = số ký tự alphabet khác nhau
+                        $rowsOld = $t->seats->groupBy('verticalRow')->count();
+                        // Lấy số ghế mỗi hàng (giả sử hàng A)
+                        $colsOld = $t->seats->where('verticalRow', 'A')->count();
+                        // Lấy giá ghế
+                        $normalPrice = $t->seats->where('seatType','normal')->first()->price ?? 50000;
+                        $vipPrice    = $t->seats->where('seatType','vip')->first()->price ?? 70000;
+                      @endphp
+
+                      <div class="row">
+                        <div class="col-6 mb-3">
+                          <label class="form-label">Số hàng ghế</label>
+                          <input type="number" name="rows"
+                                class="form-control rowInput"
+                                min="1" max="26"
+                                value="{{ $rowsOld }}"
+                                data-theater="{{ $t->theaterID }}" required>
+                        </div>
+
+                        <div class="col-6 mb-3">
+                          <label class="form-label">Ghế mỗi hàng</label>
+                          <input type="number" name="cols"
+                                class="form-control colInput"
+                                min="1" max="50"
+                                value="{{ $colsOld }}"
+                                data-theater="{{ $t->theaterID }}" required>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Giá ghế thường</label>
+                        <input type="number" name="normal_price" class="form-control"
+                              required value="{{ $normalPrice }}">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Giá ghế VIP (hàng A)</label>
+                        <input type="number" name="vip_price" class="form-control"
+                              required value="{{ $vipPrice }}">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea name="note" class="form-control" rows="2">{{ $t->note }}</textarea>
+                      </div>
+
+                    </div>
+
+                    <!-- ================= Right preview ================= -->
+                    <div class="col-md-8">
+                      <div class="text-center mb-3">
+                        <div class="screen">MÀN HÌNH</div>
+                      </div>
+
+                      <div id="seatPreviewEdit{{ $t->theaterID }}" class="text-center"></div>
+                    </div>
+
+                  </div>
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-light" data-bs-dismiss="modal">Huỷ</button>
+                  <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+        @endforeach
+      </div>
     </div> 
   </main>
 </div>
@@ -233,159 +365,281 @@
 
 @push('scripts')
 <script>
-function renderSeats() {
-  const container = document.getElementById('seatPreview');
-  container.innerHTML = '';
+function admRenderSeats() {
+    const container = document.getElementById('seatPreview');
+    const rowInput   = document.getElementById('rowCount');
+    const colInput   = document.getElementById('seatPerRow');
+    if (!container || !rowInput || !colInput) return;
 
-  const rows = parseInt(document.getElementById('rowCount').value);
-  const cols = parseInt(document.getElementById('seatPerRow').value);
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const rows = parseInt(rowInput.value || 0, 10);
+    const cols = parseInt(colInput.value || 0, 10);
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-  for (let r = 0; r < rows; r++) {
-    const rowDiv = document.createElement('div');
-    rowDiv.classList.add('mb-2');
-
-    for (let c = 1; c <= cols; c++) {
-      const seat = document.createElement('button');
-      seat.classList.add('seat');
-      seat.innerText = letters[r] + c;
-      if (r === 0) seat.classList.add('vip');
-      rowDiv.appendChild(seat);
+    container.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.classList.add('seat-row');
+        for (let c = 1; c <= cols; c++) {
+            const seat = document.createElement('button');
+            seat.type = 'button';
+            seat.classList.add('seat');
+            if (r === 0) seat.classList.add('vip');   // hàng A = VIP
+            seat.innerText = letters[r] + c;
+            rowDiv.appendChild(seat);
+        }
+        container.appendChild(rowDiv);
     }
-    container.appendChild(rowDiv);
-  }
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const createModal = document.getElementById('modalCreate');
+    if (!createModal) return;
+    createModal.addEventListener('shown.bs.modal', function () {
+        admRenderSeats();
+    });
+    const rowInput = document.getElementById('rowCount');
+    const colInput = document.getElementById('seatPerRow');
+    if (rowInput) rowInput.addEventListener('input', admRenderSeats);
+    if (colInput) colInput.addEventListener('input', admRenderSeats);
+});
+
+
+function admRenderSeatsEdit(theaterID) {
+    const container = document.getElementById(`seatPreviewEdit${theaterID}`);
+    const rowInput = document.querySelector(`#edit${theaterID} .rowInput`);
+    const colInput = document.querySelector(`#edit${theaterID} .colInput`);
+
+    if (!container || !rowInput || !colInput) return;
+
+    const rows = parseInt(rowInput.value || 0, 10);
+    const cols = parseInt(colInput.value || 0, 10);
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    container.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.classList.add('seat-row');
+
+        for (let c = 1; c <= cols; c++) {
+            const seat = document.createElement('button');
+            seat.type = 'button';
+            seat.classList.add('seat');
+
+            if (r === 0) seat.classList.add('vip'); // A = VIP
+
+            seat.innerText = letters[r] + c;
+            rowDiv.appendChild(seat);
+        }
+
+        container.appendChild(rowDiv);
+    }
 }
 
-document.getElementById('rowCount').addEventListener('input', renderSeats);
-document.getElementById('seatPerRow').addEventListener('input', renderSeats);
-
-document.addEventListener('DOMContentLoaded', renderSeats);
+document.addEventListener("DOMContentLoaded", function () {
+    @foreach($theaters as $t)
+        const modalEdit{{ $t->theaterID }} = document.getElementById("edit{{ $t->theaterID }}");
+        modalEdit{{ $t->theaterID }}.addEventListener('shown.bs.modal', function () {
+            admRenderSeatsEdit({{ $t->theaterID }});
+        });
+        modalEdit{{ $t->theaterID }}.querySelector('.rowInput')
+            .addEventListener('input', function () {
+                admRenderSeatsEdit({{ $t->theaterID }});
+            });
+        modalEdit{{ $t->theaterID }}.querySelector('.colInput')
+            .addEventListener('input', function () {
+                admRenderSeatsEdit({{ $t->theaterID }});
+            });
+    @endforeach
+});
 </script>
 @endpush
 
 @push('styles')
 <style>
-  /* ===== Toolbar (áp từ adm-movies sang adm-movietheater) ===== */
-  .adm-movietheater .toolbar-wrap{
-    background:#fff;
-    border:1px solid #eaecf0;
-    border-radius:12px;
-    padding:10px;
-    box-shadow:0 10px 30px rgba(16,24,40,.06);
-  }
-  .adm-movietheater .toolbar{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin:16px 0 12px;
-    flex-wrap:nowrap; /* Desktop: 1 hàng */
-  }
-  .adm-movietheater .toolbar .search{
-    flex:1 1 320px;
-    max-width:560px;
-  }
-  .adm-movietheater .toolbar .search .form-control{
-    height:38px;
-    border-radius:.375rem;
-    padding:.375rem .75rem;
-    border:1px solid #dee2e6;
-    box-shadow:none;
-  }
-  .adm-movietheater .toolbar .search .form-control:focus{
-    outline:0;
-    border-color:#b8bdfd;
-    box-shadow:0 0 0 .25rem rgba(69,74,242,.12);
-  }
+.modal-backdrop.show {
+  backdrop-filter: blur(4px);
+  background-color: rgba(0,0,0,.4);
+}
+.adm-movietheater .card-like,
+.adm-movietheater .ad-card {
+  background: #fff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(16,24,40,.06);
+  overflow: hidden;
+  padding: 0;
+}
+.adm-movietheater .toolbar-wrap {
+  background:#fff;
+  border:1px solid #eaecf0;
+  border-radius:12px;
+  padding:10px;
+  box-shadow:0 10px 30px rgba(16,24,40,.06);
+  margin-bottom: 16px;
+}
+.adm-movietheater .toolbar {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:16px 0 12px;
+  flex-wrap: nowrap;
+}
+.adm-movietheater .toolbar .search {
+  flex:1 1 320px;
+  max-width:560px;
+}
+.adm-movietheater .toolbar .search .form-control {
+  height:38px;
+  border-radius:.375rem;
+  padding:.375rem .75rem;
+  border:1px solid #dee2e6;
+  box-shadow:none;
+}
+.adm-movietheater .toolbar .search .form-control:focus {
+  outline:0;
+  border-color:#b8bdfd;
+  box-shadow:0 0 0 .25rem rgba(69,74,242,.12);
+}
+.btn-soft {
+  background:#f9fafb;
+  border:1px solid #eaecf0;
+  color:#101828;
+}
+.btn-soft:hover { background:#fff; }
+.btn-brand {
+  background:#454af2;
+  border-color:#454af2;
+  color:#fff;
+}
+.btn-brand:hover {
+  filter:brightness(.95);
+}
+.adm-movietheater .table-movietheater thead th {
+  background: #f6f7fb;
+  color: #667085;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #eaecf0 !important;
+  white-space: nowrap;
+  padding: 14px 12px;
+}
+.adm-movietheater .table-movietheater tbody td {
+  vertical-align: middle;
+  border-color: #eaecf0;
+  color: #101828;
+  font-size: .9rem;
+  padding: 14px 12px;
+}
+.adm-movietheater .table-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.adm-movietheater .badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.adm-movietheater .badge.bg-success {
+  background: #16a34a !important;
+}
+.adm-movietheater .badge.bg-secondary {
+  background: #9ca3af !important;
+}
+.pagination {
+  margin-top: 16px !important;
+}
+.pagination .page-item.active .page-link {
+  background: #454af2 !important;
+  border-color: #454af2 !important;
+  color: #fff !important;
+}
+.pagination .page-link {
+  color: #454af2 !important;
+  border-radius: 6px !important;
+}
+@media (max-width: 992px){
+    .adm-movietheater .table-movietheater thead {
+      display: none;
+    }
+    .adm-movietheater .table-movietheater tbody tr {
+      display: block;
+      border-bottom: 1px solid #eaecf0;
+      padding: 12px 10px;
+    }
+    .adm-movietheater .table-movietheater tbody td {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border: 0;
+    }
+    .adm-movietheater .table-movietheater tbody td::before {
+      content: attr(data-label);
+      color: #667085;
+      font-weight: 600;
+    }
+    .adm-movietheater .toolbar {
+      flex-wrap: wrap;
+    }
+}
+.adm-movietheater .screen {
+  border: 2px solid #444;
+  display: inline-block;
+  border-radius: 10px;
+  padding: 12px 50px;
+  margin-bottom: 24px;
+  font-weight: 600;
+  background: #f7f7f7;
+  letter-spacing: 1px;
+  box-shadow: 0 3px 8px rgba(0,0,0,.05);
+}
+.adm-movietheater .seat-row {
+  margin-bottom: 6px;
+}
+.adm-movietheater .seat {
+  width: 40px;
+  weight: 40px;
+  margin: 4px;
+  border-radius: 8px;
+  border: 1px solid #c8c8c8;
+  background: #e5e7eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  box-shadow: 0 2px 4px rgba(0,0,0,.05);
+}
+.adm-movietheater .seat.vip {
+  background: #ffd64d;
+  border-color: #e4b100;
+}
 
-  .adm-movietheater .btn-soft{
-    background:#f9fafb;
-    border:1px solid #eaecf0;
-    color:#101828;
-  }
-  .adm-movietheater .btn-soft:hover{ background:#fff; }
-
-  .adm-movietheater .btn-brand{
-    background:#454af2;
-    border-color:#454af2;
-    color:#fff;
-  }
-  .adm-movietheater .btn-brand:hover{ filter:brightness(.95); }
-
-  .adm-movietheater .csv-input{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-  .adm-movietheater .csv-input input[type="file"]{
-    position:absolute;
-    inset:0;
-    opacity:0;
-    cursor:pointer;
-  }
-  .adm-movietheater .csv-input .fake-btn{ pointer-events:none; }
-
-  .adm-movietheater .toolbar .btn,
-  .adm-movietheater .csv-input .btn{
-    white-space:nowrap;
-    flex-shrink:0;
-    line-height:1.2;
-    padding-left:12px;
-    padding-right:12px;
-    height:38px;
-  }
-
-  /* ===== Responsive: cho phép xuống dòng khi màn nhỏ ===== */
-  @media (max-width: 992px){
-    .adm-movietheater .toolbar{ flex-wrap:wrap; }
-  }
-
-  /* ===== KPI CARD (giữ nguyên) ===== */
-  .kpi-card {
-      background: #fff;
-      border: 1px solid #eef2f6;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-      transition: transform 0.12s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  }
-  .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
-      border-color: #e3eaf3;
-  }
-  .kpi--blue { border-color: #e4ebff; }
-  .kpi--green { border-color: #dcfce7; }
-  .screen {
-    border: 2px solid #444;
-    display: inline-block;
-    border-radius: 8px;
-    padding: 10px 40px;
-    margin-bottom: 20px;
-  }
-  .seat {
-    width: 42px;
-    height: 42px;
-    margin: 4px;
-    border: none;
-    border-radius: 6px;
-    background: #d3d3d3;
-    cursor: default;
-    font-weight: 600;
-  }
-  .seat.vip { background: gold; }
-  .seat.normal { background: #ccc; }
-  .pagination {
-    margin-top: 16px;
-  }
-  .pagination .page-item.active .page-link {
-    background-color: #454af2;
-    border-color: #454af2;
-    color: #fff;
-  }
-  .pagination .page-link {
-    color: #454af2;
-    border-radius: 6px;
-  }
+.adm-movietheater .seat.normal {
+  background: #d9d9d9;
+}
+.kpi-card {
+  background: #fff;
+  border: 1px solid #eef2f6;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+  transition: transform 0.12s ease, box-shadow 0.18s ease,
+  border-color 0.18s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+  border-color: #e3eaf3;
+}
+.kpi--blue {
+  border-color: #e4ebff;
+}
+.kpi--green {
+  border-color: #dcfce7;
+}
 </style>
 @endpush

@@ -512,11 +512,23 @@ class AdminController extends Controller
     {
         // Lấy tất cả khuyến mãi
         $promotions = promotion::orderBy('created_at', 'desc')->get();
-        
+
+        $q = $request->q ?? '';
+        $linkPage = promotion::when($q, function ($query) use ($q) {
+            $query->where('code', 'LIKE', "%$q%")
+                  ->orWhere('description', 'LIKE', "%$q%");
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10)
+        ->appends(['q' => $q]);
         $user = Auth::user();
 
+        $kpi = [
+            'promotion_total'  => promotion::count(),
+            'promotion_active' => promotion::where('status', 'active')->count(),
+        ];
         // Trả về view với dữ liệu
-        return view('adminDashboard.promotionManagement.main', compact('promotions', 'user'));
+        return view('adminDashboard.promotionManagement.main', compact('promotions', 'user','kpi','linkPage'));
     }
 
     // =============== Xử lý lưu khuyến mãi mớ ============= //
@@ -583,7 +595,7 @@ class AdminController extends Controller
     }
     // =============== Xóa khuyến mãi ============= // 
 
-    public function PromotionDelete($id)
+    public function PromotionDestroy($id)
     {
         $promotion = promotion::findOrFail($id);
         $promotion->delete();
@@ -594,7 +606,91 @@ class AdminController extends Controller
     // =============== SHOWTIME ============= //
     public function showShowtime(Request $request): View
     {
-        return view('adminDashboard.showtimeManagement.main');
+        $q = trim($request->q ?? '');
+
+        $showtimes = Showtime::with(['movie', 'theater'])
+            ->when($q, function($qr) use ($q) {
+                $qr->whereHas('movie', function($m) use ($q){
+                    $m->where('title', 'like', "%$q%");
+                })->orWhereHas('theater', function($t) use ($q){
+                    $t->where('roomName', 'like', "%$q%");
+                });
+            })
+            ->orderBy('startTime', 'desc')
+            ->paginate(12)
+            ->withQueryString();
+
+        $kpi = [
+            'showtime_total' => Showtime::count(),
+            'today' => Showtime::whereDate('startTime', today())->count(),
+        ];
+        $movies = Movie::where('status','active')->orderBy('title')->get();
+        $theaters = MovieTheater::where('status','active')->orderBy('roomName')->get();
+        return view('adminDashboard.showtimeManagement.main', compact('showtimes', 'movies', 'theaters', 'kpi', 'q'));
+    }
+
+    public function showtimeStore(Request $request)
+    {
+        $data = $request->validate([
+            'movieID'   => 'required|exists:movies,movieID',
+            'theaterID' => 'required|exists:movie_theaters,theaterID',
+            'startTime' => 'required|date',
+            'endTime'   => 'required|date|after:startTime',
+        ]);
+
+        $exists = Showtime::where('theaterID', $data['theaterID'])
+            ->where(function($q) use ($data){
+                $q->whereBetween('startTime', [$data['startTime'], $data['endTime']])
+                ->orWhereBetween('endTime', [$data['startTime'], $data['endTime']]);
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Phòng chiếu đang có suất chiếu trùng thời gian.');
+        }
+
+        Showtime::create($data);
+
+        return redirect()->route('admin.showtimeManagement.form')
+            ->with('success','Đã thêm suất chiếu.');
+    }
+    public function showtimeUpdate(Request $request, Showtime $showtime)
+    {
+        $data = $request->validate([
+            'movieID'   => 'required|exists:movies,movieID',
+            'theaterID' => 'required|exists:movie_theaters,theaterID',
+            'startTime' => 'required|date',
+            'endTime'   => 'required|date|after:startTime',
+        ]);
+
+        $start = Carbon::parse($request->startTime);
+        $end   = Carbon::parse($request->endTime);
+
+        $exists = Showtime::where('theaterID', $request->theaterID)
+            ->where('showtimeID', '!=', $id)  // 🚀 
+            ->where(function($q) use ($start, $end) {
+                $q->whereBetween('startTime', [$start, $end])
+                ->orWhereBetween('endTime', [$start, $end])
+                ->orWhere(function($q2) use ($start, $end) {
+                    $q2->where('startTime', '<=', $start)
+                        ->where('endTime', '>=', $end);
+                });
+            })
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Phòng chiếu đang có suất chiếu trùng thời gian.');
+        }
+
+        $showtime->update($data);
+
+        return back()->with('success', 'Cập nhật thành công.');
+    }
+    public function showtimeDestroy(Showtime $showtime)
+    {
+        $showtime->delete();
+
+        return back()->with('success', 'Đã xoá suất chiếu.');
     }
     // =============== MOVIE THEATER ============= //
     public function showMovieTheater(Request $request): View
@@ -608,7 +704,7 @@ class AdminController extends Controller
             'movieTheaters_total' => MovieTheater::count(),
         ]; 
 
-        $theaters = MovieTheater::query()
+        $theaters = MovieTheater::with('seats')
             ->when($q, function ($qr) use ($q) {
                 $qr->where(function ($sub) use ($q) {
                     $sub->where('roomName', 'like', "%{$q}%")
@@ -624,15 +720,12 @@ class AdminController extends Controller
     public function theaterStore(Request $request)
     {
     $validated = $request->validate([
-        'roomName' => [
-            'required','string','max:255',
-            Rule::unique('movie_theaters', 'roomName'),
-        ],
-        // Cho phép admin chọn số hàng/số ghế/hàng từ modal
+        'roomName' => ['required','string','max:255',Rule::unique('movie_theaters', 'roomName'),],
         'rows'     => ['required','integer','min:1','max:26'],
         'cols'     => ['required','integer','min:1','max:50'],
-        // capacity sẽ được tính tự động = rows * cols (tránh bất nhất)
         'status'   => ['required', Rule::in(['active','inactive'])],
+        'normal_price' => ['required','integer','min:0'],
+        'vip_price'    => ['required','integer','min:0'],
     ]);
 
     $rows = (int) $validated['rows'];
@@ -641,24 +734,27 @@ class AdminController extends Controller
     $letters = range('A','Z');
 
     return DB::transaction(function () use ($validated, $rows, $cols, $capacity, $letters) {
-        // Tạo phòng chiếu
         $theater = MovieTheater::create([
             'roomName' => $validated['roomName'],
             'capacity' => $capacity,
             'status'   => $validated['status'],
         ]);
 
-        // Tạo ghế hàng loạt (bulk insert)
         $now = now();
         $payload = [];
         for ($r = 0; $r < $rows; $r++) {
             for ($c = 1; $c <= $cols; $c++) {
+                $seatType = $r === 0 ? 'vip' : 'normal';
+                $price    = $seatType === 'vip'
+                            ? $validated['vip_price']
+                            : $validated['normal_price'];
                 $payload[] = [
                     'theaterID'     => $theater->theaterID,
                     'verticalRow'   => $letters[$r],
                     'horizontalRow' => $c,
                     'seatType'      => $r === 0 ? 'vip' : 'normal', // hàng A là VIP
                     'status'        => 'available',
+                    'price'         => $price,
                     'created_at'    => $now,
                     'updated_at'    => $now,
                 ];
@@ -680,13 +776,52 @@ class AdminController extends Controller
     public function theaterUpdate(Request $request, MovieTheater $movieTheater)
     {
         $data = $request->validate([
-            'roomName' => ['required','string','max:255','unique:movie_theaters,roomName,'.$movieTheater->id],
-            'capacity' => ['required','integer','min:0','max:10000'],
+            'roomName' => ['required','string','max:255',Rule::unique('movie_theaters', 'roomName')->ignore($movieTheater->theaterID, 'theaterID'),],
+            'rows'     => 'required|integer|min:1|max:26',
+            'cols'     => 'required|integer|min:1|max:50',
+            'normal_price' => 'required|integer|min:0',
+            'vip_price'    => 'required|integer|min:0',
             'status'   => ['required','in:active,unable'],
             'note'     => ['nullable','string','max:255'],
         ]);
 
-        $movieTheater->update($data);
+        $rows = (int)$data['rows'];
+        $cols = (int)$data['cols'];
+        $capacity = $rows * $cols;
+
+        Seat::where('theaterID', $movieTheater->theaterID)->delete();
+        $letters = range('A','Z');
+        $payload = [];
+        $now = now();
+
+        for ($r = 0; $r < $rows; $r++) {
+            for ($c = 1; $c <= $cols; $c++) {
+
+                $seatType = $r === 0 ? 'vip' : 'normal';
+                $price = $seatType === 'vip'
+                    ? $data['vip_price']
+                    : $data['normal_price'];
+
+                $payload[] = [
+                    'theaterID'     => $movieTheater->theaterID,
+                    'verticalRow'   => $letters[$r],
+                    'horizontalRow' => $c,
+                    'seatType'      => $seatType,
+                    'status'        => 'available',
+                    'price'         => $price,
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ];
+            }
+        }
+        Seat::insert($payload);
+
+        $movieTheater->update([
+            'roomName' => $data['roomName'],
+            'capacity' => $capacity,  // AUTO
+            'status'   => $data['status'],
+            'note'     => $data['note'] ?? null,
+        ]);
         return back()->with('success','Cập nhật phòng chiếu thành công.');
     }
     // ====================== SHOW SEAT ======================

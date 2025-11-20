@@ -9,21 +9,20 @@ class Promotion extends Model
 {
     use HasFactory;
 
-    // Vì bạn đặt tên bảng là 'promotion' (số ít)
     protected $table = 'promotion';
 
     protected $fillable = [
-        'code',           // Mã khuyến mãi
-        'type',           // Loại: percent / fixed
-        'value',          // Giá trị giảm
-        'limit_count',    // Giới hạn lượt dùng
-        'used_count',     // Đã dùng
-        'min_order_value',   // Giá trị đơn hàng tối thiểu
-        'min_ticket_quantity', // Số ghế tối thiểu
-        'start_date',     // Ngày bắt đầu
-        'end_date',       // Ngày kết thúc
-        'status',         // active / inactive
-        'description',    // Mô tả
+        'code',           
+        'type',           
+        'value',          
+        'limit_count',    
+        'used_count',     
+        'min_order_value',  
+        'min_ticket_quantity',
+        'start_date',    
+        'end_date',      
+        'status',        
+        'description',    
     ];
 
     protected $casts = [
@@ -31,7 +30,6 @@ class Promotion extends Model
         'end_date' => 'datetime',
     ];
 
-    // Hàm kiểm tra khuyến mãi còn hiệu lực không
     public function isValid(): bool
     {
         return $this->status === 'active'
@@ -49,7 +47,7 @@ class Promotion extends Model
             $discount = $this->value;
         }
 
-        return min($discount, $total); // không vượt quá tổng tiền
+        return min($discount, $total);
     }
      public function order()
     {

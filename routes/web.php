@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // ==== Profile account  ==== //
-Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('profile.update');
     Route::post('/user/avatar', [CustomerController::class], 'updateAvatar')->name('avatar.update');
     Route::get('/profile', [CustomerController::class, 'showProfile'])->name('profile');
 
@@ -103,7 +103,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
     // ==== Admin Dashboard - Button for _updateUser  ==== //
     Route::put('/adminDashboard/users/{user}', [AdminController::class, 'update'])->name('users.update');
-Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
+    Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
     Route::post('/adminDashboard/users', [AdminController::class, 'store'])->name('users.store');
     Route::post('/adminDashboard/users/upload-avatar', [AdminController::class, 'uploadAvatar'])->name('users.upload_avatar');
     Route::patch('/adminDashboard/users/{user}/toggle-lock', [AdminController::class, 'toggleStatus'])->name('users.toggleStatus');
@@ -133,15 +133,18 @@ Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete']
 
     // ==== Promotion ==== //
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
-    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('admin.promotion.store');
-    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('admin.promotion.update');
-Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDelete'])->name('admin.promotion.delete');
+    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('promotion.store');
+    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('promotion.update');
+    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDestroy'])->name('promotion.delete');
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
+    Route::post('adminDashboard/showtime/store', [AdminController::class, 'showtimeStore'])->name('showtime.store');
+    Route::put('adminDashboard/showtime/update/{id}', [AdminController::class, 'showtimeUpdate'])->name('showtime.update');
+    Route::delete('adminDashboard/showtime/delete/{showtime}', [AdminController::class, 'showtimeDestroy'])->name('showtime.delete');
     // ==== Movie Theater ==== //
     Route::get('adminDashboard/movieTheater', [AdminController::class, 'showMovieTheater'])->name('admin.movietheaterManagement.form');
     Route::post('adminDashboard/movieTheater/store', [AdminController::class, 'theaterStore'])->name('admin.movietheaterManagement.store');
     Route::delete('adminDashboard/movieTheater/destroy/{movieTheater}', [AdminController::class, 'theaterDestroy'])->name('admin.movietheaterManagement.delete');
-    Route::post('adminDashboard/movieTheater/update/{id}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
+    Route::put('adminDashboard/movieTheater/update/{id}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
     Route::get('adminDashboard/movieTheater/{id}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
 });

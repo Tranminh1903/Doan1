@@ -61,6 +61,7 @@ class BookingController extends Controller
                 'seats.theaterID',
                 'seats.verticalRow',
                 'seats.horizontalRow',
+                'seats.price',
                 DB::raw("
                     CASE 
                         WHEN SUM(CASE WHEN sh.status = 'unavailable' THEN 1 ELSE 0 END) > 0 THEN 'unavailable'

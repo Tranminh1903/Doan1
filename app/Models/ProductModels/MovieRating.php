@@ -9,7 +9,11 @@ class MovieRating extends Model
     protected $primaryKey = 'ratingID';
     public $timestamps = true;
 
-    protected $fillable = ['movieID', 'userID', 'stars'];
+    protected $fillable = [
+        'movieID', 
+        'userID', 
+        'stars'
+    ];
      public function movie()
     {
         return $this->belongsTo(Movie::class, 'movieID');

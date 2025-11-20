@@ -105,8 +105,8 @@
                 {{ $seat->status === 'unavailable' ? 'booked' : '' }} 
                 {{ $seat->status === 'held' ? 'held' : '' }}" 
                 data-seat-id="{{ $seat->seatID }}"
-                data-type="{{ $seat->type }}" 
-                data-price="{{ $seat->type === 'vip' ? 3000 : ($seat->type === 'couple' ? 3000 : 2000) }}">
+                data-type="{{ $seat->seatType }}}" 
+                data-price="{{ $seat->price }}">
                 {{ $seat->verticalRow }}{{ $seat->horizontalRow }}
               </div>
             @endforeach

@@ -11,7 +11,13 @@ class Seat extends Model
     protected $primaryKey = 'seatID';
     public $incrementing = true;
     protected $keyType = 'int';
-    protected $fillable = ['theaterID','verticalRow','horizontalRow','seatType','status'];
+    protected $fillable = [
+        'theaterID',
+        'verticalRow',
+        'horizontalRow',
+        'seatType',
+        'price',
+        'status'];
 
     public function theater()
     {

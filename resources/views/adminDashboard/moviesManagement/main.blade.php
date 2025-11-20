@@ -81,7 +81,10 @@ $dateVN = $now->format('d/m/Y');
     </div>
   </div>
 
-  <h3 class="m-0">Tổng quan</h3>
+  <div class="ad-page-title d-flex align-items-center justify-content-between mb-3">
+    <h3 class="m-0">Tổng quan</h3>
+  </div>
+
   <div class="adm-movies">
     @php
       $kpi = $kpi ?? [];
