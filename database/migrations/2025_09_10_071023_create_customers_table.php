@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('total_promotions_unused')->default(0);   
             $table->timestamps();
             
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete(); // xóa user -> xóa customer
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete(); 
         });
     }
 
