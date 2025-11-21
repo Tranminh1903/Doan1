@@ -11,12 +11,16 @@ use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
-        public function showReset_Password(Request $request,string $token) : View
-        {
-            return view('Authentication.reset_password',
-            ['token' => $token,
-            'email' => $request->query('email')]);
-        }
+    public function showReset_Password(Request $request, string $token): View
+    {
+        return view(
+            'Authentication.reset_password',
+            [
+                'token' => $token,
+                'email' => $request->query('email')
+            ]
+        );
+    }
 
     public function resetPassword(Request $request)
     {
@@ -24,18 +28,18 @@ class ResetPasswordController extends Controller
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:5|confirmed',
-        ],[],[
+        ], [], [
             'email' => 'Email',
             'password' => 'Mật khẩu',
         ]);
 
         $status = Password::reset(
-            $request->only('email','password','password_confirmation','token'),
+            $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
                 $user->forceFill(attributes: [
                     'password' => Hash::make($password),
                 ]);
-                $user -> save();
+                $user->save();
             }
         );
 

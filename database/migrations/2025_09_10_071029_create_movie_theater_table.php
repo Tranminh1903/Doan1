@@ -8,17 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('promotion', function (Blueprint $table) {
-            $table->id();
+        Schema::create('movie_theaters', function (Blueprint $table) {
+            $table->id('theaterID'); 
+            $table->string('roomName');
+            $table->integer('capacity')->default(100);
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('promotion');
+        Schema::dropIfExists('movie_theaters');
     }
 };

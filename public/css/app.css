@@ -1,86 +1,573 @@
+/* =========================================================
+   SOURCE MAPPING
+   ========================================================= */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* =========================================================
+   THEME & GLOBAL VARIABLES
+   ========================================================= */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 }
-  html {
+
+:root {
+    --card-radius: 1rem;
+    --radius: 16px;
+    --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
+    --muted: #6b7280;
+
+    /* Kích thước thanh điều hướng */
+    --navbar-h: 68px; /* đổi nếu header bạn cao hơn/thấp hơn */
+    --subbar-h: 44px;
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+html {
     scroll-behavior: smooth;
-  }
-  a { 
-    text-decoration: none !important; 
-  }
-  a:hover,
-  a:focus {
-    text-decoration: underline;
-  }
-/* Su dung trong blade Home */
-  .movie-card img {
-    aspect-ratio: 3/4; object-fit: cover;
-  }
-  .hero {
-    background:#0d1117 url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963f?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
-    color:#fff; border-radius:1rem
-  }
-  .hero-overlay {
-    backdrop-filter:brightness(.6); border-radius:1rem
-  }
-  a{text-decoration:none}
-  .banner-wrapper { 
-    max-height: 720px; overflow: hidden; 
-  }
-  .banner-img { 
-    aspect-ratio: 16 / 6; object-fit: cover; transform: scale(1); transition: transform 4s ease; 
-  }
-  .carousel-item.active .banner-img { transform: scale(1.06); }
-  .banner-overlay{
-    position:absolute; inset:0; content:"";
-    background: linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.45) 80%);
-  }  
-  .banner-caption{
-    position:absolute; left:1rem; bottom:1rem; right:1rem;
-    color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6);
-    transform: translateY(10px); opacity:0; transition: all .5s ease;
-  }
-  .carousel-item.active .banner-caption{ transform: translateY(0); opacity:1; }
-  .banner-caption h5{
-    font-weight:700; letter-spacing:.3px;
-    background: rgba(0,0,0,.35); display:inline-block; padding:.25rem .5rem; border-radius:.5rem;
-  }
-  .banner-caption p{
-    background: rgba(0,0,0,.25); display:inline-block; padding:.2rem .5rem; border-radius:.5rem; margin-top:.25rem;
-  }
-
-/* Su dung trong blade Profile */
-.cinema-title{
-  color:#e71a0f;          
-  font-weight:800;
-  text-transform:uppercase;
-  font-size:1.3rem;
-  letter-spacing:.5px;
-  margin-bottom:.5rem;
+}
+a {
+    text-decoration: none;
+}
+a:hover,
+a:focus {
+    text-decoration: none;
+}
+.text-muted {
+    color: var(--muted) !important;
 }
 
-/* Su dung trong blade adminDashboard */
-  :root{ --radius:16px; --shadow:0 12px 30px rgba(18,38,63,.08); --muted:#6b7280; }
-  .ad-wrapper{position:relative}
-  .ad-sidebar{
-    background: linear-gradient(180deg,#27c2a6 0%, #1aa3f1 100%);
-    border-radius: 18px; color:#fff; width:260px; min-height:calc(100vh - 180px);
-    box-shadow: var(--shadow); position:sticky; top:12px;
-  }
-  .ad-brand{padding:18px 18px 10px; font-weight:700; display:flex; gap:10px; align-items:center}
-  .ad-menu{padding:6px 10px 18px}
-  .ad-menu h6{font-size:.75rem; opacity:.85; margin:12px 10px 6px; letter-spacing:.3px; text-transform:uppercase}
-  .ad-link{display:flex; align-items:center; gap:12px; padding:10px 12px; margin:4px 8px; color:#eaf7ff; text-decoration:none; border-radius:12px}
-  .ad-link:hover,.ad-link.active{background:rgba(255,255,255,.18)}
-  .ad-main{padding-left: 12px}
-  .ad-topbar{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
-    padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px }
-  .ad-card{border:0; border-radius:var(--radius); box-shadow:var(--shadow)}
-  .text-muted{color:var(--muted)!important}
-  .action-list a{ text-decoration:none }
-  @media (max-width: 992px){ .ad-sidebar{width:100%; border-radius:12px} .ad-main{padding-left:0} }
+/* =========================================================
+   HEADER (Main navbar) – light, sticky
+   ========================================================= */
+.navbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1200; /* > sub-header & content */
+    height: var(--navbar-h);
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--navbar-h);
+}
+.navbar-logo {
+    max-height: 40px;
+    width: auto;
+    margin-right: 24px;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .dropdown-item {
+    color: #111 !important;
+    font-weight: 500;
+}
+.navbar .nav-link:hover {
+    color: #0d6efd !important;
+}
+
+.navbar .dropdown-menu {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.navbar .dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+/* Search box trong header */
+.dmm-search {
+    display: flex;
+    align-items: center;
+    margin: 0 48px;
+    flex: 1;
+    max-width: 720px;
+}
+.dmm-search .input-group {
+    width: 100%;
+}
+.dmm-search input[type="search"] {
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid #dee2e6;
+    padding: 0 16px;
+}
+.dmm-search input[type="search"]:focus {
+    border-color: #6ea8fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.18) !important;
+    outline: none;
+}
+
+/* =========================================================
+   SUB-HEADER – gradient bar, sticky ngay dưới header
+   ========================================================= */
+.sub-header {
+    position: sticky;
+    top: var(--navbar-h); /* bám ngay dưới header */
+    z-index: 1100; /* < navbar, > content */
+    background: linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%);
+    color: #fff;
+    min-height: var(--subbar-h);
+    display: flex;
+    align-items: center;
+    margin-top: -1px; /* chống hở 1px (nếu không hở, có thể xoá) */
+}
+.sub-header .container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.sub-header a {
+    color: #fff;
+    font-weight: 500;
+    text-decoration: none;
+}
+.sub-header a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Anchor offset khi cuộn tới section */
+#showtime-section {
+    scroll-margin-top: calc(var(--navbar-h) + 12px);
+}
+
+/* Banner / Carousel */
+.banner-wrapper {
+    max-height: 720px;
+    overflow: visible;
+}
+.banner-img {
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 4s ease, box-shadow 0.3s ease-in-out;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.banner-img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+.carousel-item.active .banner-img {
+    transform: scale(1.06);
+}
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
+}
+.banner-caption {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    transform: translateY(10px);
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+.carousel-item.active .banner-caption {
+    transform: translateY(0);
+    opacity: 1;
+}
+.banner-caption h5 {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    background: rgba(0, 0, 0, 0.35);
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+}
+.banner-caption p {
+    background: rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+
+/* =========================================================
+   FOOTER - DUMANMINH CINEMA
+   ========================================================= */
+.footer-dmm {
+    background: #fff;
+    color: #4a4a4a;
+    font-size: 14px;
+    border-top: 1px solid #ededed;
+}
+.footer-dmm__wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 20px 30px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+}
+.footer-dmm__title {
+    margin: 0 0 12px;
+    color: #2f2f2f;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.2px;
+}
+.footer-dmm__list,
+.footer-dmm__info {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.footer-dmm__list li,
+.footer-dmm__info li {
+    line-height: 1.9;
+}
+.footer-dmm__list a {
+    color: #4a4a4a;
+    text-decoration: none;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-decoration-color: transparent;
+}
+.footer-dmm__list a:hover {
+    color: #111;
+    text-decoration: underline;
+    text-decoration-color: #cfcfcf;
+}
+
+.footer-dmm__socials {
+    display: flex;
+    gap: 10px;
+    margin: 8px 0 12px;
+}
+.social-btn {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    color: #2f2f2f;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.social-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.social-btn.fb {
+    background: #3b5998;
+    border-color: #2f4a87;
+    color: #fff;
+}
+.social-btn.yt {
+    background: #ff0000;
+    border-color: #cf0000;
+    color: #fff;
+}
+.social-btn.ig {
+    background: radial-gradient(
+        circle at 30% 110%,
+        #fdf497 0%,
+        #fd5949 45%,
+        #d6249f 60%,
+        #285aeb 90%
+    );
+    border-color: #d6249f;
+    color: #fff;
+}
+.social-btn.zalo {
+    background: #017fff;
+    border-color: #006ad6;
+    color: #fff;
+}
+.footer-dmm__badge img {
+    display: block;
+    width: 156px;
+    margin-top: 8px;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.02));
+}
+
+.footer-dmm__info li strong {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+.footer-dmm__info a {
+    color: #1a73e8;
+    text-decoration: none;
+}
+.footer-dmm__info a:hover {
+    text-decoration: underline;
+}
+
+.footer-dmm a:focus-visible,
+.social-btn:focus-visible {
+    outline: 3px solid rgba(0, 115, 230, 0.25);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+@media (max-width: 992px) {
+    .footer-dmm__wrap {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+}
+@media (max-width: 560px) {
+    .footer-dmm__wrap {
+        grid-template-columns: 1fr;
+    }
+    .footer-dmm__socials {
+        justify-content: flex-start;
+    }
+}
+.footer-dmm__logo {
+    width: 300px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================================================
+   MODAL – đảm bảo phủ lên header/sub-header
+   ========================================================= */
+.modal {
+    z-index: 2000 !important;
+}
+.modal-backdrop {
+    z-index: 1999 !important;
+}
+
+/* =========================================================
+   ADMIN DASHBOARD
+   ========================================================= */
+
+:root {
+    --radius: 16px; /* giữ đồng bộ biến đã có */
+    --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
+}
+
+/* --- Layout chính --- */
+.ad-wrapper {
+    position: relative;
+    display: flex;
+    gap: 12px !important;
+}
+.ad-sidebar {
+    background: linear-gradient(180deg, #27c2a6 0%, #1aa3f1 100%);
+    border-radius: 18px;
+    color: #fff;
+    width: 260px;
+    min-height: calc(100vh - 180px);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 12px;
+    flex: 0 0 260px;
+}
+.ad-main {
+    flex: 1 1 auto;
+    padding-left: 12px;
+    width: 100%;
+}
+
+/* Mở rộng full-width, bỏ khoảng trắng 2 bên */
+.ad-main .container,
+.ad-main .container-sm,
+.ad-main .container-md,
+.ad-main .container-lg,
+.ad-main .container-xl,
+.ad-main .container-xxl,
+.ad-main .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* --- Brand & menu giữ nguyên --- */
+.ad-brand {
+    padding: 18px 18px 10px;
+    font-weight: 700;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.ad-menu {
+    padding: 6px 10px 18px;
+}
+.ad-menu h6 {
+    font-size: 0.75rem;
+    opacity: 0.85;
+    margin: 12px 10px 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.ad-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin: 4px 8px;
+    color: #eaf7ff;
+    text-decoration: none;
+    border-radius: 12px;
+}
+.ad-link:hover,
+.ad-link.active {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* --- Topbar + Card chung --- */
+.ad-topbar {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.ad-card {
+    border: 0;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* --- Trang tiêu đề + nút làm mới --- */
+.ad-page-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 20px;
+}
+.ad-page-title h3 {
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+.btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #0d6efd;
+    border: 1px solid #dbe3f0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(16, 24, 40, 0.05);
+    transition: transform 0.08s ease, box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+.btn-refresh:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 24, 40, 0.08);
+    border-color: #c9d6ea;
+}
+
+
+
+/* --- Section card (Lịch sử, Top phim, Suất chiếu) --- */
+.section-card {
+    background: #fff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    padding: 12px 14px;
+}
+.section-card .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.section-card .section-head h6 {
+    margin: 0;
+    font-weight: 800;
+}
+
+/* ===== Bảng gọn ===== */
+.table-clean {
+    margin: 0;
+}
+.table-clean thead th {
+    background: #f6f7fb;
+    color: #667085;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e9edf3 !important;
+}
+.table-clean tbody td {
+    vertical-align: middle;
+    border-color: #eef2f6;
+    color: #111827;
+}
+
+/* ===== Empty Status ===== */
+.empty {
+    padding: 22px;
+    text-align: center;
+    color: #667085;
+    border: 1px dashed #e5e7eb;
+    border-radius: 12px;
+    background: #fafbff;
+}
+
+/* ===== Link Action ===== */
+.action-list a {
+    text-decoration: none;
+}
+
+/* ===== Admin Dashboard – Greeting Banner ===== */
+.ad-greeting {
+    border-radius: 16px;
+    background: #fff;
+}
+.ad-greeting .card-body {
+    padding: 16px 20px;
+    min-height: 92px;
+}
+.ad-greeting__avatar {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+}
+
+/* ===== Admin Dashboard – Cards / Tables (nhẹ) ===== */
+.ad-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.table-clean thead th {
+    font-weight: 600;
+    color: #6b7280;
+    background: #f9fafb;
+    border-bottom: 1px solid #eef2f7;
+}
+.table-clean td,
+.table-clean th {
+    vertical-align: middle;
+}

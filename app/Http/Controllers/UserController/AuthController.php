@@ -15,13 +15,12 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
-    //Register 
+    // =============== Register ============= //
     public function showRegister()
     {
-        return view('Authentication.register');
+        return view('authentication.register');
     }
 
-    // Register 
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -46,7 +45,7 @@ class AuthController extends Controller
         ]); 
 
         if ($user->role === 'customers') {
-            Customer::create(['user_id' => $user->id, 'customer_name' => $user->username,'customer_point' => 0]);
+            Customer::create(['user_id' => $user->id, 'customer_name' => $user->username]);
         } else {
             Admin::create(['user_id' => $user->id]);
         }
@@ -55,15 +54,8 @@ class AuthController extends Controller
         $request->session()->regenerate(); 
         return redirect()->route('home')->with('RegisterSuccess', 'Đăng ký tài khoản thành công!');
     }
-    
-    //Login
-    public function showLogin(): View
-    {
-        return view('Authentication.login');
-    }
 
-
-    //Login
+    // =============== Login ============= //
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -84,7 +76,12 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng.'])->onlyInput('email');
     }
 
-    //Logout
+    public function showLogin(): View
+    {
+        return view('authentication.login');
+    }
+
+    // =============== Logout ============= //
     public function logout(Request $request)
     {
         Auth::logout();

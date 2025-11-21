@@ -17,13 +17,11 @@ return new class extends Migration
             
             // status có 3 trạng thái: available, held, unavailable
             $table->enum('status', ['available', 'held', 'unavailable'])->default('available');
-
+            $table->decimal('price', 10, 2);
             $table->timestamps();
 
-            $table->foreign('theaterID')
-                  ->references('theaterID')
-                  ->on('movie_theaters')
-                  ->onDelete('cascade');
+            $table->foreign('theaterID')->references('theaterID')->on('movie_theaters')->onDelete('cascade');
+            $table->unique(['theaterID','verticalRow','horizontalRow'], 'uk_theater_row_col');
         });
     }
 
