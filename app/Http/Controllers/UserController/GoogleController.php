@@ -44,16 +44,18 @@ class GoogleController extends Controller
         $user = User::where('email',$googleUser->getEmail())->first();
         if($user) { // Nếu user đã tồn tại thì update thêm google_id và cập nhật avatar 
 
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $user->avatar ?? $savedImagePath, //Nếu user đã có avatar rồi thì sử dụng savedImagePath
-            ]);
+            $user->google_id = $googleUser->getId();
+            if ($savedImagePath) {
+            $user->avatar = $savedImagePath;
+            }
+    $user->save();
         } else { //Nếu user không tồn tại
             $user = User::create([
                 'username'  => $googleUser->getName(),
                 'email'     => $googleUser->getEmail(),
                 'avatar'    => $googleUser->$savedImagePath,
                 'status'    => 'active',
+                'google_id' => $googleUser->getId(),
                 'role'      => 'customers',
                 'password'  => null,
             ]);

@@ -43,6 +43,7 @@ class OrderController extends Controller
                 'seats'      => json_encode($request->seats),
                 'amount'     => $request->amount,
                 'status'     => 'pending',
+                'promotion_code' => 'SALE10',
             ]);
 
 
@@ -250,9 +251,9 @@ if ($showtimeID) {
                                 try {
                                     $seatIDs = json_decode($order->seats, true);
                                     $seatsFormatted = \App\Models\ProductModels\Seat::whereIn('seatID', $seatIDs)
-                                        ->select('verticalRow', 'seatID')
+                                        ->select('verticalRow', 'horizontalRow')
                                         ->get()
-                                        ->map(fn($s) => $s->verticalRow . $s->seatID)
+                                        ->map(fn($s) => $s->verticalRow . $s->horizontalRow)
                                         ->toArray();
 
                                     Mail::to(auth()->user()->email)->send(new TicketPaidMail(

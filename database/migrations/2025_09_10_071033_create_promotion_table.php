@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('min_ticket_quantity')->nullable(); // Số ghế tối thiểu để áp dụng
             $table->dateTime('start_date'); // Ngày bắt đầu hiệu lực
             $table->dateTime('end_date'); // Ngày kết thúc hiệu lực
-            $table->enum('status', ['active', 'inactive'])->default('active'); // Trạng thái
+            $table->string('status', 20)->default('active'); // Trạng thái
             $table->text('description')->nullable(); // Mô tả ngắn cho mã
             $table->timestamps();
         });

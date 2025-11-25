@@ -21,17 +21,16 @@ return new class extends Migration
                   ->cascadeOnDelete();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->nullOnDelete();
+                  ->references('user_id') 
+                  ->on('customers')       
+                  ->nullOnDelete();       
             $table->unsignedBigInteger('orderID')->nullable();
             $table->foreign('orderID')
                   ->references('id')
                   ->on('orders')
                   ->nullOnDelete();
             $table->timestamp('expires_at')->nullable(); 
-            $table->enum('status', ['available', 'held', 'unavailable'])
-                  ->default('held');
+            $table->string('status', 20)->default('held');
             $table->timestamps();
         });
     }
