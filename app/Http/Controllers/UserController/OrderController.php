@@ -39,11 +39,11 @@ class OrderController extends Controller
             $order = Order::create([
                 'showtimeID' => $request->showtimeID,
                 'order_code' => strtoupper(uniqid('MB')),
-                'username'   => $user->username ?? $user->name ?? 'unknown',
+                'user_id'    => $user->id,
                 'seats'      => json_encode($request->seats),
                 'amount'     => $request->amount,
                 'status'     => 'pending',
-                'promotion_code' => 'SALE10',
+                'promotion_code' => '$request->promotion_code',
             ]);
 
 
@@ -294,6 +294,7 @@ public function checkAndSyncPayment($orderCode)
 
     return response()->json(['status' => $order->status]);
 }
+
 
 
 }

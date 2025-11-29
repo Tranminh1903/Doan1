@@ -13,7 +13,7 @@ class Order extends Model
     'promotion_code',
     'seats',
     'status',
-    'username',
+    'user_id',
     'amount',
     ];
     
@@ -33,6 +33,10 @@ class Order extends Model
     public function promotion()
     {
         return $this->belongsTo(Promotion::class, 'promotion_code', 'code');
-    }
+    }   
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'user_id', 'user_id');
+    }  
 
 }

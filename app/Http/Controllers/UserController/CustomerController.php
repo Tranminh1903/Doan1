@@ -23,7 +23,7 @@ class CustomerController extends Controller
         // Lịch sử vé đã mua
         $tickets = Ticket::query()
             ->join('orders', 'ticket.order_code', '=', 'orders.order_code')
-            ->where('orders.username', $user->username)
+            ->where('orders.user_id', $user->id)
             ->select('ticket.*')
             ->with([
                 'showtime:showtimeID,movieID,startTime',

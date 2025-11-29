@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentDiscount = data.discount;
         updateFinal(total, data.discount);
 
-        // ✅ Toast thông báo nhẹ
+        //  Toast thông báo nhẹ
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
           timerProgressBar: true
         });
       } else {
-        // ❌ Thông báo lỗi nhẹ, không chặn thao tác
+        //  Thông báo lỗi nhẹ, không chặn thao tác
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -389,7 +389,7 @@ window.checkInterval = setInterval(async () => {
     const data = await res.json();
 
     if (data.status === 'paid') {
-      // 🛑 Dừng tất cả timer
+      //  Dừng tất cả timer
       clearInterval(countdownTimer);
       clearInterval(window.checkInterval);
       pollController.abort();
