@@ -43,7 +43,7 @@ class OrderController extends Controller
                 'seats'      => json_encode($request->seats),
                 'amount'     => $request->amount,
                 'status'     => 'pending',
-                'promotion_code' => '$request->promotion_code',
+                'promotion_code' => $request->promotion_code ?? null, 
             ]);
 
 

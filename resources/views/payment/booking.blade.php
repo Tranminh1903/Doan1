@@ -482,7 +482,7 @@ window.checkInterval = setInterval(async () => {
     }
   }
   checkExpiredSeats();
-  setInterval(checkExpiredSeats, 5000);
+  setInterval(checkExpiredSeats, 20000);
 });
 </script>
 
