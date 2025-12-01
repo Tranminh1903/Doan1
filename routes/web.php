@@ -16,16 +16,20 @@ use App\Http\Controllers\UserController\PromotionController;
 use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
 use App\Http\Controllers\UserController\ProfileController;
+use App\Http\Controllers\UserController\NewsController;
 use Illuminate\Support\Facades\Route;
+
+
 // ==== Trang chủ ==== //
     Route::get('/', [HomeController::class,'index'])->name('home');
     // ==== Tìm kiếm phim ==== //
     Route::get('/movies/search', [MovieController::class, 'search'])->name('movies.search');
 
-// Trang chủ và chi tiết phim — công khai
+// Trang chủ và chi tiết phim — công khai và tin tức
     Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
     Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
-
+    Route::get('/news', [NewsController::class, 'index'])->name('news.news');
+    Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.news_detail');
 // ==== Guest only (chưa đăng nhập) ==== //
 Route::middleware('guest')->group(function () {
     // ==== Login ====//

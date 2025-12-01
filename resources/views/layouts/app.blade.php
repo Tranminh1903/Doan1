@@ -44,7 +44,7 @@
       </div>
 
       <div class="nav-menu-right d-flex align-items-center gap-4 me-4">
-        <a href="/news" class="nav-link-custom">Tin tức</a>
+        <a href="{{ route('news.news') }}" class="nav-link-custom">Tin tức</a>
         <a href="/promo" class="nav-link-custom">Khuyến mãi</a>
       </div>
       <div class="d-flex gap-2">
