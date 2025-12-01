@@ -19,9 +19,33 @@ class GoogleController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        if ($request->has('error')) {
+            // vd: ?error=access_denied
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Bạn đã hủy đăng nhập bằng Google.');
+        }
+
+        // 2. Không có "code" thì không gọi Socialite nữa
+        if (!$request->has('code')) {
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Thiếu mã xác thực từ Google, vui lòng thử lại.');
+        }
+
+        try {
+            // 3. Lấy thông tin user từ Google
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        } catch (\Exception $e) {
+            // Nếu Google trả lỗi (hết hạn code, v.v...)
+            report($e);
+
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Không thể đăng nhập bằng Google, vui lòng thử lại sau.');
+        }
         $avatarUrl  = $googleUser->getAvatar();
         $savedImagePath = null;
 
@@ -31,7 +55,6 @@ class GoogleController extends Controller
                 $imgGoogle = Http::get($avatarUrl)->body();
 
                 if ($imgGoogle) {
-
                     // => Sẽ lưu vào storage\app\public\avatars
                     $imgName = 'avatars/' . Str::random(40) . '.jpg';
                     Storage::disk('public')->put($imgName,$imgGoogle);

@@ -325,7 +325,7 @@ class AdminController extends Controller
 
         $movies = $moviesQuery
             ->latest('movieID')
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString();
 
         // KPI
@@ -342,6 +342,7 @@ class AdminController extends Controller
         $data = $req->validate([
             'title'        => 'required|string|max:255',
             'poster'       => 'nullable|string|max:2000',
+            'background'   => 'nullable|string|max:2000',            
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
             'rating'       => 'nullable|string|max:50',
@@ -363,6 +364,7 @@ class AdminController extends Controller
         $data = $req->validate([
             'title'        => 'required|string|max:255',
             'poster'       => 'nullable|string|max:2000',
+            'background'   => 'nullable|string|max:2000',
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
             'rating'       => 'nullable|string|max:50',
@@ -392,7 +394,19 @@ class AdminController extends Controller
     // =============== CSV ============= //
     public function movieTemplateCsv()
     {
-        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
+        $header = [
+            'movieID',
+            'title',
+            'poster',
+            'background',
+            'durationMin',
+            'genre',
+            'rating',
+            'releaseDate',
+            'description',
+            'status'
+        ];
+
         return response()->streamDownload(function () use ($header) {
             $out = fopen('php://output', 'w');
             fputcsv($out, $header);
@@ -410,7 +424,18 @@ class AdminController extends Controller
                 ->orWhere('rating', 'like', "%$q%");
         })->orderBy('movieID')->get();
 
-        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
+        $header = [
+            'movieID', 
+            'title',
+            'poster',
+            'background',
+            'durationMin',
+            'genre',
+            'rating',
+            'releaseDate',
+            'description',
+            'status'
+        ];
 
         return response()->streamDownload(function () use ($rows, $header) {
             $out = fopen('php://output', 'w');
@@ -420,6 +445,7 @@ class AdminController extends Controller
                     $m->movieID,
                     $m->title,
                     $m->poster,
+                    $m->background,
                     $m->durationMin,
                     $m->genre,
                     $m->rating,
@@ -467,6 +493,7 @@ class AdminController extends Controller
             $payload = [
                 'title'        => $get($row, 'title', ''),
                 'poster'       => $get($row, 'poster'),
+                'background'   => $get($row, 'background'),
                 'durationMin'  => (int) $get($row, 'durationmin', 0),
                 'genre'        => $get($row, 'genre'),
                 'rating'       => $get($row, 'rating'),

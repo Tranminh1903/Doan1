@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/json",
           "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({ showtimeID, seats: seatIds, amount: totalAmount })
+        body: JSON.stringify({ showtimeID, seats: seatIds, amount: totalAmount,promotion_code: selectedPromoCode })
       });
 
       const data = await res.json();

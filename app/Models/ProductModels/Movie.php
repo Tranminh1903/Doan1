@@ -22,9 +22,11 @@ class Movie extends Model
         'format',
         'releaseDate',
         'poster',
+        'background', 
         'description',
         'is_banner',
         'status',
+        'category_id',
     ];
 
     public function showtimes()

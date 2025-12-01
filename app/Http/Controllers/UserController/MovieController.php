@@ -15,7 +15,7 @@ class MovieController
     {
         $movie = Movie::with('showtimes')->findOrFail($movieID);
         $averageRating = MovieRating::where('movieID', $movieID)->avg('stars') ?? 0;
-        $bannerMovies = Movie::where('is_banner', true)->whereNotNull('poster')->get(['movieID','poster']);
+        $bannerMovies = Movie::where('is_banner', true)->whereNotNull('background')->get(['movieID','background']);
         return view('movies.movie_detail', compact('movie', 'averageRating','bannerMovies'));
     }
 

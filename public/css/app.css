@@ -20,10 +20,7 @@
     --radius: 16px;
     --shadow: 0 12px 30px rgba(18, 38, 63, 0.08);
     --muted: #6b7280;
-
-    /* Kích thước thanh điều hướng */
-    --navbar-h: 68px; /* đổi nếu header bạn cao hơn/thấp hơn */
-    --subbar-h: 44px;
+    --navbar-h: 68px;
 }
 
 /* =========================================================
@@ -42,7 +39,107 @@ a:focus {
 .text-muted {
     color: var(--muted) !important;
 }
+/* NÚT USER (avatar + tên) */
+.user-dropdown-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
 
+.user-dropdown-btn:hover {
+    background: rgba(15, 23, 42, 0.6);
+}
+
+/* ==== DROPDOWN DARK ==== */
+.user-dropdown-menu {
+    background: #020617 !important;               /* nền xanh đen */
+    border-radius: 12px !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    padding: 6px 0 !important;
+    min-width: 200px;
+}
+
+/* ====== CHỮ TRẮNG CHO TẤT CẢ ITEM TRONG NAVBAR ====== */
+nav.navbar .dropdown-menu .dropdown-item,
+nav.navbar .dropdown-menu .dropdown-item * {
+    background: transparent !important;
+    color: #ffffff !important;      /* TRẮNG 100% */
+    opacity: 1 !important;          /* xoá mờ */
+    padding: 10px 16px !important;
+    font-size: 0.94rem !important;
+    border-radius: 0 !important;
+}
+
+/* Hover: chỉ sáng nhẹ */
+nav.navbar .dropdown-menu .dropdown-item:hover,
+nav.navbar .dropdown-menu .dropdown-item:hover * {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+/* Active (đang bấm) */
+nav.navbar .dropdown-menu .dropdown-item:active,
+nav.navbar .dropdown-menu .dropdown-item:active * {
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ===== Đăng xuất màu đỏ riêng ===== */
+.user-dropdown-menu form button.dropdown-item {
+    color: #ff9a9a !important;
+}
+.user-dropdown-menu form button.dropdown-item:hover {
+    background: rgba(255, 100, 100, 0.15) !important;
+    color: #ffd7d7 !important;
+}
+.navbar .auth-btn {
+    border-radius: 999px;
+    padding: 6px 24px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: 0.25s ease;
+}
+
+/* ĐĂNG KÝ – outline trắng */
+.navbar .auth-btn--ghost {
+    background: transparent;
+    border: 1.5px solid #ffffff;
+    color: #ffffff;
+}
+.navbar .auth-btn--ghost:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+/* ĐĂNG NHẬP – nút đỏ gradient */
+.navbar .auth-btn--solid {
+    background: linear-gradient(135deg, #ff4d4d, #ff7a4d);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(255, 75, 75, 0.35);
+}
+.navbar .auth-btn--solid:hover {
+    filter: brightness(1.06);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a; /* fallback nếu img lỗi */
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 /* =========================================================
    HEADER (Main navbar) – light, sticky
    ========================================================= */
@@ -51,11 +148,21 @@ a:focus {
     top: 0;
     z-index: 1200; /* > sub-header & content */
     height: var(--navbar-h);
-    background: #fff;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    background: #050b12 !important;
+    border-bottom: 0;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+    min-height: 64px;
     padding: 0;
     display: flex;
     align-items: center;
+    transition: background 0.35s ease, 
+                box-shadow 0.35s ease,
+                backdrop-filter 0.35s ease;
+}
+.navbar.nav-scrolled {
+    background: rgba(5, 11, 18, 0.12) !important;   
+    backdrop-filter: blur(18px) !important;         
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
 }
 .navbar .container {
     display: flex;
@@ -64,9 +171,11 @@ a:focus {
     min-height: var(--navbar-h);
 }
 .navbar-logo {
-    max-height: 40px;
-    width: auto;
-    margin-right: 24px;
+    height: 60px !important;       
+    width: auto !important;
+    transform: scale(1.8);        
+    transform-origin: left center; 
+    margin-right: 32px;
 }
 
 .navbar .navbar-brand,
@@ -86,14 +195,32 @@ a:focus {
 .navbar .dropdown-item:hover {
     background: #f8f9fa;
 }
+/* ===== NAVBAR CUSTOM LINKS ===== */
+.nav-link-custom {
+    color: #e5e7eb !important;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+    text-decoration: none;
+}
 
+.nav-link-custom:hover {
+    color: #ff7676 !important;
+}
+
+/* Làm cho khối menu căn giữa theo chiều dọc */
+.nav-menu-left,
+.nav-menu-right {
+    display: flex;
+    align-items: center;
+}
 /* Search box trong header */
 .dmm-search {
     display: flex;
     align-items: center;
     margin: 0 48px;
     flex: 1;
-    max-width: 720px;
+    max-width: 500px;
 }
 .dmm-search .input-group {
     width: 100%;
@@ -101,42 +228,14 @@ a:focus {
 .dmm-search input[type="search"] {
     height: 44px;
     border-radius: 999px;
-    border: 1px solid #dee2e6;
-    padding: 0 16px;
-}
-.dmm-search input[type="search"]:focus {
-    border-color: #6ea8fe !important;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.18) !important;
-    outline: none;
+    border: none; 
+    padding: 0 18px;
+    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.6); 
 }
 
-/* =========================================================
-   SUB-HEADER – gradient bar, sticky ngay dưới header
-   ========================================================= */
-.sub-header {
-    position: sticky;
-    top: var(--navbar-h); /* bám ngay dưới header */
-    z-index: 1100; /* < navbar, > content */
-    background: linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%);
-    color: #fff;
-    min-height: var(--subbar-h);
-    display: flex;
-    align-items: center;
-    margin-top: -1px; /* chống hở 1px (nếu không hở, có thể xoá) */
-}
-.sub-header .container {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-.sub-header a {
-    color: #fff;
-    font-weight: 500;
-    text-decoration: none;
-}
-.sub-header a:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
+.dmm-search input[type="search"]:focus {
+    box-shadow: 0 0 0 1.5px #38bdf8;  
+    outline: none;
 }
 
 /* Anchor offset khi cuộn tới section */
@@ -144,208 +243,111 @@ a:focus {
     scroll-margin-top: calc(var(--navbar-h) + 12px);
 }
 
-/* Banner / Carousel */
-.banner-wrapper {
-    max-height: 720px;
-    overflow: visible;
-}
-.banner-img {
-    aspect-ratio: 2 / 1;
-    object-fit: cover;
-    transform: scale(1);
-    transition: transform 4s ease, box-shadow 0.3s ease-in-out;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-.banner-img:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
-}
-.carousel-item.active .banner-img {
-    transform: scale(1.06);
-}
-.banner-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0.1) 0%,
-        rgba(0, 0, 0, 0.5) 100%
-    );
-}
-.banner-caption {
-    position: absolute;
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-    transform: translateY(10px);
-    opacity: 0;
-    transition: all 0.5s ease;
-}
-.carousel-item.active .banner-caption {
-    transform: translateY(0);
-    opacity: 1;
-}
-.banner-caption h5 {
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    background: rgba(0, 0, 0, 0.35);
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-}
-.banner-caption p {
-    background: rgba(0, 0, 0, 0.25);
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.5rem;
-    margin-top: 0.25rem;
-}
-
-
 /* =========================================================
    FOOTER - DUMANMINH CINEMA
    ========================================================= */
 .footer-dmm {
-    background: #fff;
-    color: #4a4a4a;
+    background: #020617;
+    color: #e5e7eb;
     font-size: 14px;
-    border-top: 1px solid #ededed;
+    border-top: 1px solid rgba(15, 23, 42, 0.8);
 }
+
 .footer-dmm__wrap {
-    max-width: 1180px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 28px 20px 30px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
+    padding: 14px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
 }
-.footer-dmm__title {
-    margin: 0 0 12px;
-    color: #2f2f2f;
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.2px;
+.footer-dmm__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    font-weight: 500;
 }
-.footer-dmm__list,
+
+.footer-dmm__nav a {
+    color: #e5e7eb;
+    text-decoration: none;
+}
+.footer-dmm__nav a:hover {
+    color: #ffffff;
+}
+.footer-dmm__center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+.footer-dmm__logo-row {
+    margin-top: 2px;
+    margin-bottom: 4px; 
+}
+.footer-dmm__logo {
+    height: 110px; 
+    width: auto;
+    filter: brightness(1.3);
+}
+.footer-dmm__intro {
+    max-width: 720px;
+    margin: 0;
+    color: #9ca3af;
+    line-height: 1.5;
+}
 .footer-dmm__info {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 4px 0 0;
+    color: #e5e7eb;
 }
-.footer-dmm__list li,
-.footer-dmm__info li {
-    line-height: 1.9;
+.footer-dmm__info li + li {
+    margin-top: 2px;
 }
-.footer-dmm__list a {
-    color: #4a4a4a;
-    text-decoration: none;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
-    text-decoration-color: transparent;
+.footer-dmm__info a {
+    color: #38bdf8;
 }
-.footer-dmm__list a:hover {
-    color: #111;
-    text-decoration: underline;
-    text-decoration-color: #cfcfcf;
-}
-
 .footer-dmm__socials {
     display: flex;
     gap: 10px;
-    margin: 8px 0 12px;
+    margin-top: 8px;
 }
 .social-btn {
     width: 36px;
     height: 36px;
     display: grid;
     place-items: center;
-    border-radius: 6px;
-    background: #fff;
-    border: 1px solid #e6e6e6;
-    color: #2f2f2f;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border-radius: 999px;
+    background: #020617;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+    color: #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                background 0.15s ease, border-color 0.15s ease;
 }
 .social-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    background: #111827;
+    border-color: #38bdf8;
 }
-.social-btn.fb {
-    background: #3b5998;
-    border-color: #2f4a87;
-    color: #fff;
+.footer-dmm__copy {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
 }
-.social-btn.yt {
-    background: #ff0000;
-    border-color: #cf0000;
-    color: #fff;
-}
-.social-btn.ig {
-    background: radial-gradient(
-        circle at 30% 110%,
-        #fdf497 0%,
-        #fd5949 45%,
-        #d6249f 60%,
-        #285aeb 90%
-    );
-    border-color: #d6249f;
-    color: #fff;
-}
-.social-btn.zalo {
-    background: #017fff;
-    border-color: #006ad6;
-    color: #fff;
-}
-.footer-dmm__badge img {
-    display: block;
-    width: 156px;
-    margin-top: 8px;
-    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.02));
-}
-
-.footer-dmm__info li strong {
-    color: #1a1a1a;
-    font-weight: 600;
-}
-.footer-dmm__info a {
-    color: #1a73e8;
-    text-decoration: none;
-}
-.footer-dmm__info a:hover {
-    text-decoration: underline;
-}
-
-.footer-dmm a:focus-visible,
-.social-btn:focus-visible {
-    outline: 3px solid rgba(0, 115, 230, 0.25);
-    outline-offset: 2px;
-    border-radius: 6px;
-}
-
-@media (max-width: 992px) {
-    .footer-dmm__wrap {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
+@media (max-width: 768px) {
+    .footer-dmm__nav {
+        gap: 14px;
+        font-size: 13px;
     }
 }
-@media (max-width: 560px) {
-    .footer-dmm__wrap {
-        grid-template-columns: 1fr;
-    }
-    .footer-dmm__socials {
-        justify-content: flex-start;
-    }
-}
-.footer-dmm__logo {
-    width: 300px;
-    height: 50px;
-    object-fit: contain;
-    border-radius: 6px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-}
-
+/* Ket Thuc Home Page CSS */
 /* =========================================================
    MODAL – đảm bảo phủ lên header/sub-header
    ========================================================= */
@@ -387,7 +389,6 @@ a:focus {
     padding-left: 12px;
     width: 100%;
 }
-
 /* Mở rộng full-width, bỏ khoảng trắng 2 bên */
 .ad-main .container,
 .ad-main .container-sm,
@@ -401,7 +402,6 @@ a:focus {
     padding-left: 16px;
     padding-right: 16px;
 }
-
 /* --- Brand & menu giữ nguyên --- */
 .ad-brand {
     padding: 18px 18px 10px;
@@ -484,8 +484,6 @@ a:focus {
     box-shadow: 0 6px 20px rgba(16, 24, 40, 0.08);
     border-color: #c9d6ea;
 }
-
-
 
 /* --- Section card (Lịch sử, Top phim, Suất chiếu) --- */
 .section-card {
@@ -571,3 +569,8 @@ a:focus {
 .table-clean th {
     vertical-align: middle;
 }
+
+main.container.my-4 {
+    margin-top: 8px !important;
+}
+

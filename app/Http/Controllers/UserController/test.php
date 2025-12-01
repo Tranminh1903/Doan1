@@ -1,222 +1,267 @@
 @extends('layouts.app')
-@section('title', 'Trang chủ - DuManMinh Cinema')
+@section('title', 'Hồ sơ cá nhân')
 
 @section('content')
-<section class="ns-section container mb-4">
-  <div class="ns-head text-center mb-4">
-    <h4 class="mt-1">Phim sắp chiếu</h4>
-    <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
-  </div>
-</section>
+<div class="container py-4">
+  <div class="row g-4">
+    <aside class="col-md-3">
+      <div class="cinema-title">TÀI KHOẢN CINEMA</div>
+      <div class="list-group small shadow-sm" id="profile-tabs" role="tablist">
+        <a class="list-group-item list-group-item-action active" id="link-general" data-bs-toggle="list"
+          data-bs-target="#tab-general" role="tab" aria-controls="tab-general">
+          <i class="bi bi-gear me-2"></i> THÔNG TIN CHUNG
+        </a>
 
-@php
-use Illuminate\Support\Str;
+        <a class="list-group-item list-group-item-action" id="link-account" data-bs-toggle="list"
+          data-bs-target="#tab-account" role="tab" aria-controls="tab-account">
+          <i class="bi bi-gear me-2"></i> CHI TIẾT TÀI KHOẢN
+        </a>
 
-$normalizeImg = fn ($path) =>
-    $path && Str::startsWith($path, ['http', '/storage']) ? $path : ($path ? asset($path) : null);
+        <a class="list-group-item list-group-item-action" id="link-promos" data-bs-toggle="list"
+          data-bs-target="#tab-promos" role="tab" aria-controls="tab-promos">
+          <i class="bi bi-gift me-2"></i> DANH SÁCH KHUYẾN MÃI
+        </a>
 
-if (!empty($poster)) {
-  $movieBanners = collect([[
-    'img'   => $normalizeImg($poster),
-    'url'   => '#',
-    'title' => $movie->title ?? 'Phim',
-    'desc'  => $description ?? ($movie->description ?? ''),
-  ]]);
-} else {
-  $movieBanners = collect($bannerMovies ?? [])->filter(fn($m) => !empty($m->poster))
-    ->map(fn($m) => [
-      'img'   => $normalizeImg($m->poster),
-      'url'   => route('movies.show', ['movieID' => $m->movieID]),
-      'title' => $m->title,
-      'desc'  => Str::limit((string)$m->description, 100),
-    ]);
-}
-
-$promoBanners = [
-  ['img' => asset('storage/pictures/mai.jpg'), 'url' => url('/promo/member-day'), 'title' => 'Member Day', 'desc' => 'X2 điểm thưởng'],
-  ['img' => asset('storage/pictures/muado.jpg'), 'url' => url('/promo/combo'), 'title' => 'Combo Bắp Nước', 'desc' => 'Chỉ từ 49K'],
-  ['img' => asset('storage/pictures/tuchientrenkhong.jpg'), 'url' => url('/promo/early-bird'), 'title' => 'Early Bird', 'desc' => 'Đặt sớm -20%'],
-];
-
-$banners = $movieBanners->isNotEmpty() ? $movieBanners->values()->all() : $promoBanners;
-@endphp
-
-@if (!empty($banners))
-<div id="bannerCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="4000">
-  <div class="carousel-inner banner-wrapper rounded shadow-sm">
-    @foreach ($banners as $i => $b)
-      <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
-        <a href="{{ $b['url'] }}" class="d-block position-relative" aria-label="{{ $b['title'] ?? 'Banner '.($i+1) }}">
-          <img class="w-100 banner-img" src="{{ $b['img'] }}" alt="{{ $b['title'] ?? 'Banner '.($i+1) }}" loading="lazy">
-          <span class="banner-overlay"></span>
-
-          {{-- 👇 Nội dung hiển thị trên banner --}}
-          <div class="banner-caption text-white">
-            @isset($b['title'])
-              <h2 class="fw-bold display-5 mb-3">{{ $b['title'] }}</h2>
-            @endisset
-            @isset($b['desc'])
-              <p class="lead mb-0">{!! nl2br(e($b['desc'])) !!}</p>
-            @endisset
-          </div>
+        <a class="list-group-item list-group-item-action" id="link-history" data-bs-toggle="list"
+          data-bs-target="#tab-history" role="tab" aria-controls="tab-history">
+          <i class="bi bi-clock-history me-2"></i> LỊCH SỬ GIAO DỊCH
         </a>
       </div>
-    @endforeach
-  </div>
+    </aside>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-  </button>
-</div>
-@endif
+    @php
+    $user = Auth::user();
+    @endphp
 
-<section class="ns-section container mb-4">
-  <div class="ns-head text-center mb-4">
-    <h4 class="mb-1">Phim đang chiếu</h4>
-    <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
-  </div>
+    <section class="col-md-9">
+      <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">Hồ sơ khách hàng</h5>
+        </div>
+        <div class="card-body">
+          <div class="tab-content" id="profile-tabContent">
+            <div class="tab-pane fade show active" id="tab-general" role="tabpanel" aria-labelledby="link-general">
+              <div class="row mb-3">
+                <div class="col-md-3 text-center">
+                  <form action="{{ route('avatar.update') }}" method="POST" enctype="multipart/form-data"
+                    class="d-inline">
+                    @csrf
+                    <div class="d-flex flex-column align-items-center">
+                      <img
+                        src="{{ $user && $user->avatar ? asset('storage/' . $user->avatar) : asset('storage/pictures/dogavatar.jpg') }}"
+                        class="rounded-circle shadow-sm mb-2" style="width:100px;height:100px;object-fit:cover"
+                        alt="avatar">
+                      <label class="btn btn-outline-secondary btn-sm mb-2">
+                        <input type="file" name="avatar" accept="image/*" hidden onchange="this.form.submit()">
+                        Chọn ảnh mới
+                      </label>
+                      @if (session('success'))
+                      <div class="text-success small mt-1">{{ session('success') }}</div>
+                      @endif
+                      @error('avatar')
+                      <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
+                    </div>
+                  </form>
+                </div>
 
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-    @forelse ($movies as $movie)
-      @php
-        $ratingText = is_numeric($movie->rating) ? number_format((float) $movie->rating, 1) : ($movie->rating ?? '—');
-        $stars      = is_numeric($movie->rating) ? max(0, min(5, (int) round((float) $movie->rating))) : 3;
-        $posterUrl  = $normalizeImg($movie->poster) ?? asset('images/placeholders/movie-banner.jpg');
-      @endphp
-
-      <div class="col">
-        <article class="card movie-card h-100 border-0 shadow-sm">
-          <div class="poster-wrap position-relative overflow-hidden">
-            <img
-              src="{{ $posterUrl }}"
-              alt="{{ $movie->title }}"
-              class="w-100 d-block poster-img"
-              style="aspect-ratio: 16/9; object-fit: cover;"
-              loading="lazy"
-            >
-            <div class="position-absolute top-0 end-0 m-2 small bg-white bg-opacity-75 px-2 py-1 rounded-1">
-              @for ($i = 1; $i <= 5; $i++)
-                <i class="bi {{ $i <= $stars ? 'bi-star-fill' : 'bi-star' }}" aria-hidden="true"></i>
-              @endfor
-              <span class="ms-1">{{ $ratingText }}</span>
+                <div class="col-md-9">
+                  <p class="mb-1"><i class="bi bi-envelope me-2"></i>Xin chào khách hàng,
+                    {{ $customer->customer_name }}</p>
+                  <p class="mb-1"><i class="bi bi-star me-2"></i>Hạng thành viên:
+                    <span class="badge bg-success">{{ $customer->tier }}</span>
+                  </p>
+                  <p class="mb-1"><i class="bi bi-wallet2 me-2"></i>Tổng tiêu dùng:
+                    {{ number_format($totalAmount, 0, ',', '.') }} VND</p>
+                  <p class="mb-1"><i class="bi bi-receipt me-2"></i>Tổng đơn hàng:
+                    {{ $total_order_amount }}</p>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>THÔNG TIN LIÊN HỆ:</strong></p>
+                  <p class="mb-1"><i class="bi bi-person me-2"></i>Tên:
+                    {{ $customer->customer_name }}</p>
+                  <p class="mb-1"><i class="bi bi-envelope me-2"></i>Email:
+                    {{ optional($customer->user)->email ?? 'chưa cập nhật' }}</p>
+                  <p class="mb-1"><i class="bi bi-telephone me-2"></i>Số điện thoại:
+                    {{ optional($customer->user)->phone ?? 'chưa cập nhật' }}</p>
+                  <p class="mb-1"><i class="bi bi-gender-ambiguous me-2"></i>Giới tính:
+                    {{ optional($customer->user)->sex ?? 'chưa cập nhật' }}</p>
+                  <p class="mb-1"><i class="bi bi-calendar-date me-2"></i>Ngày sinh:
+                    {{ optional($customer->user)->birthday ?? 'chưa cập nhật' }}</p>
+                  <p><strong>Ngày tạo tài khoản:</strong>
+                    {{ optional($customer->user->created_at)->format('d/m/Y') }}</p>
+                  @if (auth()->user()->isAdmin())
+                  <div class="d-flex justify-content-center">
+                    <a class="btn btn-outline-primary m-1" href="{{ route('admin.form') }}">Admin Dashboard</a>
+                  </div>
+                  @endif
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="card-quick-actions px-3 pt-3">
-            <div class="d-flex gap-2">
-              @if ($movie->showtimes->isNotEmpty())
-                <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}" class="btn btn-primary btn-sm flex-fill">Mua vé</a>
+            <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="link-account">
+              <form method="POST" action="{{ route('profile.update') }}" class="row g-3">
+                @csrf
+                <div class="col-md-6">
+                  <label class="form-label">Tên</label>
+                  <input type="text" name="customer_name"
+                    class="form-control @error('customer_name') is-invalid @enderror"
+                    value="{{ old('customer_name', $customer->customer_name) }}">
+                  @error('customer_name')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Điện thoại</label>
+                  <input type="text" name="phone" class="form-control"
+                    value="{{ old('phone', $customer->user->phone ?? '') }}">
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label d-block">Giới tính</label>
+                  @php $sex = old('sex', $customer->user->sex ?? 'none'); @endphp
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="sex" id="sex_m" value="Nam" {{ $sex==='Nam'
+                      ? 'checked' : '' }}>
+                    <label class="form-check-label" for="sex_m">Nam</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="sex" id="sex_f" value="Nữ" {{ $sex==='Nữ'
+                      ? 'checked' : '' }}>
+                    <label class="form-check-label" for="sex_f">Nữ</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="sex" id="sex_n" value="Khác" {{ $sex==='Khác'
+                      ? 'checked' : '' }}>
+                    <label class="form-check-label" for="sex_n">Khác</label>
+                  </div>
+                  @error('sex')
+                  <div class="text-danger small mt-1">{{ $message }}</div>
+                  @enderror
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <span class="fw-semibold">Địa chỉ email:</span><br>
+                    {{ $customer->user->email }}
+                  </label>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end">
+                  <button class="btn btn-danger px-4 fw-bold">LƯU LẠI</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-pane fade" id="tab-promos" role="tabpanel" aria-labelledby="link-promos">
+              <h5 class="mb-3 text-danger fw-bold">🎁 Danh sách khuyến mãi khả dụng</h5>
+
+              <div class="row">
+                @forelse($promotions as $promo)
+                <div class="col-md-6 col-lg-4 mb-4">
+                  <div class="card border-0 shadow-sm h-100 promo-card">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <h5 class="card-title text-uppercase text-center text-primary fw-bold mb-3">
+                        {{ $promo->code }}
+                      </h5>
+
+                      @if ($promo->description)
+                      <p class="card-text text-muted small text-center mb-3">
+                        {{ $promo->description }}
+                      </p>
+                      @endif
+
+                      <p class="text-center mb-3 fw-semibold">
+                        @if ($promo->type === 'percent')
+                        Giảm <span class="text-success">{{ $promo->value }}%</span>
+                        @else
+                        Giảm <span class="text-success">{{ number_format($promo->value, 0, ',', '.') }}₫</span>
+                        @endif
+                      </p>
+
+                      <a href="{{ route('home') }}" class="btn btn-outline-danger w-100 fw-bold mt-auto">
+                        Áp dụng ngay
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                @empty
+                <div class="col-12 text-center text-muted">
+                  Hiện chưa có khuyến mãi khả dụng.
+                </div>
+                @endforelse
+              </div>
+            </div>
+            <div class="tab-pane fade" id="tab-history" role="tabpanel" aria-labelledby="link-history">
+              <h5 class="mb-3">Lịch sử vé đã mua</h5>
+
+              @if ($tickets->isEmpty())
+              <p class="text-muted">Bạn chưa có vé nào.</p>
               @else
-                <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
+              <table class="table table-bordered text-center align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Mã vé</th>
+                    <th>Phim</th>
+                    <th>Suất chiếu</th>
+                    <th>Ghế</th>
+                    <th>Tổng tiền</th>
+                    <th>Ngày mua</th>
+                    <th>Mã đơn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($tickets as $ticket)
+                  @php
+                  $order = optional($ticket->showtime)->orders->first();
+                  @endphp
+                  <tr>
+                    <td>{{ $ticket->ticketID }}</td>
+                    <td>{{ optional(optional($ticket->showtime)->movie)->title }}</td>
+                    <td>
+                      @if (optional($ticket->showtime)->startTime)
+                      {{ \Carbon\Carbon::parse($ticket->showtime->startTime)->format('d/m/Y H:i') }}
+                      @endif
+                    </td>
+                    <td>{{ optional($ticket->seat)->seatID }}</td>
+                    <td>{{ number_format($ticket->price, 0, ',', '.') }}₫</td>
+                    <td>{{ \Carbon\Carbon::parse($ticket->created_at)->format('d/m/Y H:i') }}
+                    </td>
+                    <td>{{ optional($order)->order_code }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
               @endif
-
-              <a href="{{ route('movies.show', ['movieID' => $movie->movieID]) }}" class="btn btn-outline-secondary btn-sm flex-fill">Chi tiết</a>
             </div>
           </div>
-
-          <div class="card-body">
-            <h6 class="card-title mb-1 text-truncate">
-              {{ $movie->title }}
-              <span class="badge bg-secondary align-middle ms-1">{{ $ratingText }}</span>
-            </h6>
-            <p class="mb-3 text-muted small">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
-          </div>
-
-          <div class="card-footer bg-transparent border-0 pb-3 pt-0"></div>
-        </article>
-      </div>
-    @empty
-      <div class="col">
-        <div class="alert alert-light border text-center w-100" role="alert">
-          Hiện chưa có phim đang chiếu.
         </div>
       </div>
-    @endforelse
   </div>
-</section>
+  </section>
 
-<section class="container mt-4">
-  <h4 class="mt-2 mb-3">Ưu đãi nổi bật</h4>
-  <div class="row g-3">
-    <div class="col-md-4"><div class="p-3 border rounded-3">🎟️ Giảm 20% khi đặt trước 24h</div></div>
-    <div class="col-md-4"><div class="p-3 border rounded-3">🍿 Combo bắp nước chỉ 49K</div></div>
-    <div class="col-md-4"><div class="p-3 border rounded-3">🎁 Tích điểm đổi vé miễn phí</div></div>
-  </div>
-</section>
+</div>
+</div>
 @endsection
 
 @push('styles')
 <style>
-  /* =========================================================
-     BANNER STYLE (đưa tên phim lên trên + mô tả đầy đủ)
-  ========================================================= */
-  .banner-wrapper {
-    height: clamp(340px, 40vw, 520px);
-  }
-  .banner-img {
-    object-fit: cover;
-    height: 100%;
-  }
-  .banner-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.65) 75%, rgba(0,0,0,.75) 100%);
-  }
-  .banner-caption {
-    position: absolute;
-    left: 5%;
-    right: 5%;
-    bottom: 10%;
-    color: #fff;
-    text-shadow: 0 3px 10px rgba(0,0,0,0.6);
-    max-width: 800px;
-  }
-  .banner-caption h2 {
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
-    font-weight: 700;
-  }
-  .banner-caption p {
-    font-size: clamp(1rem, 1.4vw, 1.15rem);
-    line-height: 1.6;
-    white-space: pre-line;
+  .cinema-title {
+    color: #e71a0f;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
   }
 
-  /* =========================================================
-     MOVIE LISTING (giữ nguyên)
-  ========================================================= */
-  .ns-wrap { max-width: 1200px; margin: 48px auto; }
-  .ns-row { row-gap: 24px; }
-
-  .movie-card {
-      border-radius: var(--card-radius);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
   }
-  .movie-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.12);
-  }
-  .poster-wrap { border-top-left-radius: var(--card-radius); border-top-right-radius: var(--card-radius); overflow: hidden; }
-  .poster-img { transition: transform 0.35s ease; }
-  .movie-card:hover .poster-img { transform: scale(1.04); }
-  .actions-float {
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      display: flex;
-      gap: 10px;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: all 0.18s ease;
-  }
-  .movie-card:hover .actions-float { opacity: 1; transform: translateY(0); }
-  .card-quick-actions { transition: opacity 0.25s ease; }
-  .movie-card:hover .card-quick-actions { opacity: 1; }
 </style>
 @endpush

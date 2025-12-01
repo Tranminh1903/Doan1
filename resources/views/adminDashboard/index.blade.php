@@ -249,7 +249,6 @@
 
 @push('styles')
 <style>
-  /* --- KPI Grid --- */
   .kpi-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);

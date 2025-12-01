@@ -17,7 +17,6 @@ class Customer extends Model
         'user_id',
         'customer_name',
         'customer_point',
-        'tier',
         'total_order_amount',
         'total_promotions_unused'
     ];

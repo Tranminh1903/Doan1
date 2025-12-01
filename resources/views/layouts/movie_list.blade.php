@@ -4,7 +4,7 @@
       $path && Str::startsWith($path, ['http', '/storage']) ? $path : ($path ? asset($path) : null);
 @endphp
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
   @forelse ($movies as $movie)
     @php
       $ratingText = is_numeric($movie->rating) ? number_format((float) $movie->rating, 1) : ($movie->rating ?? '—');
@@ -19,7 +19,6 @@
             src="{{ $posterUrl }}"
             alt="{{ $movie->title }}"
             class="w-100 d-block poster-img"
-            style="aspect-ratio: 16/9; object-fit: cover;"
             loading="lazy"
           >
           <div class="position-absolute top-0 end-0 m-2 small bg-white bg-opacity-75 px-2 py-1 rounded-1">
@@ -43,11 +42,11 @@
         </div>
 
         <div class="card-body">
+          <p class="mb-3 text-muted small">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
           <h6 class="card-title mb-1 text-truncate">
             {{ $movie->title }}
             <span class="badge bg-secondary align-middle ms-1">{{ $ratingText }}</span>
           </h6>
-          <p class="mb-3 text-muted small">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
         </div>
       </article>
     </div>

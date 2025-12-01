@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->primary();     // PK = FK
             $table->string('customer_name')->nullable();
-            $table->string('tier', 10)->default('bronze');
             $table->integer('total_order_amount')->default(0);
             $table->integer('total_promotions_unused')->default(0);   
             $table->timestamps();
