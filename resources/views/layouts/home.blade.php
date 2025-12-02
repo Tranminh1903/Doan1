@@ -80,6 +80,18 @@
   </div>
 </div>
 @endif
+<section class="ns-section container mb-4">
+  <div class="ns-head text-center mb-4">
+    <h4 class="mb-1">
+    <span class="status-dot"></span>
+    Phim bán chạy</h4>
+    <p class="text-muted mb-0">Các bộ phim hot trong rạp</p>
+  </div>
+
+  <div id="movieListContainer">
+    @include('layouts.movie_list', ['movies' => $topSellingMovies])
+  </div>
+</section>
 
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
@@ -114,6 +126,10 @@
     <span class="status-dot"></span>
     Tin tức</h4>
     <p class="text-muted mb-0">Cập nhập nhanh tin tức điện ảnh</p>
+  </div>
+
+  <div id="newsListContainer">
+    @include('layouts.news_list', ['newsList' => $news])
   </div>
 </section>
 @endsection
@@ -273,7 +289,7 @@ h4 {
 }
 
 /* =========================================================
-   MOVIE CARDS
+   MOVIE CARDS - Movie List Layout
    ========================================================= */
 .movie-card {
     border-radius: var(--card-radius);
@@ -431,40 +447,46 @@ h4 {
   font-size: 0.8rem;
   opacity: 0.9;
 }
-
 /* =========================================================
-   Buttons in Navbar
+   News - Movie List Layout
    ========================================================= */
-/* Base cho 2 nút trong navbar */
-.navbar .d-flex.gap-2 .btn {
-    border-radius: 999px !important;
-    padding: 6px 24px !important;
-    font-weight: 600 !important;
-    font-size: 0.92rem !important;
-    transition: 0.25s ease !important;
+.news-card {
+    background: #020617;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
-/* ĐĂNG KÝ – outline trắng, nền trong suốt */
-.navbar .d-flex.gap-2 a[href*="register"] {
-    background: none !important;
-    background-color: transparent !important;
-    border: 1.5px solid #ffffff !important;
-    color: #ffffff !important;
-    box-shadow: none !important;
-}
-.navbar .d-flex.gap-2 a[href*="register"]:hover {
-    background: rgba(255,255,255,0.08) !important;
+.news-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 1);
 }
 
-/* ĐĂNG NHẬP – nút đỏ gradient */
-.navbar .d-flex.gap-2 a[href*="login"] {
-    background: linear-gradient(135deg, #ff4d4d, #ff7a4d) !important;
-    border: none !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 18px rgba(255, 75, 75, 0.35) !important;
+.news-thumb-wrap {
+    aspect-ratio: 16 / 9;
+    background: #020617;
 }
-.navbar .d-flex.gap-2 a[href*="login"]:hover {
-    filter: brightness(1.06) !important;
+
+.news-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-date {
+    font-size: 0.8rem;
+}
+
+.news-title {
+    color: #ffffff !important;
+    font-weight: 700;
+    letter-spacing: .3px;
+}
+
+.news-excerpt {
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 </style>

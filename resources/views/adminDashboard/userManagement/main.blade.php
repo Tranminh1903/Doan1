@@ -37,6 +37,10 @@
       <h6>BÁO CÁO</h6>
       <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
         href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
+
+      <h6>TIN TỨC</h6>
+      <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>
     </nav>
   </aside>
   @php

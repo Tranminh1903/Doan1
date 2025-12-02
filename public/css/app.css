@@ -208,19 +208,49 @@ nav.navbar .dropdown-menu .dropdown-item:active * {
     color: #ff7676 !important;
 }
 
-/* Làm cho khối menu căn giữa theo chiều dọc */
 .nav-menu-left,
 .nav-menu-right {
     display: flex;
     align-items: center;
 }
+/* =========================================================
+   Buttons Navbar
+   ========================================================= */
+.navbar .d-flex.gap-2 .btn {
+    border-radius: 999px !important;
+    padding: 6px 24px !important;
+    font-weight: 600 !important;
+    font-size: 0.92rem !important;
+    transition: 0.25s ease !important;
+}
+
+.navbar .d-flex.gap-2 a[href*="register"] {
+    background: none !important;
+    background-color: transparent !important;
+    border: 1.5px solid #ffffff !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+.navbar .d-flex.gap-2 a[href*="register"]:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.navbar .d-flex.gap-2 a[href*="login"] {
+    background: linear-gradient(135deg, #ff4d4d, #ff7a4d) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 18px rgba(255, 75, 75, 0.35) !important;
+}
+.navbar .d-flex.gap-2 a[href*="login"]:hover {
+    filter: brightness(1.06) !important;
+}
 /* Search box trong header */
 .dmm-search {
     display: flex;
     align-items: center;
-    margin: 0 48px;
+    margin: 0 20px;
     flex: 1;
-    max-width: 500px;
+    max-width: 600px;
 }
 .dmm-search .input-group {
     width: 100%;

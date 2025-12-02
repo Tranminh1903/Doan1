@@ -4,26 +4,27 @@ namespace App\Http\Controllers\StaffController;
 
 use Carbon\Carbon;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Models\UserModels\User;
 use Illuminate\Validation\Rule;
 use App\Models\UserModels\Admin;
 use App\Models\UserModels\Order;
-use App\Models\ProductModels\Seat;
-use Illuminate\Support\Facades\DB;
-use App\Models\ProductModels\Movie;
 use App\Models\UserModels\Customer;
-use App\Models\ProductModels\Ticket;
+use App\Models\UserModels\User;
 use App\Models\UserModels\Promotion;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
+use App\Models\ProductModels\Movie;
+use App\Models\ProductModels\Seat;
+use App\Models\ProductModels\Ticket;
 use App\Models\ProductModels\Showtime;
+use App\Models\ProductModels\MovieTheater;
+use App\Models\ProductModels\News;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
-use App\Models\ProductModels\MovieTheater;
 use App\Http\Controllers\UserController\Controller;
 
 class AdminController extends Controller
@@ -414,10 +415,26 @@ class AdminController extends Controller
     public function uploadPoster(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'image', 'max:2048'],
+            'file' => 'required|image|max:4096',
         ]);
-        $path = $request->file('file')->store('pictures', 'public');
-        return response()->json(['path' => 'storage/' . $path]);
+
+        if (!$request->hasFile('file')) {
+            return response()->json([
+                'message' => 'Không tìm thấy file upload',
+            ], 400);
+        }
+
+        $file = $request->file('file');
+
+        $originalName = $file->getClientOriginalName();
+
+        $filename = $file->getClientOriginalName();
+
+        $path = $file->storeAs('pictures', $filename, 'public');
+
+        return response()->json([
+            'path' => 'storage/' . $path,
+        ]);
     }
     // =============== CSV ============= //
     public function movieTemplateCsv()
@@ -890,5 +907,76 @@ class AdminController extends Controller
             ->groupBy('verticalRow');
 
         return view('adminDashboard.movietheaterManagement.seatmap', compact('theater', 'seats'));
+    }
+
+    // ====================== NEWS MANAGEMENT ======================
+    public function showNews(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+
+        $query = News::query();
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        $news = $query
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        // KPI đơn giản
+        $kpi = [
+            'news_total'       => News::count(),
+            'news_last_7_days' => News::where('created_at', '>=', now()->subDays(7))->count(),
+            'news_today'       => News::whereDate('created_at', now()->toDateString())->count(),
+        ];
+        return view('adminDashboard.newsManagement.main', compact('news', 'kpi', 'q'));
+    }
+    public function newsStore(Request $request) 
+    {
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|string|max:2000',
+        ]);
+
+        News::create($data);
+
+        return back()->with('status', 'Đã thêm tin tức.');
+    }
+    public function newsUpdate(Request $request, News $news)
+    {
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|string|max:2000',
+        ]);
+
+        $news->update($data);
+
+        return back()->with('status', 'Đã cập nhật tin tức.');
+    }
+
+    public function newsDestroy(News $news)
+    {
+        $news->delete();
+
+        return back()->with('status', 'Đã xoá tin tức.');
+    }
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|max:4096', // 4MB
+        ]);
+
+        $path = $request->file('file')->store('news', 'public');
+
+        return response()->json([
+            'path' => 'storage/' . $path,
+        ]);
     }
 }

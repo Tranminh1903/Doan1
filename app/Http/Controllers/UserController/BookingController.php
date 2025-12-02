@@ -183,5 +183,4 @@ class BookingController extends Controller
 
     return response()->json(['expiredSeats' => $expiredSeats]);
 }
-
 }

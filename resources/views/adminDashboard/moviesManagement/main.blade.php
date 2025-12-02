@@ -4,7 +4,24 @@
 @section('content')
 
   @php
-    $genres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'];
+    $genres = [
+      'Action'      => 'Hành động',
+      'Adventure'   => 'Phiêu lưu',
+      'Animation'   => 'Hoạt hình',
+      'Comedy'      => 'Hài',
+      'Crime'       => 'Tội phạm',
+      'Documentary' => 'Tài liệu',
+      'Drama'       => 'Chính kịch',
+      'Fantasy'     => 'Giả tưởng',
+      'Horror'      => 'Kinh dị',
+      'Mystery'     => 'Bí ẩn',
+      'Romance'     => 'Lãng mạn',
+      'Sci-Fi'      => 'Khoa học viễn tưởng',
+      'Thriller'    => 'Giật gân',
+      'War'         => 'Chiến tranh',
+      'Western'     => 'Viễn tây',
+    ];
+
     $ratings = ['P', 'K', 'T13', 'T16', 'T18'];
   @endphp
 
@@ -37,6 +54,10 @@
         <h6>BÁO CÁO</h6>
         <a class="ad-link {{ request()->routeIs('admin.reports.revenue') ? 'active' : '' }}"
           href="{{ route('admin.reports.revenue') }}">Doanh thu</a>
+          
+        <h6>TIN TỨC</h6>
+        <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+           href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>
       </nav>
     </aside>
 
@@ -297,14 +318,20 @@
                                 class="form-control" required>
                             </div>
 
-                            <div class="col-md-4">
-                              <label class="form-label">Thể loại</label>
-                              <select name="genre" class="form-select">
-                                <option value="">-- Chọn thể loại --</option>
-                                @foreach ($genres as $g)
-                                  <option value="{{ $g }}" @selected($m->genre === $g)>{{ $g }}</option>
-                                @endforeach
-                              </select>
+                            <div class="col-md-6">
+                                <label class="form-label">Thể loại</label>
+
+                                <div class="tag-box" id="genreTags{{ $m->movieID }}"></div>
+
+                                <button type="button" class="btn btn-soft mt-2" id="genreAddBtn{{ $m->movieID }}">+ Thêm</button>
+
+                                <div class="dropdown-genre d-none" id="genreDropdown{{ $m->movieID }}">
+                                    @foreach ($genres as $value => $label)
+                                        <div class="genre-item" data-value="{{ $value }}">{{ $label }}</div>
+                                    @endforeach
+                                </div>
+
+                                <input type="hidden" name="genre" id="genre{{ $m->movieID }}" value="{{ $m->genre }}">
                             </div>
 
                             <div class="col-md-4">
@@ -398,7 +425,7 @@
         </div>
 
         <div class="mt-3">
-          {{ $movies->links() }}
+          {{ $movies->links('vendor.pagination.bootstrap-5') }}
         </div>
       </div>
     </main>
@@ -423,14 +450,20 @@
             <input type="number" name="durationMin" min="0" class="form-control" required>
           </div>
 
-          <div class="col-md-4">
-            <label class="form-label">Thể loại</label>
-            <select name="genre" class="form-select">
-              <option value="">-- Chọn thể loại --</option>
-              @foreach ($genres as $g)
-                <option value="{{ $g }}">{{ $g }}</option>
-              @endforeach
-            </select>
+          <div class="col-md-6">
+              <label class="form-label">Thể loại</label>
+
+              <div class="tag-box" id="genreTagsCreate"></div>
+
+              <button type="button" class="btn btn-soft mt-2" id="genreAddBtnCreate">+ Thêm</button>
+
+              <div class="dropdown-genre d-none" id="genreDropdownCreate">
+                  @foreach ($genres as $value => $label)
+                      <div class="genre-item" data-value="{{ $value }}">{{ $label }}</div>
+                  @endforeach
+              </div>
+
+              <input type="hidden" name="genre" id="genreCreate">
           </div>
 
           <div class="col-md-4">
@@ -498,74 +531,117 @@
 @endsection
 
 @push('scripts')
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      function attachImagePicker(textId, fileId, previewId) {
-        const textInput = document.getElementById(textId);
-        const fileInput = document.getElementById(fileId);
-        const previewImg = document.getElementById(previewId);
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const GENRE_LABELS = @json($genres);
 
-        if (!textInput || !fileInput || !previewImg) return;
+    function initGenreTagSystem(suffix) {
+        const tagBox      = document.getElementById('genreTags' + suffix);
+        const addBtn      = document.getElementById('genreAddBtn' + suffix);
+        const dropdown    = document.getElementById('genreDropdown' + suffix);
+        const hiddenInput = document.getElementById('genre' + suffix);
 
-        fileInput.addEventListener('change', async () => {
-          if (!fileInput.files || !fileInput.files[0]) return;
+        if (!tagBox || !addBtn || !dropdown || !hiddenInput) return;
 
-          const formData = new FormData();
-          formData.append('file', fileInput.files[0]);
+        function syncHidden() {
+            const values = Array.from(tagBox.querySelectorAll('.tag'))
+                .map(t => t.dataset.value);
+            hiddenInput.value = values.join(', ');
+        }
 
-          try {
-            const response = await fetch(`{{ route('moviesManage.upload_poster') }}`, {
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-              },
-              body: formData
+        function addTag(value) {
+            if (!value) return;
+            if (tagBox.querySelector('[data-value="' + value + '"]')) return;
+
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.dataset.value = value;
+
+            const label = GENRE_LABELS[value] || value;
+            span.innerHTML = `
+                ${label}
+                <span class="remove-tag">&times;</span>
+            `;
+
+            tagBox.appendChild(span);
+        }
+
+        // click vào dấu × để xoá tag
+        tagBox.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-tag')) {
+                const tagEl = e.target.closest('.tag');
+                if (tagEl) {
+                    tagEl.remove();
+                    syncHidden();
+                }
+            }
+        });
+
+        // mở / đóng dropdown
+        addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('d-none');
+        });
+
+        // chọn 1 thể loại
+        dropdown.addEventListener('click', (e) => {
+            const item = e.target.closest('.genre-item');
+            if (!item) return;
+
+            const value = item.dataset.value;
+            addTag(value);
+            syncHidden();
+            dropdown.classList.add('d-none');
+        });
+
+        // click ra ngoài thì đóng dropdown
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== addBtn) {
+                dropdown.classList.add('d-none');
+            }
+        });
+
+        // ===== Khởi tạo từ giá trị có sẵn trong hiddenInput (khi sửa) =====
+        const raw = (hiddenInput.value || '').trim();
+        if (raw !== '') {
+            const rawTags = raw.split(',')
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            rawTags.forEach((item) => {
+                let value = item;
+
+                // nếu value đã là key chuẩn (Action, Adventure,...) thì chơi luôn
+                if (!GENRE_LABELS[value]) {
+                    // còn nếu DB đang lưu nhãn tiếng Việt (Hành động, Phiêu lưu,...) thì map ngược lại
+                    let mapped = null;
+                    for (const [k, label] of Object.entries(GENRE_LABELS)) {
+                        if (label === item) {
+                            mapped = k;
+                            break;
+                        }
+                    }
+                    value = mapped || item;
+                }
+
+                addTag(value);
             });
 
-            if (!response.ok) throw new Error('Upload thất bại');
+            syncHidden(); // chuẩn hoá lại hidden để từ giờ toàn key chuẩn
+        }
+    }
 
-            const data = await response.json();
-            textInput.value = data.path;
+    // Form TẠO mới
+    initGenreTagSystem('Create');
 
-            previewImg.src = '/' + data.path;
-            previewImg.style.display = 'inline-block';
-          } catch (err) {
-            console.error(err);
-            alert('Tải ảnh thất bại!');
-          }
-        });
-
-        textInput.addEventListener('input', () => {
-          const val = textInput.value.trim();
-
-          if (!val) {
-            previewImg.style.display = 'none';
-            return;
-          }
-
-          previewImg.src = val.startsWith('http') ? val : ('/' + val);
-          previewImg.style.display = 'inline-block';
-        });
-      }
-
-      attachImagePicker('posterCreate', 'posterFileCreate', 'posterPreviewCreate');
-      attachImagePicker('backgroundCreate', 'backgroundFileCreate', 'backgroundPreviewCreate');
-      
-      @foreach ($movies as $m)
-        attachImagePicker(
-          'poster{{ $m->movieID }}',
-          'posterFile{{ $m->movieID }}',
-          'posterPreview{{ $m->movieID }}'
-        );
-        attachImagePicker(
-          'background{{ $m->movieID }}',
-          'backgroundFile{{ $m->movieID }}',
-          'backgroundPreview{{ $m->movieID }}'
-        );
-      @endforeach
-    });
-  </script>
+    // Các modal SỬA – mỗi phim 1 suffix movieID
+    @foreach ($movies as $m)
+        initGenreTagSystem('{{ $m->movieID }}');
+    @endforeach
+});
+</script>
 @endpush
+
 
 @push('styles')
   <style>
@@ -751,6 +827,48 @@
     }
     .kpi--green {
       border-color: #dcfce7;
+    }
+    .tag-box {
+    border: 1px solid #ddd;
+    min-height: 40px;
+    padding: 6px;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    }
+    .tag {
+        background: #e7efff;
+        color: #3554f4;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .tag .remove-tag {
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .dropdown-genre {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-top: 6px;
+        background: #fff;
+        max-height: 150px;
+        overflow-y: auto;
+        position: absolute;
+        width: 240px;
+        z-index: 99;
+    }
+    .genre-item {
+        padding: 8px 10px;
+        cursor: pointer;
+    }
+    .genre-item:hover {
+        background: #f4f6ff;
     }
   </style>
 @endpush

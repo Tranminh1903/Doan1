@@ -105,6 +105,7 @@ Route::middleware('auth', 'admin')->group(function () {
 
     // ==== Admin Dashboard - User Management ==== //
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
+    
     // ==== Admin Dashboard - Button for _updateUser  ==== //
     Route::put('/adminDashboard/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
@@ -117,7 +118,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::post('/adminDashboard/movies', [AdminController::class, 'movieStore'])->name('moviesManage.store');
     Route::put('/adminDashboard/movies/{movie}', [AdminController::class, 'movieUpdate'])->name('moviesManage.update');
     Route::delete('/adminDashboard/movies/{movie}', [AdminController::class, 'movieDestroy'])->name('moviesManage.delete');
-    Route::post('/adminDashboard/movies/upload-poster', [MovieController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
+    Route::post('/adminDashboard/movies/upload-poster', [AdminController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
 
     // ==== CSV ==== //
     Route::get('/adminDashboard/movies/export/csv',  [AdminController::class, 'movieExportCsv'])->name('moviesManage.export_csv');
@@ -137,18 +138,27 @@ Route::middleware('auth', 'admin')->group(function () {
 
     // ==== Promotion ==== //
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
-    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('promotion.store');
-    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('promotion.update');
-    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDestroy'])->name('promotion.delete');
+    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('admin.promotionManagement.store');
+    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('admin.promotionManagement.update');
+    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDestroy'])->name('admin.promotionManagement.delete');
+
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
-    Route::post('adminDashboard/showtime/store', [AdminController::class, 'showtimeStore'])->name('showtime.store');
-    Route::put('adminDashboard/showtime/update/{id}', [AdminController::class, 'showtimeUpdate'])->name('showtime.update');
-    Route::delete('adminDashboard/showtime/delete/{showtime}', [AdminController::class, 'showtimeDestroy'])->name('showtime.delete');
+    Route::post('adminDashboard/showtime/store', [AdminController::class, 'showtimeStore'])->name('admin.showtime.store');
+    Route::put('adminDashboard/showtime/update/{id}', [AdminController::class, 'showtimeUpdate'])->name('admin.showtime.update');
+    Route::delete('adminDashboard/showtime/delete/{showtime}', [AdminController::class, 'showtimeDestroy'])->name('admin.showtime.delete');
+
     // ==== Movie Theater ==== //
     Route::get('adminDashboard/movieTheater', [AdminController::class, 'showMovieTheater'])->name('admin.movietheaterManagement.form');
     Route::post('adminDashboard/movieTheater/store', [AdminController::class, 'theaterStore'])->name('admin.movietheaterManagement.store');
     Route::delete('adminDashboard/movieTheater/destroy/{movieTheater}', [AdminController::class, 'theaterDestroy'])->name('admin.movietheaterManagement.delete');
     Route::put('adminDashboard/movieTheater/update/{id}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
     Route::get('adminDashboard/movieTheater/{id}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
+
+    // ==== News ==== //
+    Route::get('adminDashboard/news', [AdminController::class, 'showNews'])->name('admin.newsManagement.form');
+    Route::post('adminDashboard/news', [AdminController::class, 'newsStore'])->name('admin.newsManage.store');
+    Route::put('adminDashboard/news/{news}', [AdminController::class, 'newsUpdate'])->name('admin.newsManage.update');
+    Route::delete('adminDashboard/news/{news}', [AdminController::class, 'newsDestroy'])->name('admin.newsManage.delete');
+    Route::post('adminDashboard/news/upload-image', [AdminController::class, 'uploadImage'])->name('admin.newsManage.upload_image');
 });

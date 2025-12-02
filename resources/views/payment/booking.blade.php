@@ -80,8 +80,6 @@
         </div>
       </div>
 
-      <h4 class="text-center mb-4">Màn hình</h4>
-
       <div style="
         border:4px solid #333;
         border-radius:12px;
@@ -134,21 +132,114 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
-  .seat {
-    width:40px;height:40px;margin:4px;
-    background-color:#ccc;border-radius:5px;
-    text-align:center;line-height:40px;
-    font-weight:bold;cursor:pointer;
-    transition:background-color .3s;
+  /* FULLSCREEN nền toàn trang */
+  body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background: #020617 !important;
   }
-  .seat.selected {background-color:limegreen;}
-  .seat.held {background-color:gold;}
-  .seat.booked {background-color:red;cursor:not-allowed;}
-  .row-label {width:100%;text-align:left;font-weight:bold;margin-top:10px;}
+
+  /* Toàn bộ khu đặt vé: full width + full height */
+  #payment-root {
+    min-height: 100vh;
+    width: 100%;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+
+    background:
+      radial-gradient(circle at top, rgba(56,189,248,0.35), transparent 55%),
+      radial-gradient(circle at bottom, rgba(248,250,252,0.08), transparent 60%),
+      #020617;
+    color: #e5e7eb;
+  }
+
+  #payment-root h3,
+  #payment-root h4,
+  #payment-root h5 {
+    color: #e5e7eb;
+  }
+
+  /* Glass card */
+  #payment-root .tw-bg-white,
+  #payment-root .tw-bg-gray-100 {
+    background: rgba(15, 23, 42, 0.92) !important;
+    border-radius: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(18px);
+  }
+
+  /* Ghế */
+  .seat {
+    width: 40px;
+    height: 40px;
+    margin: 4px;
+    background: radial-gradient(circle at 30% 0%, #1e293b, #0f172a);
+    border-radius: 0.6rem;
+    text-align: center;
+    line-height: 40px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #e5e7eb;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    transition:
+      transform .15s ease,
+      background-color .2s,
+      box-shadow .2s;
+  }
+
+  .seat:hover {
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 14px 35px rgba(15,23,42,0.9);
+  }
+
+  .seat.selected {
+    background: radial-gradient(circle at top, #22c55e, #16a34a);
+    box-shadow: 0px 18px 45px rgba(34, 197, 94, 0.7);
+  }
+
+  .seat.held {
+    background: radial-gradient(circle at top, #facc15, #eab308);
+    box-shadow: 0px 18px 45px rgba(250, 204, 21, 0.7);
+  }
+
+  .seat.booked {
+    background: radial-gradient(circle at top, #ef4444, #b91c1c);
+    cursor: not-allowed;
+    box-shadow: 0px 18px 45px rgba(239, 68, 68, 0.75);
+  }
+  #payment-root h4 {
+    color: #f1f5f9 !important;
+    text-shadow: 0 0 12px rgba(56,189,248,0.55),
+                0 0 18px rgba(56,189,248,0.28);
+  }
+
+  #payment-root p {
+    color: #dce3ea !important;
+  }
+  #payment-root p span {
+    color: #dce3ea !important;
+    font-weight: 600;
+  }
+
+  #seat-map > div {
+    margin-bottom: 14px !important; 
+  }
+
+  #payment-root .screen-container {
+    margin-bottom: 16px !important;
+  }
   @media(max-width:576px){
-    .seat{width:32px;height:32px;line-height:32px;font-size:12px;}
+    .seat {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      font-size: 12px;
+    }
   }
 </style>
+
 @vite(['resources/js/app.js'])
 
 <script>
@@ -196,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.code;
-        opt.textContent = `${p.code} - ${p.description}`;
+        opt.textContent = `${p.code}`;
         select.appendChild(opt);
       });
     });

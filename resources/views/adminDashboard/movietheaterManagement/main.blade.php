@@ -32,6 +32,10 @@
       <h6>BÁO CÁO</h6>
       <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
         href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
+
+      <h6>TIN TỨC</h6>
+      <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>        
     </nav>
   </aside>
   @php
@@ -168,7 +172,7 @@
             </table>
             @if($theaters->hasPages())
               <div class="mt-3 d-flex justify-content-center">
-                {{ $theaters->links('pagination::bootstrap-5') }}
+                {{ $theaters->links('vendor.pagination.bootstrap-5') }}
               </div>
             @endif
           </div>

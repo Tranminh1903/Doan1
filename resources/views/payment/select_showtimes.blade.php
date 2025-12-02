@@ -2,133 +2,22 @@
 @section('title', 'Chọn Suất Chiếu - DuManMinh Cinema')
 
 @section('content')
-
-<style>
-body {
-  background-color: #0b0b0f;
-  color: #fff;
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Hero */
-.hero-section {
-  position: relative;
-  background: url('{{ asset($movie->poster ?? "images/default_poster.jpg") }}') center/cover no-repeat;
-  min-height: 90vh;
-  border-radius: 20px;
-  overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-}
-
-.hero-section::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));
-}
-
-/* Hero content */
-.hero-content {
-  position: relative;
-  z-index: 2;
-  padding: 3rem;
-  max-width: 600px;
-}
-
-.hero-content h1 {
-  font-size: 2.8rem;
-  font-weight: 700;
-}
-
-.hero-content p {
-  color: #ccc;
-}
-
-.btn-custom {
-  background: #e50914;
-  color: white;
-  border: none;
-  padding: 0.6rem 1.4rem;
-  font-weight: 600;
-  border-radius: 6px;
-  transition: 0.3s;
-}
-
-.btn-custom:hover {
-  background: #f40612;
-  transform: scale(1.05);
-}
-
-/* Main layout */
-.main-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.left-content {
-  flex: 2;
-  min-width: 60%;
-}
-
-.showtimes-container {
-  background-color: #141414;
-  padding: 2rem;
-  margin-top: -40px;
-  border-radius: 20px;
-}
-
-.date-btn {
-  background: transparent;
-  border: 1px solid #555;
-  color: white;
-  border-radius: 8px;
-  padding: 10px 16px;
-  transition: all 0.3s;
-}
-
-.date-btn.active,
-.date-btn:hover {
-  background-color: #e50914;
-  border-color: #e50914;
-}
-
-.showtime-card {
-  background: #1f1f1f;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 0 10px rgba(255,255,255,0.05);
-}
-
-.time-btn {
-  background: transparent;
-  border: 1px solid #888;
-  color: #fff;
-  border-radius: 6px;
-  padding: 6px 10px;
-  transition: 0.3s;
-}
-
-.time-btn:hover {
-  background-color: #e50914;
-  border-color: #e50914;
-}
-
-.fade-container {
-  transition: opacity 0.3s ease-in-out;
-}
-
-.fade-out {
-  opacity: 0;
-}
-</style>
-
 <div class="main-section container">
+  @php
+    $bg = $movie->background
+        ? asset($movie->background)
+        : ($movie->poster ? asset($movie->poster) : asset('images/default_poster.jpg'));
+    $weekdayVN = [
+        'Mon' => 'Thứ hai',
+        'Tue' => 'Thứ ba',
+        'Wed' => 'Thứ tư',
+        'Thu' => 'Thứ năm',
+        'Fri' => 'Thứ sáu',
+        'Sat' => 'Thứ bảy',
+        'Sun' => 'Chủ nhật',
+    ];
+  @endphp
 
-  {{-- LEFT: Hero + showtimes --}}
   <div class="left-content">
     <div class="hero-section">
       <div class="hero-content">
@@ -143,13 +32,16 @@ body {
       <hr>
       <h3 class="fw-bold mb-3 text-start"> Chọn ngày chiếu</h3>
 
-      {{--  CHỈ HIỂN THỊ NGÀY >= HIỆN TẠI --}}
       <div class="d-flex justify-content-start flex-wrap gap-2 mb-5">
         @foreach ($availableDates as $d)
           @if ($d->isToday() || $d->isFuture())
+            @php
+                $weekdayKey = $d->format('D'); // Mon, Tue, ...
+                $weekday    = $weekdayVN[$weekdayKey] ?? $weekdayKey;
+            @endphp
+
             <button class="btn date-btn" data-date="{{ $d->format('Y-m-d') }}">
-              {{ $d->format('d/m') }}<br>
-              <small>{{ $d->translatedFormat('l') }}</small>
+              {{ $d->format('d/m') }} - {{ $weekday }}
             </button>
           @endif
         @endforeach
@@ -221,5 +113,117 @@ document.addEventListener("DOMContentLoaded", () => {
 
 @push('styles')
 <style>
+body {
+  background: #05070b url('{{ $bg }}') center/cover fixed no-repeat !important;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.main-section.container {
+  max-width: 1200px;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.hero-section {
+  position: relative;
+  min-height: 380px;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,1));
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 3rem;
+  width: 100%;
+  max-width: none;   
+}
+.hero-content h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+.hero-content p {
+  color: #ccc;
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.55; 
+}
+
+.showtimes-container {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 24px;
+}
+
+.date-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: all 0.3s;
+}
+.date-btn.active,
+.date-btn:hover {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+.showtime-card {
+  background: #1f1f1f;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.time-btn {
+  background: transparent;
+  border: 1px solid #888;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  transition: 0.3s;
+}
+.time-btn:hover {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+.fade-container {
+  transition: opacity 0.3s ease-in-out;
+}
+.fade-out {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 2rem 1.5rem;
+  }
+  .main-section.container {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+}
+.btn-custom {
+  background: #e50914;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.btn-custom:hover {
+  background: #f40612;
+  transform: scale(1.05);
+  color: #fff;
+}
 </style>
 @endpush

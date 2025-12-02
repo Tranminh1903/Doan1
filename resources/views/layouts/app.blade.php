@@ -72,7 +72,7 @@
           </div>
         </div>
 
-        <div class="nav-menu-right d-flex align-items-center gap-4 me-4">
+        <div class="nav-menu-right d-flex align-items-center gap-3 me-4">
           <a href="/news" class="nav-link-custom">Tin tức</a>
         </div>
 
@@ -122,7 +122,6 @@
               <a href="/">Trang chủ</a>
               <a href="/about">Giới thiệu</a>
               <a href="/terms">Điều khoản</a>
-              <a href="/payment-policy">Thanh toán</a>
               <a href="/contact">Liên hệ</a>
           </nav>
 

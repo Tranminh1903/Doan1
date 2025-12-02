@@ -6,12 +6,10 @@
     use Illuminate\Support\Str;
     use Carbon\Carbon;
 
-    // Poster URL
     $posterUrl = Str::startsWith($movie->poster, ['http://', 'https://'])
         ? $movie->poster
         : asset($movie->poster);
 
-    // Background URL (dùng cho blur)
     $backgroundUrl = null;
     if ($movie->background) {
         $backgroundUrl = Str::startsWith($movie->background, ['http://', 'https://'])
@@ -19,7 +17,35 @@
             : asset($movie->background);
     }
 
-    // Rating độ tuổi
+    $genreMap = [
+        'Action'      => 'Hành động',
+        'Adventure'   => 'Phiêu lưu',
+        'Animation'   => 'Hoạt hình',
+        'Comedy'      => 'Hài',
+        'Crime'       => 'Tội phạm',
+        'Documentary' => 'Tài liệu',
+        'Drama'       => 'Chính kịch',
+        'Fantasy'     => 'Giả tưởng',
+        'Horror'      => 'Kinh dị',
+        'Mystery'     => 'Bí ẩn',
+        'Romance'     => 'Lãng mạn',
+        'Sci-Fi'      => 'Khoa học viễn tưởng',
+        'Thriller'    => 'Giật gân',
+        'War'         => 'Chiến tranh',
+        'Western'     => 'Viễn tây',
+    ];
+
+    $genreLabel = null;
+    if (!empty($movie->genre)) {
+        $genresRaw = explode(',', $movie->genre);
+
+        $genreLabel = collect($genresRaw)
+            ->map(fn ($g) => trim($g))
+            ->filter()
+            ->map(fn ($g) => $genreMap[$g] ?? $g)
+            ->implode(', ');
+    }
+
     $ageMap = [
         'P'   => 'P: Phim dành cho mọi đối tượng.',
         'K'   => 'K: Phim dành cho khán giả dưới 13 tuổi, nên xem cùng người lớn.',
@@ -29,11 +55,14 @@
     ];
     $ageLabel = $ageMap[$movie->rating] ?? null;
 
-    // Rating điểm trung bình
     $avg = max(0, min(10, (float) $averageRating));
     $rounded = (int) round($avg);
-@endphp
 
+    $releaseText = null;
+    if (!empty($movie->releaseDate)) {
+        $releaseText = Carbon::parse($movie->releaseDate)->format('d/m/Y');
+    }
+@endphp
 <section class="movie-detail-hero py-5">
     <div class="container-xxl">
         <div class="row g-4 align-items-start">
@@ -64,9 +93,9 @@
 
                     {{-- Meta --}}
                     <div class="movie-meta mb-3">
-                        @if($movie->genre)
+                        @if($genreLabel)
                             <div class="movie-meta-item">
-                                <i class="bi bi-film"></i> Thể loại: {{ $movie->genre }}
+                                <i class="bi bi-film"></i> Thể loại: {{ $genreLabel }}
                             </div>
                         @endif
 

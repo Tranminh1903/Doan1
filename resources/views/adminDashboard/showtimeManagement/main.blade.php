@@ -33,6 +33,10 @@
       <h6>BÁO CÁO</h6>
       <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}"
         href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
+
+      <h6>TIN TỨC</h6>
+      <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>
     </nav>
   </aside>
 
@@ -128,7 +132,7 @@
                     <button class="btn btn-sm btn-soft"
                       data-bs-toggle="modal"
                       data-bs-target="#edit{{ $s->showtimeID }}">Sửa</button>
-                    <form method="POST" action="{{ route('showtime.delete', $s) }}"
+                    <form method="POST" action="{{ route('admin.showtime.delete', $s) }}"
                           onsubmit="return confirm('Xoá suất chiếu này?')" class="d-inline">
                         @csrf
                         @method('DELETE')
@@ -148,7 +152,7 @@
           <div class="modal fade" id="edit{{ $s->showtimeID }}" tabindex="-1">
             <div class="modal-dialog modal-lg">
               <form class="modal-content" method="POST"
-                action="{{ route('showtime.update', $s) }}">
+                action="{{ route('admin.showtime.update', $s) }}">
                 @csrf @method('PUT')
 
                 <div class="modal-header">
@@ -200,12 +204,12 @@
             </div>
           </div>
            @endforeach
-          <div class="mt-3">{{ $showtimes->links() }}</div>
+          <div class="mt-3">{{ $showtimes->links('vendor.pagination.bootstrap-5') }}</div>
         </div>
         <div class="modal fade" id="modalCreate" tabindex="-1">
           <div class="modal-dialog modal-lg">
             <form class="modal-content" method="POST"
-              action="{{ route('showtime.store') }}">
+              action="{{ route('admin.showtime.store') }}">
               @csrf
 
               <div class="modal-header">
@@ -260,40 +264,56 @@
 @push('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-
-    const movieDurations = @json($movies-> pluck('durationMin', 'movieID'));
+    const movieDurations = @json($movies->pluck('durationMin', 'movieID'));
 
     function autoEndTime(modalId) {
-      const movieSelect = document.querySelector(`#${modalId} select[name="movieID"]`);
-      const startInput = document.querySelector(`#${modalId} input[name="startTime"]`);
-      const endInput = document.querySelector(`#${modalId} input[name="endTime"]`);
+      const root = document.getElementById(modalId);
+      if (!root) return;
+
+      const movieSelect = root.querySelector('select[name="movieID"]');
+      const startInput  = root.querySelector('input[name="startTime"]');
+      const endInput    = root.querySelector('input[name="endTime"]');
+
+      if (!movieSelect || !startInput || !endInput) return;
+
+      function pad(num) {
+        return num.toString().padStart(2, '0');
+      }
 
       function updateEnd() {
         const movieID = movieSelect.value;
-        const start = startInput.value;
+        const start   = startInput.value;
 
         if (!movieID || !start) return;
 
-        let duration = movieDurations[movieID];
+        const duration = Number(movieDurations[movieID]);
         if (!duration) return;
 
-        let startTime = new Date(start);
+        const [datePart, timePart] = start.split('T');
+        const [year, month, day]   = datePart.split('-').map(Number);
+        const [hour, minute]       = timePart.split(':').map(Number);
+
+        const startTime = new Date(year, month - 1, day, hour, minute);
         startTime.setMinutes(startTime.getMinutes() + duration);
 
-        let iso = startTime.toISOString().slice(0, 16);
-        endInput.value = iso;
+        const y  = startTime.getFullYear();
+        const m  = pad(startTime.getMonth() + 1);
+        const d  = pad(startTime.getDate());
+        const hh = pad(startTime.getHours());
+        const mm = pad(startTime.getMinutes());
+
+
+        endInput.value = `${y}-${m}-${d}T${hh}:${mm}`;
       }
 
-      movieSelect?.addEventListener('change', updateEnd);
-      startInput?.addEventListener('input', updateEnd);
+      movieSelect.addEventListener('change', updateEnd);
+      startInput.addEventListener('input', updateEnd);
     }
 
-    // CREATE MODAL
     autoEndTime('modalCreate');
 
-    // EDIT MODALS
     @foreach($showtimes as $s)
-    autoEndTime('edit{{ $s->showtimeID }}');
+      autoEndTime('edit{{ $s->showtimeID }}');
     @endforeach
   });
 </script>

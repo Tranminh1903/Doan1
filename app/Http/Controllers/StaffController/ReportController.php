@@ -12,7 +12,7 @@ class ReportController extends Controller
     public function index()
     {
 
-        return view('reports.revenue');
+        return view('adminDashboard.reportManagement.main');
     }
 
     public function ajaxData(Request $request)
@@ -32,7 +32,7 @@ class ReportController extends Controller
     }
     public function revenueByMovie()
     {
-        return view('reports.revenue_movie');
+        return redirect()->route('admin.reports.revenue');
     }
 
     public function ajaxRevenueByMovie()
