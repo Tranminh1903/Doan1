@@ -17,6 +17,9 @@ use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
 use App\Http\Controllers\UserController\ProfileController;
 use App\Http\Controllers\UserController\NewsController;
+use App\Http\Controllers\UserController\ContactController;
+use App\Http\Controllers\UserController\PolicyController;
+use App\Http\Controllers\UserController\AboutController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -49,6 +52,11 @@ Route::middleware('guest')->group(function () {
     // ==== Reset Password ==== //
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
+
+    //footer
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact'); // Liên hệ
+    Route::get('/terms', [PolicyController::class, 'index'])->name('terms'); // Chính sách và quy định
+    Route::get('/about', [AboutController::class, 'index'])->name('about'); // Giới thiệu
 });
 
 // ==== Auth only (đã đăng nhập)  ==== //
