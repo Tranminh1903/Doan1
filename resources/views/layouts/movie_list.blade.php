@@ -7,8 +7,18 @@
 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
   @forelse ($movies as $movie)
     @php
-      $ratingText = is_numeric($movie->rating) ? number_format((float) $movie->rating, 1) : ($movie->rating ?? '—');
-      $stars      = is_numeric($movie->rating) ? max(0, min(5, (int) round((float) $movie->rating))) : 3;
+      $avg = $movie->ratings->avg('stars');        
+
+      $avg = $avg !== null ? (float) $avg : null;
+
+      $ratingValue = $avg !== null
+          ? number_format($avg, 1)
+          : null;
+
+      $stars = $avg !== null
+          ? max(0, min(5, (int) round($avg / 2)))
+          : 0;
+
       $posterUrl  = $normalizeImg($movie->poster) ?? asset('images/placeholders/movie-banner.jpg');
     @endphp
 
@@ -21,18 +31,27 @@
             class="w-100 d-block poster-img"
             loading="lazy"
           >
-          <div class="position-absolute top-0 end-0 m-2 small bg-white bg-opacity-75 px-2 py-1 rounded-1">
-            @for ($i = 1; $i <= 5; $i++)
-              <i class="bi {{ $i <= $stars ? 'bi-star-fill' : 'bi-star' }}" aria-hidden="true"></i>
-            @endfor
-            <span class="ms-1">{{ $ratingText }}</span>
+
+          <div class="rating-pill-wrapper">
+            @if ($ratingValue !== null)
+              <div class="rating-pill rating-pill--has">
+                <i class="bi bi-star-fill"></i>
+                <span class="rating-pill-score">{{ $ratingValue }}</span>
+                <span class="rating-pill-scale">/10</span>
+              </div>
+            @else
+              <div class="rating-pill rating-pill--empty">
+                <i class="bi bi-star"></i>
+                <span>Chưa có đánh giá</span>
+              </div>
+            @endif
           </div>
         </div>
 
         <div class="card-quick-actions px-3 pt-3">
           <div class="d-flex gap-2">
             @if ($movie->showtimes->isNotEmpty())
-              <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}" class="btn btn-primary btn-sm flex-fill">Mua vé</a>
+              <a href="{{ route('select.showtime', ['movieID' => $movie->movieID]) }}" class="btn btn-danger btn-sm flex-fill">Mua vé</a>
             @else
               <button class="btn btn-secondary btn-sm flex-fill" type="button" disabled>Mua vé</button>
             @endif
@@ -45,16 +64,17 @@
           <p class="mb-3 text-muted small">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
           <h6 class="card-title mb-1 text-truncate">
             {{ $movie->title }}
-            <span class="badge bg-secondary align-middle ms-1">{{ $ratingText }}</span>
           </h6>
         </div>
       </article>
     </div>
   @empty
-    <div class="col">
-      <div class="alert alert-light border text-center w-100" role="alert">
-        Không tìm thấy phim nào.
-      </div>
-    </div>
+      <div class="empty-center-wrapper">
+        <div class="empty-center-card">
+          <div class="fs-1 mb-3">🎬</div>
+            <h5 class="mb-2">Không tìm thấy phim nào</h5>
+            <p class="mb-0 text-muted">Vui lòng thử tìm kiếm từ khóa khác.</p>
+          </div>
+        </div>
   @endforelse
 </div>

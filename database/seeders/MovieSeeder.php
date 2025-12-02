@@ -2,58 +2,108 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;  
-use Illuminate\Support\Carbon; 
+use Illuminate\Support\Facades\DB;
 
 class MovieSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         DB::table('movies')->upsert([
             [
-                'movieID'     => 1,
-                'title'       => 'Mai',
-                'poster'      => 'storage/pictures/mai.jpg',
-                'durationMin' => 120,
-                'genre'       => 'Drama',
-                'rating'      => 'PG-13',
-                'releaseDate' => '2024-02-10',
-                'description' => '“Mai” là câu chuyện đầy cảm xúc về hành trình đi tìm lại chính mình của một người phụ nữ mang nhiều vết thương trong tâm hồn. Giữa những tổn thương, dằn vặt và ký ức đau đớn, cô học cách tha thứ, yêu thương và bắt đầu lại. Bộ phim khắc họa sâu sắc bản lĩnh và sự kiên cường của người phụ nữ Việt Nam trong hành trình đi qua bóng tối để tìm thấy ánh sáng.',
-                'status'      => 'active',   
-                'is_banner'   => false,       
+                'movieID' => 1,
+                'title' => 'Phi Vụ Động Trời 2',
+                'poster' => 'https://image.tmdb.org/t/p/original/dAJAUq3WO5w5QUK2YLJTqxTfxio.jpg',
+                'background' => 'https://image.tmdb.org/t/p/original/kPmE7vEwQWSvhQt5P0ZR8NIwNRN.jpg',
+                'durationMin' => 107,
+                'rating' => 'P',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-11-28',
+                'description' => "“Zootopia 2” đưa khán giả trở lại thành phố động vật náo nhiệt, nơi mọi giống loài cùng chung sống dưới một hệ thống trật tự mong manh. Lần này, sĩ quan Judy Hopps và người đồng hành tinh quái Nick Wilde phải đối mặt với một chuỗi sự kiện bất thường lan rộng khắp thành phố — những dấu hiệu rời rạc nhưng ẩn chứa một âm mưu lớn hơn bất kỳ vụ án nào họ từng đối đầu.\r\n\r\nHành trình lần này không chỉ là cuộc chạy đua với thời gian để ngăn chặn thảm họa, mà còn là phép thử của lòng tin, sự can đảm và tình bạn…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 06:12:11',
+                'updated_at' => '2025-12-02 02:59:22',
             ],
             [
-                'movieID'     => 2,
-                'title'       => 'Mưa Đỏ',
-                'poster'      => 'storage/pictures/muado.jpg',
-                'durationMin' => 132,
-                'genre'       => 'Sci-Fi',
-                'rating'      => 'PG-13',
-                'releaseDate' => '2025-07-01',
-                'description' => '“Mưa Đỏ” tái hiện một giai đoạn khốc liệt trong lịch sử, nơi con người đối mặt với chiến tranh, mất mát và lòng dũng cảm. Dưới cơn mưa nhuộm màu máu, những số phận tưởng chừng nhỏ bé lại toả sáng bởi tinh thần yêu nước và khát vọng tự do. Tác phẩm là bản hùng ca bi tráng, lay động trái tim người xem bằng những hình ảnh chân thực và cảm xúc mãnh liệt.',
-                'status'      => 'active',
-                'is_banner'   => false,
+                'movieID' => 2,
+                'title' => 'Quái Thú Vô Hình: Vùng Đất Chết Chóc',
+                'poster' => 'https://media.themoviedb.org/t/p/w220_and_h330_face/tFoWkywjcmU8wWFJeGHvL9ljAoV.jpg',
+                'background' => 'https://image.tmdb.org/t/p/original/yCykKtIKHMpwwdMAtgQgZO0ioo9.jpg',
+                'durationMin' => 107,
+                'rating' => 'T13',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-07-11',
+                'description' => "“Quái Thú Vô Hình: Vùng Đất Chết Chóc” đưa người xem trở lại thời điểm hỗn loạn nhất — ngày mà những sinh vật bí ẩn từ ngoài không gian giáng xuống Trái Đất…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 06:32:56',
+                'updated_at' => '2025-12-02 03:01:18',
             ],
             [
-                'movieID'     => 3,
-                'title'       => 'Từ Chiến Trên Không',
-                'poster'      => 'storage/pictures/tuchientrenkhong.jpg',
-                'durationMin' => 98,
-                'genre'       => 'Comedy',
-                'rating'      => 'PG',
-                'releaseDate' => '2025-04-20',
-                'description' => '“Cuộc Chiến Trên Không” là một bức tranh dữ dội về những trận không chiến khốc liệt giữa bầu trời. Phim đưa khán giả theo chân những phi công quả cảm, nơi từng giây từng phút là ranh giới mong manh giữa sự sống và cái chết. Với kỹ xảo hoành tráng và kịch bản giàu cảm xúc, tác phẩm tôn vinh lòng dũng cảm, tình đồng đội và niềm tin vào lý tưởng lớn lao.',
-                'status'      => 'active',   
-                'is_banner'   => false,
+                'movieID' => 3,
+                'title' => 'Wicked: Phần 2',
+                'poster' => 'https://media.themoviedb.org/t/p/w220_and_h330_face/iFpGz29so4IX8CHAcFZQYk0zsAs.jpg',
+                'background' => 'https://image.tmdb.org/t/p/original/vwVHteFFEcOEg5BiU2T5ymdB0C2.jpg',
+                'durationMin' => 137,
+                'rating' => 'P',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-11-21',
+                'description' => "“Wicked” mở ra câu chuyện kỳ vĩ bên trong xứ Oz – nhưng không phải theo cách mà khán giả từng biết…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 07:14:30',
+                'updated_at' => '2025-12-02 02:59:35',
+            ],
+            [
+                'movieID' => 4,
+                'title' => 'Wildcat',
+                'poster' => 'https://media.themoviedb.org/t/p/w220_and_h330_face/h893ImjM6Fsv5DFhKJdlZFZIJno.jpg',
+                'background' => 'https://media.themoviedb.org/t/p/w533_and_h300_face/4kjPMklaHZCklHumSLmJld2GgXW.jpg',
+                'durationMin' => 99,
+                'rating' => 'K',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-11-25',
+                'description' => "“Wildcat” là chuyến hành trình nội tâm dữ dội và đầy cảm xúc, theo chân nữ nhà văn Flannery O’Connor…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 08:32:57',
+                'updated_at' => '2025-12-02 03:00:39',
+            ],
+            [
+                'movieID' => 5,
+                'title' => 'Border Hunters',
+                'poster' => 'https://media.themoviedb.org/t/p/w220_and_h330_face/6TNFZnJ5CU0uFQxGaO9dbqriiI7.jpg',
+                'background' => 'https://media.themoviedb.org/t/p/w533_and_h300_face/tRdorrIjlybrGsebXOzgF7vRyYy.jpg',
+                'durationMin' => 82,
+                'rating' => 'T16',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-10-20',
+                'description' => "“Border Hunters” đưa khán giả vào thế giới đầy bạo lực và căng thẳng nơi ranh giới sống – chết chỉ cách nhau một lần bóp cò…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 08:36:26',
+                'updated_at' => '2025-12-02 03:00:57',
+            ],
+            [
+                'movieID' => 6,
+                'title' => 'Chú Thuật Hồi Chiến: -Biến Cố Shibuya x Tử Diệt Hồi Du',
+                'poster' => 'https://media.themoviedb.org/t/p/w220_and_h330_face/sBffPvE9Kau726nnU14cTOEj3Pq.jpg',
+                'background' => 'https://image.tmdb.org/t/p/original/9hK3rxEwCAX4DrLvOOBggJzkjHk.jpg',
+                'durationMin' => 88,
+                'rating' => 'T13',
+                'genre' => 'Adventure',
+                'releaseDate' => '2025-12-05',
+                'description' => "“Chú Thuật Hồi Chiến: Biến Cố Shibuya × Tử Diệt Hồi Du” đưa khán giả vào giai đoạn hỗn loạn nhất trong series…",
+                'is_banner' => 1,
+                'status' => 'active',
+                'created_at' => '2025-12-01 08:39:34',
+                'updated_at' => '2025-12-02 02:43:25',
             ],
         ], ['movieID'], [
-            // Các cột sẽ được cập nhật nếu movieID đã tồn tại
-            'title','poster','durationMin','genre','rating','releaseDate','description','status','is_banner'
+            'title', 'poster', 'background', 'durationMin', 'rating',
+            'genre', 'releaseDate', 'description', 'is_banner', 'status',
+            'created_at', 'updated_at'
         ]);
     }
 }

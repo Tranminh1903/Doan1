@@ -4,6 +4,7 @@ namespace App\Models\ProductModels;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductModels\Showtime;
+use App\Models\ProductModels\MovieRating;
 
 class Movie extends Model
 {
@@ -17,6 +18,7 @@ class Movie extends Model
     protected $fillable = [
         'title',
         'durationMin',
+        'rating',
         'genre',
         'age_rating',
         'format',
@@ -33,7 +35,10 @@ class Movie extends Model
     {
         return $this->hasMany(Showtime::class, 'movieID', 'movieID');
     }
-    
+    public function ratings()
+    {
+        return $this->hasMany(MovieRating::class, 'movieID', 'movieID');
+    }
     public function scopeBanner($q) { 
         return $q->where('is_banner', true); 
     }

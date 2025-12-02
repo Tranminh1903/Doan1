@@ -13,56 +13,49 @@ class MovieController
 {
     public function show($movieID)
     {
-        $movie = Movie::with('showtimes')->findOrFail($movieID);
-        $averageRating = MovieRating::where('movieID', $movieID)->avg('stars') ?? 0;
-        $bannerMovies = Movie::where('is_banner', true)->whereNotNull('background')->get(['movieID','background']);
-        return view('movies.movie_detail', compact('movie', 'averageRating','bannerMovies'));
+        $movie = Movie::with('showtimes')
+            ->findOrFail($movieID);
+
+        $averageRating = (float) ($movie->ratings()->avg('stars') ?? 0);
+
+        $bannerMovies = Movie::where('is_banner', true)
+            ->whereNotNull('background')
+            ->get(['movieID', 'background']);
+
+        return view('movies.movie_detail', compact('movie', 'averageRating', 'bannerMovies'));
     }
 
     public function rate(Request $request, $movieID)
     {
         $request->validate([
-            'stars' => 'required|integer|min:1|max:5'
+            'stars' => 'required|integer|min:1|max:10', 
         ]);
 
-        // ==== Bắt buộc đăng nhập ==== //
         if (!Auth::check()) {
             return back()->with('error', 'Bạn cần đăng nhập để đánh giá phim.');
         }
 
         $userID = Auth::id();
-        // ==== Kiểm tra nếu user đã từng đánh giá phim này -> cập nhật ==== //
-        $existing = DB::table('movie_ratings')
-            ->where('movieID', $movieID)
-            ->where('userID', $userID)
-            ->first();
 
-        if ($existing) {
-            DB::table('movie_ratings')
-                ->where('ratingID', $existing->ratingID)
-                ->update([
-                    'stars' => $request->stars,
-                    'updated_at' => now()
-                ]);
-        } else {
-            DB::table('movie_ratings')->insert([
+        DB::transaction(function () use ($request, $movieID, $userID) {
+            MovieRating::create([
                 'movieID' => $movieID,
-                'userID' => $userID,
-                'stars' => $request->stars,
-                'created_at' => now(),
-                'updated_at' => now()
+                'userID'  => $userID,
+                'stars'   => $request->stars,
             ]);
-        }
+        });
 
         return back()->with('success', 'Đánh giá của bạn đã được ghi nhận!');
     }
     public function search(Request $request)
     {
         $query = trim($request->input('q'));
+        $type  = (string) $request->input('type', 'all'); 
+        $today = now()->toDateString();
 
-        if (!$query) {
-            $movies = Movie::with('showtimes')->get();
-        } else {
+        $moviesQuery = Movie::with('showtimes');
+
+        if ($query !== '') {
             $map = [
                 'á'=>'a','à'=>'a','ạ'=>'a','ả'=>'a','ã'=>'a','â'=>'a','ấ'=>'a','ầ'=>'a','ậ'=>'a','ẩ'=>'a','ẫ'=>'a','ă'=>'a','ắ'=>'a','ằ'=>'a','ặ'=>'a','ẳ'=>'a','ẵ'=>'a',
                 'é'=>'e','è'=>'e','ẹ'=>'e','ẻ'=>'e','ẽ'=>'e','ê'=>'e','ế'=>'e','ề'=>'e','ệ'=>'e','ể'=>'e','ễ'=>'e',
@@ -76,17 +69,18 @@ class MovieController
             $normalized = mb_strtolower($query, 'UTF-8');
             $normalized = str_replace(array_keys($map), array_values($map), $normalized);
 
-            $tokens = array_values(array_filter(preg_split('/\s+/', $normalized), function($t){ return $t !== ''; }));
+            $tokens = array_values(array_filter(
+                preg_split('/\s+/', $normalized),
+                fn ($t) => $t !== ''
+            ));
 
-            if (count($tokens) === 0) {
-                $movies = Movie::with('showtimes')->get();
-            } else {
+            if (count($tokens) > 0) {
                 $sqlNormalize = 'LOWER(title)';
                 foreach ($map as $accent => $base) {
                     $sqlNormalize = "REPLACE({$sqlNormalize},'{$accent}','{$base}')";
                 }
 
-                $moviesQuery = Movie::with('showtimes')->where(function($q) use ($tokens, $sqlNormalize) {
+                $moviesQuery->where(function ($q) use ($tokens, $sqlNormalize) {
                     $first = true;
                     foreach ($tokens as $token) {
                         if ($first) {
@@ -106,13 +100,29 @@ class MovieController
                 if (count($orderParts) > 0) {
                     $moviesQuery->orderByRaw('(' . implode(' + ', $orderParts) . ') DESC');
                 }
-
-                $movies = $moviesQuery->get();
             }
         }
+        switch ($type) {
+            case 'coming_soon': 
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '>', $today);
+                break;
+
+            case 'now_showing': 
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '<=', $today);
+                break;
+
+            case 'all':
+            default:
+                $moviesQuery->where('status', 'active');
+                break;
+        }
+
+        $movies = $moviesQuery->get();
 
         return view('layouts.movie_list', compact('movies'))->render();
     }
-
-
 }

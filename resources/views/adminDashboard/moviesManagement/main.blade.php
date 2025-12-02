@@ -5,7 +5,7 @@
 
   @php
     $genres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'];
-    $ratings = ['G', 'PG', 'PG-13', 'R', 'NC-17'];
+    $ratings = ['P', 'K', 'T13', 'T16', 'T18'];
   @endphp
 
   <div class="ad-wrapper d-flex container-fluid">
@@ -94,20 +94,29 @@
         @php
           $kpi = $kpi ?? [];
           $q = $q ?? request('q', '');
+          $type = $type ?? request('type', 'all'); 
+          $today = now()->toDateString();
         @endphp
 
         <div class="row g-3 mb-4">
-          <div class="col-12 col-sm-6 col-lg-6">
+          <div class="col-12 col-sm-6 col-lg-4">
             <div class="kpi-card kpi--blue p-3 rounded">
               <div class="text-muted">Phim đang hoạt động</div>
               <div class="fs-4 fw-bold">{{ number_format((int) ($kpi['movies_active'] ?? 0)) }}</div>
             </div>
           </div>
 
-          <div class="col-12 col-sm-6 col-lg-6">
+          <div class="col-12 col-sm-6 col-lg-4">
             <div class="kpi-card kpi--green p-3 rounded">
               <div class="text-muted">Tổng phim đang có</div>
               <div class="fs-4 fw-bold">{{ number_format((int) ($kpi['movies_total'] ?? 0)) }}</div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="kpi-card kpi--green p-3 rounded">
+              <div class="text-muted">Tổng phim sắp chiếu</div>
+              <div class="fs-4 fw-bold">{{ number_format((int) ($kpi['movies_coming_soon'] ?? 0)) }}</div>
             </div>
           </div>
         </div>
@@ -118,7 +127,6 @@
               <input name="q" value="{{ $q }}" class="form-control" placeholder="Tìm theo tên, thể loại, rating...">
               <button class="btn btn-soft">Tìm</button>
             </form>
-
             <a href="{{ route('moviesManage.template_csv') }}" class="btn btn-soft">CSV mẫu</a>
             <a href="{{ route('moviesManage.export_csv', ['q' => $q]) }}" class="btn btn-success">Xuất CSV</a>
 
@@ -130,7 +138,57 @@
             </form>
 
             <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreate">+ Thêm phim</button>
-            <a href="{{ route('admin.form') }}" class="btn btn-soft fake-btn">Trở về trang tổng quan</a>
+            <div class="dropdown">
+              <button class="btn btn-soft dropdown-toggle filter-dropdown-btn"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                  {{-- Hiển thị trạng thái đang chọn --}}
+                  @switch($type)
+                      @case('now_showing')
+                          Đang chiếu
+                          @break
+                      @case('coming_soon')
+                          Sắp chiếu
+                          @break
+                      @case('hidden')
+                          Đã ẩn
+                          @break
+                      @default
+                          Tất cả
+                  @endswitch
+              </button>
+
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item {{ $type === 'all' ? 'active' : '' }}"
+                    href="{{ route('admin.moviesManagement_main.form', ['type' => 'all', 'q' => $q]) }}">
+                    Tất cả
+                  </a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item {{ $type === 'now_showing' ? 'active' : '' }}"
+                    href="{{ route('admin.moviesManagement_main.form', ['type' => 'now_showing', 'q' => $q]) }}">
+                    Đang chiếu
+                  </a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item {{ $type === 'coming_soon' ? 'active' : '' }}"
+                    href="{{ route('admin.moviesManagement_main.form', ['type' => 'coming_soon', 'q' => $q]) }}">
+                    Sắp chiếu
+                  </a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item {{ $type === 'hidden' ? 'active' : '' }}"
+                    href="{{ route('admin.moviesManagement_main.form', ['type' => 'hidden', 'q' => $q]) }}">
+                    Đã ẩn
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -161,8 +219,13 @@
                     <td class="text-muted" data-label="ID">{{ $m->movieID }}</td>
                     <td class="fw-semibold" data-label="Tiêu đề">
                       {{ $m->title }}
+
                       @if (!empty($m->is_banner) && $m->is_banner)
                         <span class="badge bg-warning ms-2">Banner</span>
+                      @endif
+
+                      @if ($m->releaseDate && $m->releaseDate > $today && $m->status === 'active')
+                        <span class="badge bg-info ms-2">Sắp chiếu</span>
                       @endif
                     </td>
                     <td data-label="Thời lượng">
@@ -175,7 +238,11 @@
                       @if ($m->status === 'unable')
                         <span class="badge bg-secondary">Ẩn</span>
                       @else
-                        <span class="badge bg-success">Hiển thị</span>
+                        @if ($m->releaseDate && $m->releaseDate > $today)
+                          <span class="badge bg-info">Sắp chiếu</span>
+                        @else
+                          <span class="badge bg-success">Đang chiếu</span>
+                        @endif
                       @endif
                     </td>
                     <td class="text-end" data-label="Thao tác">
@@ -523,6 +590,25 @@
     .adm-movies .toolbar .search {
       flex: 1 1 320px;
       max-width: 560px;
+    }
+    .dropdown-menu {
+        border-radius: 10px;
+        padding: 6px 0;
+    }
+    .dropdown-item.active {
+        background: #e5edff !important;
+        color: #2d4eff !important;
+        font-weight: 600;
+    }
+    .filter-dropdown-btn {
+      min-width: 130px;   
+      text-align: left;   
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filter-dropdown-btn::after {
+      margin-left: 8px;
     }
     .adm-movies .btn-soft {
       background: #f9fafb;

@@ -45,7 +45,6 @@
 
       <div class="nav-menu-right d-flex align-items-center gap-4 me-4">
         <a href="{{ route('news.news') }}" class="nav-link-custom">Tin tức</a>
-        <a href="/promo" class="nav-link-custom">Khuyến mãi</a>
       </div>
       <div class="d-flex gap-2">
           <a class="btn auth-btn auth-btn--ghost" href="{{ route('register.form') }}">Đăng ký</a>
@@ -75,7 +74,6 @@
 
         <div class="nav-menu-right d-flex align-items-center gap-4 me-4">
           <a href="/news" class="nav-link-custom">Tin tức</a>
-          <a href="/promo" class="nav-link-custom">Khuyến mãi</a>
         </div>
 
         <div class="dropdown">
@@ -125,7 +123,6 @@
               <a href="/about">Giới thiệu</a>
               <a href="/terms">Điều khoản</a>
               <a href="/payment-policy">Thanh toán</a>
-              <a href="/privacy">Khuyến mãi</a>
               <a href="/contact">Liên hệ</a>
           </nav>
 
@@ -191,98 +188,132 @@
 
   {{-- Thông báo đăng nhập thành công --}}
   <script>
-      @if(session('LoginSuccess'))
-          toastr.success("{{ session('LoginSuccess') }}", "Thành công", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,  
-              progressBar: true,
-          });
-          toastr.success("{{ session('LoginSuccess') }}", "Chào mừng khách hàng đã trở lại", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000, 
-              progressBar: true,
-          });
-      @endif
-
-      @if(session('RegisterSuccess'))
-          toastr.success("{{ session('RegisterSuccess') }}", "Thành công", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,  
-              progressBar: true,
-          });
-      @endif
-      
-      @if(session('adminCreateSuccess'))
-          toastr.success("{{ session('adminCreateSuccess') }}", "Thành công", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,  
-              progressBar: true,
-          });
-      @endif
-
-      @if(session('LogoutSuccess'))
-          toastr.success("{{ session('LogoutSuccess') }}", "Bạn đã đăng xuất", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,
-              progressBar: true,
-          });
-      @endif 
-      
-      @if(session('updateProfileSuccess'))
-          toastr.success("{{ session('updateProfileSuccess') }}", "Bạn đã cập nhật thông tin thành công!", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,
-              progressBar: true,
-          });
-      @endif
-    
-      @if (session('status'))
-        toastr.success(@json(session('status')),{
-          positionClass: 'toast-bottom-right',
-          timeOut: 3000,
-          progressBar: true,
+    @if(session('LoginSuccess'))
+        toastr.success("{{ session('LoginSuccess') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
         });
-      @endif
+        toastr.success("{{ session('LoginSuccess') }}", "Chào mừng khách hàng đã trở lại", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000, 
+            progressBar: true,
+        });
+    @endif
 
-      @if(session('error'))
-          toastr.error("{{ session('error') }}", "Lỗi", {
-              positionClass: "toast-bottom-right",
-              timeOut: 3000,
-              progressBar: true,
-          });
-      @endif
-    const searchInput = document.getElementById('searchInput');
-    const movieListContainer = document.getElementById('movieListContainer');
+    @if(session('RegisterSuccess'))
+        toastr.success("{{ session('RegisterSuccess') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+    @endif
+      
+    @if(session('adminCreateSuccess'))
+        toastr.success("{{ session('adminCreateSuccess') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+    @endif
 
-  if (searchInput && movieListContainer) {
-      searchInput.addEventListener('keyup', function(e) {
-          if (e.key !== 'Enter') return;
-          const query = this.value.trim();
+    @if(session('LogoutSuccess'))
+        toastr.success("{{ session('LogoutSuccess') }}", "Bạn đã đăng xuất", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif 
+      
+    @if(session('updateProfileSuccess'))
+        toastr.success("{{ session('updateProfileSuccess') }}", "Bạn đã cập nhật thông tin thành công!", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif
+    
+    @if (session('status'))
+        toastr.success(@json(session('status')),{
+            positionClass: 'toast-bottom-right',
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif
 
-          fetch(`/movies/search?q=${encodeURIComponent(query)}`)
-              .then(res => res.text())
-              .then(html => {
-                  movieListContainer.innerHTML = html;
-              })
-              .catch(err => console.error(err));
-      });
-  }
+    @if(session('error'))
+        toastr.error("{{ session('error') }}", "Lỗi", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,
+            progressBar: true,
+        });
+    @endif
 
-document.addEventListener('DOMContentLoaded', function () {
-    const navbar = document.querySelector('.navbar');
-    if (!navbar) return;
-
-    const toggleNavbarBg = () => {
-        if (window.scrollY > 10) {              
-            navbar.classList.add('nav-scrolled');
-        } else {                                
-            navbar.classList.remove('nav-scrolled');
+    document.addEventListener('DOMContentLoaded', function () {
+        // ===== navbar đổi màu khi scroll =====
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            const toggleNavbarBg = () => {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('nav-scrolled');
+                } else {
+                    navbar.classList.remove('nav-scrolled');
+                }
+            };
+            toggleNavbarBg();
+            window.addEventListener('scroll', toggleNavbarBg);
         }
-    };
 
-    toggleNavbarBg();                           
-    window.addEventListener('scroll', toggleNavbarBg);
-});
+        // ===== search phim =====
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return; // trang nào không có ô search thì thôi
+
+        const baseUrl = "{{ route('movies.search') }}";
+
+        const nowContainer    = document.getElementById('movieListContainer');   
+        const comingContainer = document.getElementById('comingSoonContainer');  
+
+        function updateSection(container, type, q) {
+            if (!container) return;
+
+            const url = new URL(baseUrl, window.location.origin);
+            if (q && q.trim() !== '') {
+                url.searchParams.set('q', q.trim());
+            }
+            url.searchParams.set('type', type);
+
+            fetch(url.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                container.innerHTML = html;
+            })
+            .catch(err => console.error(err));
+        }
+
+        function triggerSearch() {
+            const q = searchInput.value || '';
+
+            // Nếu là trang home: có 2 block
+            if (nowContainer || comingContainer) {
+                updateSection(nowContainer,    'now_showing',  q);
+                updateSection(comingContainer, 'coming_soon',  q);
+            } else {
+                // Trang khác mà vẫn muốn search: redirect sang URL search full
+                window.location.href = baseUrl + '?q=' + encodeURIComponent(q);
+            }
+        }
+
+        // Bấm Enter trong ô search
+        searchInput.addEventListener('keyup', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerSearch();
+            }
+        });
+    });
+
   </script>
   @stack('scripts')
   </body>

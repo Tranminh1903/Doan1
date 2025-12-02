@@ -22,13 +22,11 @@ class GoogleController extends Controller
     public function handleGoogleCallback(Request $request)
     {
         if ($request->has('error')) {
-            // vd: ?error=access_denied
             return redirect()
                 ->route('login.form')
                 ->with('error', 'Bạn đã hủy đăng nhập bằng Google.');
         }
 
-        // 2. Không có "code" thì không gọi Socialite nữa
         if (!$request->has('code')) {
             return redirect()
                 ->route('login.form')
@@ -36,10 +34,8 @@ class GoogleController extends Controller
         }
 
         try {
-            // 3. Lấy thông tin user từ Google
             $googleUser = Socialite::driver('google')->stateless()->user();
         } catch (\Exception $e) {
-            // Nếu Google trả lỗi (hết hạn code, v.v...)
             report($e);
 
             return redirect()

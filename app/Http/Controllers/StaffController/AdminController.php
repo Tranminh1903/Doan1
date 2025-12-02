@@ -312,6 +312,8 @@ class AdminController extends Controller
     public function showMain(Request $request): View
     {
         $q = (string) $request->query('q', '');
+        $type = (string) $request->query('type', 'all'); 
+        $today = Carbon::today()->toDateString();
 
         // Query danh sách phim (có tìm kiếm)
         $moviesQuery = Movie::query();
@@ -322,9 +324,32 @@ class AdminController extends Controller
                     ->orWhere('rating', 'like', "%{$q}%");
             });
         }
+        switch ($type) {
+            case 'coming_soon': // phim sắp chiếu
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '>', $today);
+                break;
 
+            case 'now_showing': // phim đang chiếu
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '<=', $today);
+                break;
+
+            case 'hidden': // phim đã ẩn
+                $moviesQuery
+                    ->where('status', 'unable');
+                break;
+
+            case 'all':
+            default:
+                break;
+        }
+        
         $movies = $moviesQuery
-            ->latest('movieID')
+            ->orderBy('releaseDate', 'desc')
+            ->orderBy('movieID', 'desc')
             ->paginate(10)
             ->withQueryString();
 
@@ -332,9 +357,12 @@ class AdminController extends Controller
         $kpi = [
             'movies_active' => Movie::where('status', 'active')->count(),
             'movies_total'  => Movie::count(),
+            'movies_coming_soon' => Movie::where('status', 'active')
+                                     ->whereDate('releaseDate', '>', $today)
+                                     ->count(),
         ];
 
-        return view('adminDashboard.moviesManagement.main', compact('movies', 'q', 'kpi'));
+        return view('adminDashboard.moviesManagement.main', compact('movies', 'q', 'kpi','type'));
     }
 
     public function movieStore(Request $req): RedirectResponse
@@ -345,7 +373,7 @@ class AdminController extends Controller
             'background'   => 'nullable|string|max:2000',            
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
-            'rating'       => 'nullable|string|max:50',
+            'rating'       => 'nullable|string|in:P,K,T13,T16,T18',
             'releaseDate'  => 'nullable|date',
             'description'  => 'nullable|string',
             'status'       => 'nullable|in:active,unable',
@@ -367,7 +395,7 @@ class AdminController extends Controller
             'background'   => 'nullable|string|max:2000',
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
-            'rating'       => 'nullable|string|max:50',
+            'rating'       => 'nullable|string|in:P,K,T13,T16,T18',
             'releaseDate'  => 'nullable|date',
             'description'  => 'nullable|string',
             'status'       => 'required|in:active,unable',

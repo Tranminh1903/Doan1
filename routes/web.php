@@ -72,26 +72,21 @@ Route::middleware('auth')->group(function () {
     
     // ==== Đồng bộ thanh toán từ Google Sheet  ==== //
     Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
-
+    
     // ==== Kiểm tra và đồng bộ thanh toán cho đơn hàng cụ thể ==== //
     Route::get('/orders/check-sync/{orderCode}', [OrderController::class, 'checkAndSyncPayment']);
 
     // ==== Trang chọn suất chiếu ==== //
     Route::get('/select-showtimes/{movieID}', [BookingController::class, 'selectShowtime'])->name('select.showtime');
-
     Route::get('/booking/start/{showtimeID}', [BookingController::class, 'start'])->name('booking.start');
-
     Route::get('/booking/{showtimeID}', [BookingController::class, 'booking'])->name('booking.time');
 
     // ==== Giữ ghế chỉ 1 người được chọn ==== //
-
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
 
     // ==== Kiểm tra và giải phóng ghế hết hạn ==== //
-
     Route::get('/check-expired-seats/{showtimeID}', [BookingController::class, 'checkExpiredSeats']);
     // ==== Promotion  ==== //
-    
     Route::prefix('promotion')->group(function () {
         Route::get('/active', [PromotionController::class, 'getActivePromotions']);
         Route::post('/apply', [PromotionController::class, 'applyPromotion']);

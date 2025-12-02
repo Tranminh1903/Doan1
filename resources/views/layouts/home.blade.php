@@ -90,7 +90,7 @@
   </div>
 
   <div id="movieListContainer">
-    @include('layouts.movie_list', ['movies' => $movies])
+    @include('layouts.movie_list', ['movies' => $nowShowingMovies])
   </div>
 </section>
 
@@ -101,6 +101,10 @@
     Phim sắp chiếu</h4>
     <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
   </div>
+
+  <div id="comingSoonContainer">
+    @include('layouts.movie_list', ['movies' => $comingSoonMovies])
+  </div>
 </section>
 
 
@@ -109,7 +113,7 @@
     <h4 class="mt-1">
     <span class="status-dot"></span>
     Tin tức</h4>
-    <p class="text-muted mb-0">Cập nhập nhanh tin tức điện ảnh!!!</p>
+    <p class="text-muted mb-0">Cập nhập nhanh tin tức điện ảnh</p>
   </div>
 </section>
 @endsection
@@ -121,7 +125,6 @@
    DARK THEME – Trang chủ DMM Cinema (force override)
    ========================================================= */
 
-/* Nền & màu chữ toàn trang */
 body {
     background: #0b1220 !important;
     color: #e5e7eb !important;
@@ -137,7 +140,7 @@ body {
     overflow: hidden;
     position: relative;
 }
-/* Ảnh banner */
+
 .banner-img {
     width: 100%;
     aspect-ratio: 21 / 9;                    
@@ -147,14 +150,14 @@ body {
     border-radius: 0 !important;
     box-shadow: none !important;
 }
-/* Zoom nhẹ */
+
 .banner-img:hover {
     transform: scale(1.03);
 }
 .carousel-item.active .banner-img {
     transform: scale(1.02);
 }
-/* Overlay tối */
+
 .banner-overlay {
     position: absolute;
     inset: 0;
@@ -165,25 +168,26 @@ body {
         rgba(15, 23, 42, 0.8) 100%
     );
 }
-/* Caption (title + desc) */
+
 .banner-caption {
     position: absolute;
-    left: 4%;                                  /* lệch sang trái 1 xíu */
-    bottom: 12%;                               /* nhô lên khỏi mép dưới */
-    z-index: 2;                                /* trên overlay */
+    left: 4%;                                 
+    bottom: 12%;                               
+    z-index: 2;                             
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.85);
     opacity: 0;
     transform: translateY(8px);
     transition: all 0.5s ease;
-    max-width: 520px;                          /* không tràn quá rộng */
-    pointer-events: none;                      /* click vẫn vào <a> phía sau */
+    max-width: 520px;                      
+    pointer-events: none;                    
 }
+
 .carousel-item.active .banner-caption {
     opacity: 1;
     transform: translateY(0);
 }
-/* Title */
+
 .banner-caption h5 {
     margin: 0;
     font-weight: 700;
@@ -193,7 +197,7 @@ body {
     border-radius: 0.75rem;
     letter-spacing: 0.03em;
 }
-/* Description */
+
 .banner-caption p {
     margin-top: 0.4rem;
     background: rgba(15,23,42,0.7);
@@ -203,7 +207,7 @@ body {
     font-size: 0.95rem;
     line-height: 1.5;
 }
-/* Responsive caption trên mobile */
+
 @media (max-width: 768px) {
     .banner-caption {
         left: 6%;
@@ -281,20 +285,17 @@ h4 {
     overflow: hidden;
 }
 
-/* Poster dọc 2:3 giống web rạp */
 .movie-card .poster-img {
-    aspect-ratio: 2 / 3;          /* quan trọng nè */
+    aspect-ratio: 2 / 3;        
     object-fit: cover;
     display: block;
     transition: transform 0.35s ease;
 }
 
-/* Phần body bên dưới */
 .movie-card .card-body {
     padding: 0.9rem 1rem 1rem;
 }
 
-/* Hover */
 .movie-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 22px 60px rgba(15, 23, 42, 1) !important;
@@ -304,33 +305,63 @@ h4 {
     transform: scale(1.04);
 }
 
-/* Nếu bạn còn dùng .actions-float thì giữ, không thì bỏ cũng được */
 .movie-card:hover .actions-float {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Tiêu đề phim – trắng, to, max 2 dòng */
 .movie-card .card-title {
     color: #ffffff !important;
-    font-size: 1.05rem !important;      /* to vừa phải, 4 card 1 hàng vẫn gọn */
+    font-size: 1.05rem !important;     
     font-weight: 700 !important;
     letter-spacing: 0.3px;
     margin-bottom: 0.25rem;
     white-space: normal !important;
 
     display: -webkit-box;
-    -webkit-line-clamp: 2;              /* tối đa 2 dòng */
+    -webkit-line-clamp: 2;              
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* Subtitle (thể loại + thời lượng) */
 .movie-card .text-muted {
     color: #9ca3af !important;
     font-size: 0.86rem;
 }
+.empty-center-wrapper {
+    width: 100%;
+    padding: 24px 0 40px; 
+    display: flex;
+    justify-content: center;   
+    align-items: center;       
+}
 
+.empty-center-card {
+    text-align: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 28px 24px;
+    color: #e5e7eb;
+    max-width: 360px;
+    width: 100%;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.45);
+}
+
+.empty-center-card h5 {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.empty-center-card p {
+    color: #9ca3af !important;
+    font-size: 0.95rem;
+}
+
+.empty-center-card .fs-1 {
+    opacity: 0.85;
+}
 .poster-wrap {
     border-top-left-radius: var(--card-radius);
     border-top-right-radius: var(--card-radius);
@@ -340,7 +371,6 @@ h4 {
     transition: transform 0.35s ease;
 }
 
-/* nút nổi dưới poster */
 .actions-float {
     position: absolute;
     left: 12px;
@@ -351,6 +381,55 @@ h4 {
     opacity: 0;
     transform: translateY(6px);
     transition: all 0.18s ease;
+}
+.rating-pill-wrapper {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  pointer-events: none; 
+}
+
+.rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+}
+
+.rating-pill--has {
+  background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(30,64,175,0.95));
+  color: #fefce8;
+}
+
+.rating-pill--has i {
+  font-size: 0.85rem;
+  color: #facc15;
+}
+
+.rating-pill-score {
+  font-weight: 700;
+}
+
+.rating-pill-scale {
+  opacity: 0.8;
+  font-size: 0.7rem;
+}
+
+.rating-pill--empty {
+  background: rgba(15,23,42,0.85);
+  border: 1px dashed rgba(148,163,184,0.7);
+  color: #e5e7eb;
+}
+
+.rating-pill--empty i {
+  font-size: 0.8rem;
+  opacity: 0.9;
 }
 
 /* =========================================================
