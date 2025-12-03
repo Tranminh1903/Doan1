@@ -125,7 +125,7 @@
                 </thead>
 
                 <tbody>
-                    @foreach($theaterMini as $t)
+                    @foreach($theaters as $t)
                     <tr>
                         <td data-label="Tên phòng" class="fw-semibold">
                             {{ $t->roomName }}

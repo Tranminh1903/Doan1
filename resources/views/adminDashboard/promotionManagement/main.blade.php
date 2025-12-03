@@ -208,7 +208,7 @@ $dateVN = $now->format('d/m/Y');
     </div>
 
     <div class="mt-3">
-      {{ $linkPage->links('vendor.pagination.bootstrap-5') }}
+      {{ $promotions->links('vendor.pagination.bootstrap-5') }}
     </div>
   </div>
 </main>

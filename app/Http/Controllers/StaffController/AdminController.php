@@ -581,27 +581,30 @@ class AdminController extends Controller
 
     // =============== PROMOTION ============= //
     public function showPromotion(Request $request): View
-    {
-        // Lấy tất cả khuyến mãi
-        $promotions = promotion::orderBy('created_at', 'desc')->get();
+{
+    $q = trim((string) $request->query('q', ''));
 
-        $q = $request->q ?? '';
-        $linkPage = promotion::when($q, function ($query) use ($q) {
-            $query->where('code', 'LIKE', "%$q%")
-                  ->orWhere('description', 'LIKE', "%$q%");
+    $promotions = Promotion::query()
+        ->when($q, function ($query) use ($q) {
+            $query->where(function($sub) use ($q) {
+                $sub->where('code', 'LIKE', "%{$q}%")
+                    ->orWhere('description', 'LIKE', "%{$q}%")
+                    ->orWhere('type', 'LIKE', "%{$q}%")   
+                    ->orWhere('value', 'LIKE', "%{$q}%"); 
+            });
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10)
-        ->appends(['q' => $q]);
-        $user = Auth::user();
+        ->withQueryString(); 
 
-        $kpi = [
-            'promotion_total'  => promotion::count(),
-            'promotion_active' => promotion::where('status', 'active')->count(),
-        ];
-        // Trả về view với dữ liệu
-        return view('adminDashboard.promotionManagement.main', compact('promotions', 'user','kpi','linkPage'));
-    }
+    $kpi = [
+        'promotion_total'  => Promotion::count(),
+        'promotion_active' => Promotion::where('status', 'active')->count(),
+    ];
+
+    $user = Auth::user();
+    return view('adminDashboard.promotionManagement.main', compact('promotions', 'user', 'kpi', 'q'));
+}
 
     // =============== Xử lý lưu khuyến mãi mớ ============= //
     public function PromotionStore(Request $request)
@@ -780,7 +783,6 @@ class AdminController extends Controller
             ->when($q, function ($qr) use ($q) {
                 $qr->where(function ($sub) use ($q) {
                     $sub->where('roomName', 'like', "%{$q}%")
-                        ->orWhere('note', 'like', "%{$q}%")
                         ->orWhere('status', 'like', "%{$q}%");
                 });
             })
