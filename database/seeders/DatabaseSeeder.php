@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             ShowtimeSeeder::class,
             NewsSeeder::class,
+            TicketSeeder::class,
         ]);
     }
 }

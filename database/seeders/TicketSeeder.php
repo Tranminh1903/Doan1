@@ -11,28 +11,28 @@ class TicketSeeder extends Seeder
 {
     public function run(): void
     {
-        // Tắt FK để truncate an toàn (MySQL)
+        // Reset bảng ticket
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        DB::table('tickets')->truncate();
+        DB::table('ticket')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-        // Lấy orders + theaterID của suất chiếu
+        // Lấy orders đã thanh toán
         $orders = DB::table('orders')
-            ->join('showtimes', 'orders.showtimeID', '=', 'showtimes.showtimeID')
+            ->join('showtime', 'orders.showtimeID', '=', 'showtime.showtimeID')
             ->select(
                 'orders.*',
-                'showtimes.theaterID'
+                'showtime.theaterID'
             )
-            ->where('orders.status', 'paid')      // chỉ tạo vé cho order đã thanh toán
+            ->where('orders.status', 'paid')
             ->get();
 
         if ($orders->isEmpty()) {
             return;
         }
 
-        // Lấy toàn bộ seats, group theo theaterID để tra nhanh
+        // Load GHẾ THEO RẠP
         $seatsByTheater = DB::table('seats')
-            ->select('seatID', 'seatNumber', 'theaterID')
+            ->select('seatID', 'verticalRow', 'horizontalRow', 'theaterID')
             ->get()
             ->groupBy('theaterID');
 
@@ -40,7 +40,7 @@ class TicketSeeder extends Seeder
         $rows = [];
 
         foreach ($orders as $order) {
-            // Tách danh sách ghế từ cột `seats` (có thể là seatID hoặc seatNumber)
+
             $tokens = array_filter(array_map('trim', explode(',', (string) $order->seats)));
             if (empty($tokens)) {
                 continue;
@@ -54,20 +54,18 @@ class TicketSeeder extends Seeder
             $resolvedSeatIds = [];
 
             foreach ($tokens as $tk) {
-                if ($tk === '') {
-                    continue;
-                }
-
                 $seat = null;
 
-                // Nếu là số nguyên -> thử coi như seatID
+                // Nếu là số thì thử seatID
                 if (ctype_digit($tk)) {
-                    $seat = $theaterSeats->firstWhere('seatID', (int) $tk);
+                    $seat = $theaterSeats->firstWhere('seatID', (int)$tk);
                 }
 
-                // Không tìm được theo ID thì thử theo seatNumber (A1, B5,…)
+                // Nếu chưa tìm thấy -> ghép verticalRow + horizontalRow
                 if (!$seat) {
-                    $seat = $theaterSeats->firstWhere('seatNumber', $tk);
+                    $seat = $theaterSeats->first(function ($s) use ($tk) {
+                        return ($s->verticalRow . $s->horizontalRow) == $tk;
+                    });
                 }
 
                 if ($seat) {
@@ -75,24 +73,43 @@ class TicketSeeder extends Seeder
                 }
             }
 
-            $seatCount = count($resolvedSeatIds);
-            if ($seatCount === 0) {
+            $resolvedSeatIds = array_unique($resolvedSeatIds); // tránh trùng trong order
+
+            if (empty($resolvedSeatIds)) {
                 continue;
             }
 
-            // Chia tiền vé trên mỗi ghế (làm tròn xuống cho an toàn)
-            $orderAmount = (int) $order->amount;
-            $basePrice   = $seatCount > 0 ? (int) floor($orderAmount / $seatCount) : 0;
-            if ($basePrice <= 0) {
-                $basePrice = 50000; // fallback nếu amount = 0
-            }
+            // Lấy giá
+            $seatCount   = count($resolvedSeatIds);
+            $orderAmount = (int)$order->amount;
+            $basePrice   = $seatCount > 0 ? (int)floor($orderAmount / $seatCount) : 0;
+            if ($basePrice <= 0) $basePrice = 50000;
 
             $createdAt = $order->created_at ?? $now;
             $updatedAt = $order->updated_at ?? $createdAt;
 
             foreach ($resolvedSeatIds as $seatID) {
+
+                // ❗ FIX 1: kiểm tra trùng trong DB
+                $exists = DB::table('ticket')
+                    ->where('showtimeID', $order->showtimeID)
+                    ->where('seatID', $seatID)
+                    ->exists();
+
+                if ($exists) {
+                    continue; // bỏ qua nếu ghế đã tồn tại
+                }
+
+                // ❗ FIX 2: kiểm tra trùng trong mảng rows (chưa insert DB)
+                $key = $order->showtimeID . '-' . $seatID;
+                static $added = [];
+                if (isset($added[$key])) {
+                    continue;
+                }
+                $added[$key] = true;
+
                 $rows[] = [
-                    'price'        => $basePrice,
+                    'price'        => min($basePrice, 99999999), // tránh overflow
                     'status'       => 'paid',
                     'qr_token'     => Str::uuid()->toString(),
                     'issueAt'      => $createdAt,
@@ -106,9 +123,9 @@ class TicketSeeder extends Seeder
             }
         }
 
-        // Insert theo chunk để tránh quá nặng
-        foreach (array_chunk($rows, 500) as $chunk) {
-            DB::table('tickets')->insert($chunk);
+        // Insert chunk
+        foreach (array_chunk($rows, 300) as $chunk) {
+            DB::table('ticket')->insert($chunk);
         }
     }
 }
