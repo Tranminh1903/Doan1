@@ -108,10 +108,9 @@
           <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreateUser">+ Thêm người dùng</button>
           <a href="{{ route('admin.form') }}" class="btn btn-soft">Trở về trang tổng quan</a>
 
-          <a href="#" class="btn btn-soft">CSV mẫu</a>
-          <a href="#" class="btn btn-success">Xuất CSV</a>
-
-          <form action="#" method="POST" enctype="multipart/form-data" class="csv-input">
+          <a href="{{ route('usersManage.template_csv') }}"class="btn btn-soft">CSV mẫu</a>
+          <a href="{{ route('usersManage.export_csv', ['q' => $q]) }}" class="btn btn-success">Xuất CSV</a>
+          <form action="{{ route('usersManage.import_csv') }}" method="POST" enctype="multipart/form-data" class="csv-input">
             @csrf
             <button type="button" class="btn btn-soft fake-btn">Nhập CSV</button>
             <input type="file" name="file" accept=".csv" onchange="this.form.submit()">

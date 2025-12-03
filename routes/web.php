@@ -114,6 +114,10 @@ Route::middleware('auth', 'admin')->group(function () {
     // ==== Admin Dashboard - User Management ==== //
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
     
+    // ==== User CSV ==== //
+    Route::get('/adminDashboard/users/template/csv', [AdminController::class, 'userTemplateCsv'])->name('usersManage.template_csv');
+    Route::get('/adminDashboard/users/export/csv', [AdminController::class, 'userExportCsv'])->name('usersManage.export_csv');
+    Route::post('/adminDashboard/users/import/csv', [AdminController::class, 'userImportCsv'])->name('usersManage.import_csv');
     // ==== Admin Dashboard - Button for _updateUser  ==== //
     Route::put('/adminDashboard/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');

@@ -79,8 +79,16 @@
         <div class="dropdown">
             <button class="user-dropdown-btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
                 <span class="user-avatar">
-                    <img src="{{ asset('storage/pictures/dogavatar.jpg') }}" alt="avatar">
-                </span>
+            @php
+                $avatar = auth()->user()->avatar;
+                $src = $avatar 
+                ? (\Illuminate\Support\Str::startsWith($avatar, ['http', 'https']) 
+                    ? $avatar 
+                    : asset('storage/' . $avatar)) 
+                : asset('storage/pictures/dogavatar.jpg');
+            @endphp
+    <img src="{{ $src }}" alt="avatar" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+</span>
                 <span>{{ auth()->user()->username }}</span>
                 <i class="bi bi-chevron-down"></i>
             </button>

@@ -979,4 +979,109 @@ class AdminController extends Controller
             'path' => 'storage/' . $path,
         ]);
     }
+    // =============== USER CSV =============== //
+
+    // 1. Tải file mẫu (Template)
+    public function userTemplateCsv()
+    {
+        $header = ['username', 'email', 'password', 'phone', 'role', 'status', 'birthday'];
+
+        return response()->streamDownload(function () use ($header) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $header);
+            // Dữ liệu mẫu
+            fputcsv($out, ['nguoidung1', 'user1@example.com', '123456', '0909123456', 'customers', 'active', '2000-01-01']);
+            fclose($out);
+        }, 'users_template.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    // 2. Xuất danh sách người dùng (Export)
+    public function userExportCsv(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+        
+        // Lọc dữ liệu giống hệt hàm hiển thị danh sách
+        $users = User::when($q, function ($qr) use ($q) {
+            $qr->where('username', 'like', "%$q%")
+                ->orWhere('email', 'like', "%$q%")
+                ->orWhere('role', 'like', "%$q%");
+        })->orderByDesc('id')->get();
+
+        $header = ['ID', 'Username', 'Email', 'Phone', 'Role', 'Status', 'Created At'];
+
+        return response()->streamDownload(function () use ($users, $header) {
+            $out = fopen('php://output', 'w');
+            // Bom để hỗ trợ tiếng Việt trong Excel
+            fputs($out, "\xEF\xBB\xBF"); 
+            fputcsv($out, $header);
+
+            foreach ($users as $u) {
+                fputcsv($out, [
+                    $u->id,
+                    $u->username,
+                    $u->email,
+                    $u->phone,
+                    $u->role,
+                    $u->status,
+                    $u->created_at
+                ]);
+            }
+            fclose($out);
+        }, 'users_export_' . date('Y-m-d') . '.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    // 3. Nhập danh sách người dùng (Import)
+    public function userImportCsv(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $file = $request->file('file');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        if (!$handle) return back()->with('error', 'Không mở được file.');
+
+        $header = fgetcsv($handle); // Bỏ qua dòng tiêu đề
+        $count = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            // Giả sử thứ tự cột là: username, email, password, phone, role, status, birthday
+            // Cần kiểm tra kỹ index mảng $row cho khớp với file mẫu
+            if (count($row) < 3) continue; 
+
+            $username = $row[0] ?? null;
+            $email    = $row[1] ?? null;
+            $password = $row[2] ?? '123456'; // Mặc định nếu thiếu
+            $phone    = $row[3] ?? null;
+            $role     = $row[4] ?? 'customers';
+            $status   = $row[5] ?? 'active';
+            $birthday = $row[6] ?? null;
+
+            // Kiểm tra email trùng
+            if (User::where('email', $email)->exists()) continue;
+
+            $user = User::create([
+                'username' => $username,
+                'email'    => $email,
+                'password' => Hash::make($password),
+                'phone'    => $phone,
+                'role'     => $role,
+                'status'   => $status,
+                'birthday' => $birthday,
+            ]);
+
+            // Tạo customer/admin tương ứng
+            if ($user->role === 'customers') {
+                Customer::create(['user_id' => $user->id, 'customer_name' => $user->username]);
+            } elseif ($user->role === 'admin') {
+                Admin::create(['user_id' => $user->id]);
+            }
+            $count++;
+        }
+
+        fclose($handle);
+
+        return back()->with('success', "Đã nhập thành công $count người dùng.");
+    }
 }
