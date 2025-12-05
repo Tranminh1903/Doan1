@@ -277,7 +277,7 @@
 
         const baseUrl = "{{ route('movies.search') }}";
 
-        const nowContainer    = document.getElementById('movieListContainer');   
+        const nowContainer    = document.getElementById('nowShowingContainer');   
         const comingContainer = document.getElementById('comingSoonContainer');  
 
         function updateSection(container, type, q) {

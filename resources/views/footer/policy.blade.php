@@ -1,123 +1,6 @@
 @extends('layouts.app') 
-
-{{-- Đặt tiêu đề cho trang --}}
 @section('title', 'Chính Sách và Quy Định') 
-
-@push('styles')
-<style>
-    /* ************************************** */
-    /* KHẮC PHỤC NỀN FULLSCREEN VÀ PHONG CÁCH CHUNG */
-    /* ************************************** */
-    body, html {
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        background: #020617 !important; 
-    }
-
-    .policy-wrapper {
-        min-height: 100vh;
-        width: 100%;
-        padding: 60px 0;
-        /* Áp dụng gradient nền đồng bộ */
-        background:
-            radial-gradient(circle at top, rgba(56,189,248,0.35), transparent 55%),
-            radial-gradient(circle at bottom, rgba(248,250,252,0.08), transparent 60%),
-            #020617; 
-        color: #e5e7eb;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    /* Tiêu đề chính kiểu neon nhẹ */
-    .policy-wrapper h2 {
-        color: #f1f5f9;
-        margin-bottom: 40px !important;
-        font-size: 2.4rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 700;
-        text-shadow:
-            0 0 12px rgba(56,189,248,0.55),
-            0 0 18px rgba(56,189,248,0.28);
-    }
-
-    /* ************************************** */
-    /* GLASS CARD VÀ NỘI DUNG CHÍNH SÁCH */
-    /* ************************************** */
-    .policy-card {
-        /* Glassmorphism Effect */
-        background: rgba(15, 23, 42, 0.92);
-        border-radius: 1rem;
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(18px);
-        
-        padding: 40px; /* Padding lớn cho nội dung */
-        margin-bottom: 40px;
-    }
-
-    /* Tiêu đề mục (h3, h4) */
-    .policy-card h3 {
-        color: #38bdf8; /* Màu xanh dương cho tiêu đề mục chính */
-        font-weight: 700;
-        margin-top: 25px;
-        margin-bottom: 15px;
-        font-size: 1.5rem;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-        padding-bottom: 8px;
-    }
-    .policy-card h4 {
-        color: #facc15; /* Màu vàng cam cho tiêu đề mục phụ */
-        font-weight: 600;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        font-size: 1.2rem;
-    }
-
-    /* Định dạng văn bản chính sách */
-    .policy-card p {
-        color: #dce3ea;
-        line-height: 1.8;
-        margin-bottom: 15px;
-        font-size: 1rem;
-    }
-
-    .policy-card ul {
-        color: #dce3ea;
-        margin-left: 20px;
-        margin-bottom: 20px;
-    }
-
-    .policy-card li {
-        margin-bottom: 8px;
-        line-height: 1.7;
-    }
-    
-    .policy-card strong {
-        color: #f1f5f9; /* Làm nổi bật các từ khóa quan trọng */
-        font-weight: 700;
-    }
-
-    /* Responsive */
-    @media (max-width: 767px) {
-        .policy-wrapper {
-            padding: 40px 0;
-        }
-
-        .policy-wrapper h2 {
-            font-size: 1.9rem;
-            margin-bottom: 24px !important;
-        }
-
-        .policy-card {
-            padding: 20px;
-        }
-        .policy-card h3 {
-             font-size: 1.3rem;
-        }
-    }
-</style>
-@endpush
+=
 
 @section('content')
     
@@ -162,3 +45,114 @@
     </div>
     
 @endsection
+
+@push('styles')
+<style>
+    /* ************************************** */
+    /* KHẮC PHỤC NỀN FULLSCREEN VÀ PHONG CÁCH CHUNG */
+    /* ************************************** */
+    body, html {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        background: #020617 !important; 
+    }
+
+    .policy-wrapper {
+        min-height: 100vh;
+        width: 100%;
+        padding: 60px 0;
+        background:
+            radial-gradient(circle at top, rgba(56,189,248,0.35), transparent 55%),
+            radial-gradient(circle at bottom, rgba(248,250,252,0.08), transparent 60%),
+            #020617; 
+        color: #e5e7eb;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .policy-wrapper h2 {
+        color: #f1f5f9;
+        margin-bottom: 40px !important;
+        font-size: 2.4rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+        text-shadow:
+            0 0 12px rgba(56,189,248,0.55),
+            0 0 18px rgba(56,189,248,0.28);
+    }
+
+    /* ************************************** */
+    /* GLASS CARD VÀ NỘI DUNG CHÍNH SÁCH */
+    /* ************************************** */
+    .policy-card {
+        /* Glassmorphism Effect */
+        background: rgba(15, 23, 42, 0.92);
+        border-radius: 1rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(18px);
+        
+        padding: 40px; 
+        margin-bottom: 40px;
+    }
+
+    .policy-card h3 {
+        color: #38bdf8; 
+        font-weight: 700;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        padding-bottom: 8px;
+    }
+    .policy-card h4 {
+        color: #facc15; 
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+
+    .policy-card p {
+        color: #dce3ea;
+        line-height: 1.8;
+        margin-bottom: 15px;
+        font-size: 1rem;
+    }
+
+    .policy-card ul {
+        color: #dce3ea;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    .policy-card li {
+        margin-bottom: 8px;
+        line-height: 1.7;
+    }
+    
+    .policy-card strong {
+        color: #f1f5f9
+        font-weight: 700;
+    }
+
+
+    @media (max-width: 767px) {
+        .policy-wrapper {
+            padding: 40px 0;
+        }
+
+        .policy-wrapper h2 {
+            font-size: 1.9rem;
+            margin-bottom: 24px !important;
+        }
+
+        .policy-card {
+            padding: 20px;
+        }
+        .policy-card h3 {
+             font-size: 1.3rem;
+        }
+    }
+</style>
+@endpush

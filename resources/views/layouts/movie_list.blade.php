@@ -1,14 +1,35 @@
 @php 
   use Illuminate\Support\Str;
+
   $normalizeImg = fn ($path) =>
       $path && Str::startsWith($path, ['http', '/storage']) ? $path : ($path ? asset($path) : null);
+
+  $genreMap = [
+      'Action'        => 'Hành động',
+      'Adventure'     => 'Phiêu lưu',
+      'Animation'     => 'Hoạt hình',
+      'Comedy'        => 'Hài',
+      'Crime'         => 'Tội phạm',
+      'Documentary'   => 'Tài liệu',
+      'Drama'         => 'Chính kịch',
+      'Fantasy'       => 'Giả tưởng',
+      'Horror'        => 'Kinh dị',
+      'Mystery'       => 'Bí ẩn',
+      'Romance'       => 'Lãng mạn',
+      'Sci-Fi'        => 'Khoa học viễn tưởng',
+      'Thriller'      => 'Giật gân',
+      'War'           => 'Chiến tranh',
+      'Western'       => 'Viễn tây',
+  ];
+
+  // term đang search (nếu có)
+  $searchTerm = trim((string) request('q', ''));
 @endphp
 
 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
   @forelse ($movies as $movie)
     @php
       $avg = $movie->ratings->avg('stars');        
-
       $avg = $avg !== null ? (float) $avg : null;
 
       $ratingValue = $avg !== null
@@ -20,6 +41,10 @@
           : 0;
 
       $posterUrl  = $normalizeImg($movie->poster) ?? asset('images/placeholders/movie-banner.jpg');
+      $rawGenres = explode(',', (string) $movie->genre); 
+      $viGenres = collect($rawGenres)
+          ->map(fn($g) => $genreMap[trim($g)] ?? trim($g))
+          ->implode(', ');
     @endphp
 
     <div class="col">
@@ -61,7 +86,7 @@
         </div>
 
         <div class="card-body">
-          <p class="mb-3 text-muted small">{{ $movie->genre }} • {{ $movie->durationMin }} phút</p>
+          <p class="mb-3 text-muted small">{{ $viGenres }} • {{ $movie->durationMin }} phút</p>
           <h6 class="card-title mb-1 text-truncate">
             {{ $movie->title }}
           </h6>
@@ -69,12 +94,23 @@
       </article>
     </div>
   @empty
-      <div class="empty-center-wrapper">
-        <div class="empty-center-card">
-          <div class="fs-1 mb-3">🎬</div>
-            <h5 class="mb-2">Không tìm thấy phim nào</h5>
-            <p class="mb-0 text-muted">Vui lòng thử tìm kiếm từ khóa khác.</p>
-          </div>
-        </div>
+    <div class="empty-center-wrapper">
+      <div class="empty-center-card">
+        <div class="fs-1 mb-3">🎬</div>
+        <h5 class="mb-2">
+          {{-- ưu tiên text truyền vào, fallback theo search / không search --}}
+          {{ $emptyTitle
+              ?? ($searchTerm !== ''
+                    ? 'Không tìm thấy phim nào cho từ khóa "'.$searchTerm.'"'
+                    : 'Không tìm thấy phim nào') }}
+        </h5>
+        <p class="mb-0 text-muted">
+          {{ $emptySubtitle
+              ?? ($searchTerm !== ''
+                    ? 'Vui lòng thử tìm kiếm từ khóa khác.'
+                    : 'Hiện tại chưa có dữ liệu phù hợp, vui lòng quay lại sau.') }}
+        </p>
+      </div>
+    </div>
   @endforelse
 </div>

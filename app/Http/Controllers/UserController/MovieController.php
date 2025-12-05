@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\UserController;
 
-use Illuminate\Support\Str;
+use App\Http\Controllers\UserController\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\ProductModels\Movie;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ProductModels\Movie;
 use App\Models\ProductModels\MovieRating;
 
-class MovieController
+class MovieController extends Controller
 {
     public function show($movieID)
     {
@@ -28,7 +28,7 @@ class MovieController
     public function rate(Request $request, $movieID)
     {
         $request->validate([
-            'stars' => 'required|integer|min:1|max:10', 
+            'stars' => 'required|integer|min:1|max:10',
         ]);
 
         if (!Auth::check()) {
@@ -47,82 +47,81 @@ class MovieController
 
         return back()->with('success', 'Đánh giá của bạn đã được ghi nhận!');
     }
-    public function search(Request $request)
-    {
-        $query = trim($request->input('q'));
-        $type  = (string) $request->input('type', 'all'); 
-        $today = now()->toDateString();
 
-        $moviesQuery = Movie::with('showtimes');
+public function search(Request $request)
+{
+    $queryRaw = trim((string) $request->input('q', ''));
 
-        if ($query !== '') {
-            $map = [
-                'á'=>'a','à'=>'a','ạ'=>'a','ả'=>'a','ã'=>'a','â'=>'a','ấ'=>'a','ầ'=>'a','ậ'=>'a','ẩ'=>'a','ẫ'=>'a','ă'=>'a','ắ'=>'a','ằ'=>'a','ặ'=>'a','ẳ'=>'a','ẵ'=>'a',
-                'é'=>'e','è'=>'e','ẹ'=>'e','ẻ'=>'e','ẽ'=>'e','ê'=>'e','ế'=>'e','ề'=>'e','ệ'=>'e','ể'=>'e','ễ'=>'e',
-                'í'=>'i','ì'=>'i','ị'=>'i','ỉ'=>'i','ĩ'=>'i',
-                'ó'=>'o','ò'=>'o','ọ'=>'o','ỏ'=>'o','õ'=>'o','ô'=>'o','ố'=>'o','ồ'=>'o','ộ'=>'o','ổ'=>'o','ỗ'=>'o','ơ'=>'o','ớ'=>'o','ờ'=>'o','ợ'=>'o','ở'=>'o','ỡ'=>'o',
-                'ú'=>'u','ù'=>'u','ụ'=>'u','ủ'=>'u','ũ'=>'u','ư'=>'u','ứ'=>'u','ừ'=>'u','ự'=>'u','ử'=>'u','ữ'=>'u',
-                'ý'=>'y','ỳ'=>'y','ỵ'=>'y','ỷ'=>'y','ỹ'=>'y',
-                'đ'=>'d'
-            ];
+    // chuẩn hóa type: now_showing, coming_soon, all
+    $type  = str_replace('-', '_', strtolower((string) $request->input('type', 'all')));
+    $today = now()->toDateString();
 
-            $normalized = mb_strtolower($query, 'UTF-8');
-            $normalized = str_replace(array_keys($map), array_values($map), $normalized);
+    // base query cho movie_list: đã load showtime + ratings
+    $moviesQuery = Movie::with(['showtimes.theater', 'ratings'])
+        ->withAvg('ratings', 'stars');
 
-            $tokens = array_values(array_filter(
-                preg_split('/\s+/', $normalized),
-                fn ($t) => $t !== ''
-            ));
+    // ============ NẾU CÓ TỪ KHÓA THÌ MỚI FILTER ============ //
+    if ($queryRaw !== '') {
 
-            if (count($tokens) > 0) {
-                $sqlNormalize = 'LOWER(title)';
-                foreach ($map as $accent => $base) {
-                    $sqlNormalize = "REPLACE({$sqlNormalize},'{$accent}','{$base}')";
-                }
+        // map bỏ dấu
+        $map = [
+            'á'=>'a','à'=>'a','ạ'=>'a','ả'=>'a','ã'=>'a','â'=>'a','ấ'=>'a','ầ'=>'a','ậ'=>'a','ẩ'=>'a','ẫ'=>'a','ă'=>'a','ắ'=>'a','ằ'=>'a','ặ'=>'a','ẳ'=>'a','ẵ'=>'a',
+            'é'=>'e','è'=>'e','ẹ'=>'e','ẻ'=>'e','ẽ'=>'e','ê'=>'e','ế'=>'e','ề'=>'e','ệ'=>'e','ể'=>'e','ễ'=>'e',
+            'í'=>'i','ì'=>'i','ị'=>'i','ỉ'=>'i','ĩ'=>'i',
+            'ó'=>'o','ò'=>'o','ọ'=>'o','ỏ'=>'o','õ'=>'o','ô'=>'o','ố'=>'o','ồ'=>'o','ộ'=>'o','ổ'=>'o','ỗ'=>'o','ơ'=>'o','ớ'=>'o','ờ'=>'o','ợ'=>'o','ở'=>'o','ỡ'=>'o',
+            'ú'=>'u','ù'=>'u','ụ'=>'u','ủ'=>'u','ũ'=>'u','ư'=>'u','ứ'=>'u','ừ'=>'u','ự'=>'u','ử'=>'u','ữ'=>'u',
+            'ý'=>'y','ỳ'=>'y','ỵ'=>'y','ỷ'=>'y','ỹ'=>'y',
+            'đ'=>'d'
+        ];
 
-                $moviesQuery->where(function ($q) use ($tokens, $sqlNormalize) {
-                    $first = true;
-                    foreach ($tokens as $token) {
-                        if ($first) {
-                            $q->whereRaw("{$sqlNormalize} LIKE ?", ["%{$token}%"]);
-                            $first = false;
-                        } else {
-                            $q->orWhereRaw("{$sqlNormalize} LIKE ?", ["%{$token}%"]);
-                        }
-                    }
-                });
+        // chuẩn hóa từ khóa: lower + bỏ dấu
+        $normalized = mb_strtolower($queryRaw, 'UTF-8');
+        $normalized = str_replace(array_keys($map), array_values($map), $normalized);
 
-                $orderParts = [];
-                foreach ($tokens as $t) {
-                    $escaped = str_replace("'", "\\'", $t);
-                    $orderParts[] = "(CASE WHEN {$sqlNormalize} LIKE '%{$escaped}%' THEN 1 ELSE 0 END)";
-                }
-                if (count($orderParts) > 0) {
-                    $moviesQuery->orderByRaw('(' . implode(' + ', $orderParts) . ') DESC');
-                }
-            }
-        }
-        switch ($type) {
-            case 'coming_soon': 
-                $moviesQuery
-                    ->where('status', 'active')
-                    ->whereDate('releaseDate', '>', $today);
-                break;
-
-            case 'now_showing': 
-                $moviesQuery
-                    ->where('status', 'active')
-                    ->whereDate('releaseDate', '<=', $today);
-                break;
-
-            case 'all':
-            default:
-                $moviesQuery->where('status', 'active');
-                break;
+        // build expression normalize cho cột title
+        $sqlNormalize = 'LOWER(title)';
+        foreach ($map as $accent => $base) {
+            $sqlNormalize = "REPLACE({$sqlNormalize},'{$accent}','{$base}')";
         }
 
-        $movies = $moviesQuery->get();
-
-        return view('layouts.movie_list', compact('movies'))->render();
+        // lọc: title đã bỏ dấu chứa nguyên cụm normalized
+        // kèm thêm genre/rating dạng like bình thường
+        $moviesQuery->where(function ($qr) use ($sqlNormalize, $normalized, $queryRaw) {
+            // title: bỏ dấu, search theo cả cụm
+            $qr->whereRaw("{$sqlNormalize} LIKE ?", ["%{$normalized}%"])
+               // bonus: genre + rating (không bỏ dấu)
+               ->orWhere('genre', 'like', "%{$queryRaw}%")
+               ->orWhere('rating', 'like', "%{$queryRaw}%");
+        });
     }
+
+    // ============ FILTER THEO TYPE (ĐANG CHIẾU / SẮP CHIẾU) ============ //
+    switch ($type) {
+        case 'coming_soon':
+            $moviesQuery
+                ->where('status', 'active')
+                ->whereDate('releaseDate', '>', $today)
+                ->orderBy('releaseDate', 'asc');
+            break;
+
+        case 'now_showing':
+        case 'now_playing':
+            $moviesQuery
+                ->where('status', 'active')
+                ->whereDate('releaseDate', '<=', $today)
+                ->orderBy('releaseDate', 'desc');
+            break;
+
+        case 'all':
+        default:
+            $moviesQuery
+                ->where('status', 'active')
+                ->orderBy('releaseDate', 'desc');
+            break;
+    }
+
+    $movies = $moviesQuery->get();
+
+    return view('layouts.movie_list', compact('movies'))->render();
+}
 }

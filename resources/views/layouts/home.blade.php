@@ -7,9 +7,9 @@
 
   // Promo fallback (hiển thị khi không có banner phim)
   $promoBanners = [
-    ['img' => asset('storage/pictures/mai.jpg'),             'url' => url('/promo/member-day'), 'title' => 'Member Day',  'desc' => 'X2 điểm thưởng'],
-    ['img' => asset('storage/pictures/muado.jpg'),           'url' => url('/promo/combo'),      'title' => 'Combo Bắp Nước','desc' => 'Chỉ từ 49K'],
-    ['img' => asset('storage/pictures/tuchientrenkhong.jpg'), 'url' => url('/promo/early-bird'), 'title' => 'Early Bird',  'desc' => 'Đặt sớm -20%'],
+    ['img' => asset('storage/pictures/mai.jpg'),              'url' => url('/promo/member-day'), 'title' => 'Member Day',   'desc' => 'X2 điểm thưởng'],
+    ['img' => asset('storage/pictures/muado.jpg'),            'url' => url('/promo/combo'),      'title' => 'Combo Bắp Nước','desc' => 'Chỉ từ 49K'],
+    ['img' => asset('storage/pictures/tuchientrenkhong.jpg'), 'url' => url('/promo/early-bird'), 'title' => 'Early Bird',   'desc' => 'Đặt sớm -20%'],
   ];
 
   // Chuẩn hoá URL ảnh: nếu đã là http|/storage thì giữ nguyên, ngược lại bọc asset()
@@ -48,10 +48,10 @@
         <a href="{{ $b['url'] }}" class="d-block position-relative" aria-label="{{ $b['title'] ?? 'Banner '.($i+1) }}">
           <img class="w-100 banner-img" src="{{ $b['img'] }}" alt="{{ $b['title'] ?? 'Banner '.($i+1) }}" loading="lazy">
           <span class="banner-overlay"></span>
-            <div class="banner-caption">
-              @isset($b['title']) <h5 class="mb-1">{{ $b['title'] }}</h5> @endisset
-              @isset($b['desc'])  <p class="mb-0">{{ $b['desc'] }}</p>   @endisset
-            </div>
+          <div class="banner-caption">
+            @isset($b['title']) <h5 class="mb-1">{{ $b['title'] }}</h5> @endisset
+            @isset($b['desc'])  <p class="mb-0">{{ $b['desc'] }}</p>   @endisset
+          </div>
         </a>
       </div>
     @endforeach
@@ -80,51 +80,71 @@
   </div>
 </div>
 @endif
+
+{{-- PHIM BÁN CHẠY – luôn hiển thị, không dính search --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mb-1">
-    <span class="status-dot"></span>
-    Phim bán chạy</h4>
+      <span class="status-dot"></span>
+      Phim bán chạy
+    </h4>
     <p class="text-muted mb-0">Các bộ phim hot trong rạp</p>
   </div>
 
-  <div id="movieListContainer">
-    @include('layouts.movie_list', ['movies' => $topSellingMovies])
+  <div id="topSellingContainer">
+    @include('layouts.movie_list', [
+        'movies'        => $topSellingMovies,
+        'emptyTitle'    => 'Chưa có dữ liệu doanh thu.',
+        'emptySubtitle' => 'Hệ thống sẽ tự động cập nhật khi có đơn hàng được thanh toán.'
+    ])
   </div>
 </section>
 
+{{-- PHIM ĐANG CHIẾU --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mb-1">
-    <span class="status-dot"></span>
-    Phim đang chiếu</h4>
+      <span class="status-dot"></span>
+      Phim đang chiếu
+    </h4>
     <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
   </div>
 
-  <div id="movieListContainer">
-    @include('layouts.movie_list', ['movies' => $nowShowingMovies])
+  <div id="nowShowingContainer" class="mb-5">
+    @include('layouts.movie_list', [
+        'movies'        => $nowShowingMovies,
+        'emptyTitle'    => 'Hiện chưa có phim đang chiếu nào.',
+        'emptySubtitle' => 'Vui lòng quay lại sau, hệ thống sẽ cập nhật khi có lịch chiếu mới.'
+    ])
   </div>
 </section>
 
+{{-- PHIM SẮP CHIẾU --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mt-1">
-    <span class="status-dot"></span>
-    Phim sắp chiếu</h4>
+      <span class="status-dot"></span>
+      Phim sắp chiếu
+    </h4>
     <p class="text-muted mb-0">Các suất chiếu mới nhất tại rạp</p>
   </div>
 
-  <div id="comingSoonContainer">
-    @include('layouts.movie_list', ['movies' => $comingSoonMovies])
+  <div id="comingSoonContainer" class="mb-5">
+    @include('layouts.movie_list', [
+        'movies'        => $comingSoonMovies,
+        'emptyTitle'    => 'Hiện chưa có phim sắp chiếu nào.',
+        'emptySubtitle' => 'Vui lòng quay lại sau, khi có lịch chiếu mới sẽ hiện ở đây.'
+    ])
   </div>
 </section>
 
-
+{{-- TIN TỨC --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mt-1">
-    <span class="status-dot"></span>
-    Tin tức</h4>
+      <span class="status-dot"></span>
+      Tin tức
+    </h4>
     <p class="text-muted mb-0">Cập nhập nhanh tin tức điện ảnh</p>
   </div>
 
@@ -133,7 +153,6 @@
   </div>
 </section>
 @endsection
-
 
 @push('styles')
 <style>
