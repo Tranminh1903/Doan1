@@ -112,13 +112,18 @@ public function search(Request $request)
                 ->orderBy('releaseDate', 'desc');
             break;
 
-        case 'all':
-        default:
+       case 'all':
+            default:
+            // chỉ trả về đang chiếu + sắp chiếu
             $moviesQuery
                 ->where('status', 'active')
+                ->where(function ($q) use ($today) {
+                    $q->whereDate('releaseDate', '<=', $today)   // đang chiếu
+                    ->orWhereDate('releaseDate', '>', $today); // sắp chiếu
+                })
                 ->orderBy('releaseDate', 'desc');
             break;
-    }
+        }
 
     $movies = $moviesQuery->get();
 
