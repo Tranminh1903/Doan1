@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
             PromotionSeeder::class,
             ShowtimeSeeder::class,
             OrderSeeder::class,
-            ShowtimeSeeder::class,
             NewsSeeder::class,
             TicketSeeder::class,
         ]);
