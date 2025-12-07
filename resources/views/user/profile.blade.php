@@ -114,24 +114,26 @@
 
                 <div class="col-md-6">
                   <label class="form-label d-block">Giới tính</label>
-                  @php $sex = old('sex', $customer->user->sex ?? 'none'); @endphp
+
+                  @php
+                      $sex = old('sex', $customer->user->sex ?? 'none');
+                  @endphp
+
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="sex" id="sex_m" value="Nam" {{ $sex==='Nam'
-                      ? 'checked' : '' }}>
+                    <input class="form-check-input" type="radio" name="sex" id="sex_m" value="male"   {{ $sex === 'male'   ? 'checked' : '' }}>
                     <label class="form-check-label" for="sex_m">Nam</label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="sex" id="sex_f" value="Nữ" {{ $sex==='Nữ'
-                      ? 'checked' : '' }}>
+                    <input class="form-check-input" type="radio" name="sex" id="sex_f" value="female" {{ $sex === 'female' ? 'checked' : '' }}>
                     <label class="form-check-label" for="sex_f">Nữ</label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="sex" id="sex_n" value="Khác" {{ $sex==='Khác'
-                      ? 'checked' : '' }}>
-                    <label class="form-check-label" for="sex_n">Khác</label>
+                    <input class="form-check-input" type="radio" name="sex" id="sex_o" value="other"  {{ $sex === 'other'  ? 'checked' : '' }}>
+                    <label class="form-check-label" for="sex_o">Khác</label>
                   </div>
+
                   @error('sex')
-                  <div class="text-danger small mt-1">{{ $message }}</div>
+                    <div class="text-danger small mt-1">{{ $message }}</div>
                   @enderror
                 </div>
 

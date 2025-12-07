@@ -853,9 +853,9 @@ class AdminController extends Controller
             'roomName' => ['required','string','max:255',Rule::unique('movie_theaters', 'roomName')->ignore($movieTheater->theaterID, 'theaterID'),],
             'rows'     => 'required|integer|min:1|max:26',
             'cols'     => 'required|integer|min:1|max:50',
-            'normal_price' => 'required|integer|min:0',
-            'vip_price'    => 'required|integer|min:0',
-            'status'   => ['required','in:active,unable'],
+            'normal_price' => 'required|numeric|min:0',
+            'vip_price'    => 'required|numeric|min:0',
+            'status'   => ['required','in:active,inactive'],
             'note'     => ['nullable','string','max:255'],
         ]);
 

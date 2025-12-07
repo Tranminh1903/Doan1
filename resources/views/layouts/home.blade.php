@@ -100,7 +100,6 @@
   </div>
 </section>
 
-{{-- PHIM ĐANG CHIẾU --}}
 <section class="ns-section container mb-4">
   <div class="ns-head text-center mb-4">
     <h4 class="mb-1">

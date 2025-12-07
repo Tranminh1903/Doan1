@@ -256,6 +256,13 @@
         });
     @endif
 
+    @if(session('success'))
+        toastr.success("{{ session('success') }}", "Thành công", {
+            positionClass: "toast-bottom-right",
+            timeOut: 3000,  
+            progressBar: true,
+        });
+    @endif
     document.addEventListener('DOMContentLoaded', function () {
         // ===== navbar đổi màu khi scroll =====
         const navbar = document.querySelector('.navbar');

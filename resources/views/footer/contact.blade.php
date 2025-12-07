@@ -4,15 +4,11 @@
 @section('content')
     
     <div class="contact-wrapper"> 
-    {{-- Sử dụng lớp container để căn giữa nội dung --}}
     <div class="container contact-container"> 
         
         <h2 class="text-center mb-5" style="font-weight: 700;">Liên Hệ</h2>
-        
-        {{-- ĐÃ THÊM CLASS 'gx-4' VÀO ROW ĐỂ TẠO KHOẢNG CÁCH NGANG GIỮA CÁC CỘT (Bootstrap Gap) --}}
         <div class="row gx-4"> 
             
-            {{-- Cột 1: Thông tin liên hệ --}}
             <div class="col-md-5">
                 <div class="contact-info">
                     
@@ -27,22 +23,20 @@
                     <p>Email hỗ trợ: <a href="Emailto:tranminh19304@gmail.com">tranminh19304@gmail.com</a></p>
                     
                     <h5>LIÊN HỆ QUẢNG CÁO, TỔ CHỨC SỰ KIỆN, THUÊ RẠP</h5>
-                    <p>Phòng dịch vụ</p>
+                    <p>PHÒNG DỊCH VỤ</p>
                     <p>Hotline: 0869083789</p>
                     <p>Email: <a href="Emailto:huynhduyman2005tvc@gmail.com">huynhduyman2005tvc@gmail.com</a></p>
 
                     <h5>LIÊN HỆ MUA VÉ HỢP ĐỒNG</h5>
-                    <p>Phòng Chiếu Phim và Trung tâm Dịch vụ Điện ảnh</p>
+                    <p>PHÒNG CHIẾU PHIM VÀ DỊCH VỤ ĐIỆN ẢNH</p>
                     <p>Hotline: 0869083581</p>
                     <p>Email: <a href="Emailto:tuitendu@gmail.com">tuitendu@gmail.com</a></p>
                 </div>
             </div>
 
-            {{-- Cột 2: Bản đồ --}}
             <div class="col-md-7">
                 <div class="map-container">
                     <iframe 
-                        {{-- Đường dẫn nhúng bản đồ --}}
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7857.624639334254!2d105.77102909463821!3d10.032340975115284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a08820f089974b%3A0x421d4098ab65e25d!2sAdidas%20Vincom%20Xu%C3%A2n%20Kh%C3%A1nh!5e0!3m2!1svi!2s!4v1751531421432!5m2!1svi!2s"
                         width="100%" 
                         height="100%" 

@@ -165,8 +165,8 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::get('adminDashboard/movieTheater', [AdminController::class, 'showMovieTheater'])->name('admin.movietheaterManagement.form');
     Route::post('adminDashboard/movieTheater/store', [AdminController::class, 'theaterStore'])->name('admin.movietheaterManagement.store');
     Route::delete('adminDashboard/movieTheater/destroy/{movieTheater}', [AdminController::class, 'theaterDestroy'])->name('admin.movietheaterManagement.delete');
-    Route::put('adminDashboard/movieTheater/update/{id}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
-    Route::get('adminDashboard/movieTheater/{id}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
+    Route::put('adminDashboard/movieTheater/update/{movieTheater}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
+    Route::get('adminDashboard/movieTheater/{movieTheater}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
 
     // ==== News ==== //
     Route::get('adminDashboard/news', [AdminController::class, 'showNews'])->name('admin.newsManagement.form');

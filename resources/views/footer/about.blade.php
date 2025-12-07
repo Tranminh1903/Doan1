@@ -13,9 +13,9 @@
             <div class="row">
                 <div class="col-12">
                     <div class="glass-card">
-                        <h3>Trải Nghiệm Điện Ảnh Tối Thượng</h3>
+                        <h3>TRẢI NGHIỆM ĐIỆN ẢNH TỐI THƯỢNG</h3>
                         <p>
-                            **DMM Cinema** không chỉ là một rạp chiếu phim; chúng tôi là một điểm đến giải trí nơi công nghệ hiện đại gặp gỡ đam mê điện ảnh. Với hệ thống phòng chiếu tiên tiến, âm thanh sống động chuẩn **Dolby Atmos**, và màn hình lớn rực rỡ, chúng tôi cam kết mang lại trải nghiệm xem phim chân thực và đáng nhớ nhất cho mọi khán giả.
+                            DMM Cinema không chỉ là một rạp chiếu phim; chúng tôi là một điểm đến giải trí nơi công nghệ hiện đại gặp gỡ đam mê điện ảnh. Với hệ thống phòng chiếu tiên tiến, âm thanh sống động chuẩn Dolby Atmos, và màn hình lớn rực rỡ, chúng tôi cam kết mang lại trải nghiệm xem phim chân thực và đáng nhớ nhất cho mọi khán giả.
                         </p>
                         <p>
                             Kể từ khi thành lập, sứ mệnh của chúng tôi là trở thành cầu nối mang những tác phẩm điện ảnh xuất sắc từ khắp nơi trên thế giới đến với công chúng Việt Nam, đồng thời xây dựng một cộng đồng yêu phim văn minh và hiện đại.
@@ -28,25 +28,25 @@
             </div>
 
             {{-- HÀNG 2: TẦM NHÌN & GIÁ TRỊ CỐT LÕI (Chia 3 cột) --}}
-            <div class="row g-4">
+            <div class="row g-4 mt-2">
                 {{-- Đảm bảo các card có chiều cao bằng nhau --}}
                 <div class="col-md-4 d-flex">
                     <div class="glass-card flex-fill">
-                        <h4>Tầm Nhìn</h4>
+                        <h4>TẦM NHÌN</h4>
                         <p>Trở thành chuỗi rạp chiếu phim được yêu thích và tin cậy nhất Việt Nam, dẫn đầu về công nghệ trình chiếu và dịch vụ khách hàng xuất sắc.</p>
                     </div>
                 </div>
 
                 <div class="col-md-4 d-flex">
                     <div class="glass-card flex-fill">
-                        <h4>Giá Trị Cốt Lõi</h4>
-                        <p>Chúng tôi hoạt động dựa trên ba giá trị: **Đổi Mới Công Nghệ**, **Tôn Trọng Cộng Đồng**, và **Chất Lượng Dịch Vụ**. Mỗi quyết định đều hướng đến việc nâng cao trải nghiệm khách hàng.</p>
+                        <h4>GIÁ TRỊ CỐT LÕI</h4>
+                        <p>Chúng tôi hoạt động dựa trên ba giá trị: Đổi mới công nghệ, tôn trọng cộng đồng, và chất lượng dịch vụ. Mỗi quyết định đều hướng đến việc nâng cao trải nghiệm khách hàng.</p>
                     </div>
                 </div>
 
                 <div class="col-md-4 d-flex">
                     <div class="glass-card flex-fill">
-                        <h4>Cam Kết Khách Hàng</h4>
+                        <h4>CAM KẾT KHÁCH HÀNG</h4>
                         <p>Cung cấp môi trường xem phim an toàn, sạch sẽ, thoải mái. Luôn lắng nghe phản hồi và không ngừng cải tiến để vượt qua mong đợi của khán giả.</p>
                     </div>
                 </div>

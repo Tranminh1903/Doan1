@@ -46,28 +46,31 @@ class CustomerController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $request->validate(
-            [
-                'customer_name' => 'string|max:255',
-                'phone'         => 'nullable|string|max:20',
-                'sex'           => 'nullable|in:Nam,Nữ,Khác',
-            ]
-        );
-        // Lưu thông tin vào bảng Customers
+        $request->validate([
+            'customer_name' => 'string|max:255',
+            'phone'         => 'nullable|string|max:20',
+            'sex'           => 'nullable|in:male,female,other',
+        ]);
+
+        // Customers
         $customer = Customer::where('user_id', $request->user()->id)->firstOrFail();
-        $customer->fill($request->only(
-            [
-                'customer_name'
-            ]
-        ));
+        $customer->fill($request->only(['customer_name']));
         $customer->save();
-        //Lưu thông tin vào bảng Users
+
+        // Users
+        $map = [
+            'male'   => 'Nam',
+            'female' => 'Nữ',
+            'other'  => 'Khác',
+        ];
+
         $user = $request->user();
-        $user->fill($request->only([
-            'phone',
-            'sex'
-        ]));
+        $user->phone = $request->phone;
+        $user->sex   = $request->sex ? ($map[$request->sex] ?? null) : null;
         $user->save();
-        return redirect()->route('profile', ['tab' => 'account'])->with('updateProfileSuccess', 'Bạn đã cập nhật thông tin thành công!');
+
+        return redirect()
+            ->route('profile', ['tab' => 'account'])
+            ->with('updateProfileSuccess', 'Cập nhật thông tin cá nhân thành công!');
     }
 }

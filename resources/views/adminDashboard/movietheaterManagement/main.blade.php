@@ -275,30 +275,26 @@
                   <div class="row g-4">
                     <!-- ================= Left form ================= -->
                     <div class="col-md-4">
+                      @php 
+                        $statusOld = old('status', $t->status); 
+                        $rowsOld = $t->seats->groupBy('verticalRow')->count();
+                        $colsOld = $t->seats->where('verticalRow', 'A')->count();
+                        $normalPrice = $t->seats->where('seatType','normal')->first()->price ?? 2000;
+                        $vipPrice    = $t->seats->where('seatType','vip')->first()->price ?? 3000;
+                      @endphp
 
                       <div class="mb-3">
                         <label class="form-label">Tên phòng chiếu</label>
                         <input type="text" name="roomName" class="form-control"
-                              required value="{{ $t->roomName }}">
+                              required value="{{ old('roomName', $t->roomName) }}">
                       </div>
-
                       <div class="mb-3">
                         <label class="form-label">Trạng thái</label>
                         <select name="status" class="form-select" required>
-                          <option value="active"  {{ $t->status === 'active' ? 'selected' : '' }}>Đang hoạt động</option>
-                          <option value="inactive" {{ $t->status === 'inactive' ? 'selected' : '' }}>Không hoạt động</option>
+                          <option value="active"  {{ $statusOld === 'active' ? 'selected' : '' }}>Đang hoạt động</option>
+                          <option value="inactive" {{ $statusOld === 'inactive' ? 'selected' : '' }}>Không hoạt động</option>
                         </select>
                       </div>
-
-                      @php
-                        // Lấy số hàng = số ký tự alphabet khác nhau
-                        $rowsOld = $t->seats->groupBy('verticalRow')->count();
-                        // Lấy số ghế mỗi hàng (giả sử hàng A)
-                        $colsOld = $t->seats->where('verticalRow', 'A')->count();
-                        // Lấy giá ghế
-                        $normalPrice = $t->seats->where('seatType','normal')->first()->price ?? 50000;
-                        $vipPrice    = $t->seats->where('seatType','vip')->first()->price ?? 70000;
-                      @endphp
 
                       <div class="row">
                         <div class="col-6 mb-3">
@@ -306,7 +302,7 @@
                           <input type="number" name="rows"
                                 class="form-control rowInput"
                                 min="1" max="26"
-                                value="{{ $rowsOld }}"
+                                value="{{ old('rows', $rowsOld) }}"
                                 data-theater="{{ $t->theaterID }}" required>
                         </div>
 
@@ -315,7 +311,7 @@
                           <input type="number" name="cols"
                                 class="form-control colInput"
                                 min="1" max="50"
-                                value="{{ $colsOld }}"
+                                value="{{ old('cols', $colsOld) }}"
                                 data-theater="{{ $t->theaterID }}" required>
                         </div>
                       </div>
@@ -323,18 +319,18 @@
                       <div class="mb-3">
                         <label class="form-label">Giá ghế thường</label>
                         <input type="number" name="normal_price" class="form-control"
-                              required value="{{ $normalPrice }}">
+                              required value="{{ old('normal_price', $normalPrice) }}">
                       </div>
 
                       <div class="mb-3">
                         <label class="form-label">Giá ghế VIP (hàng A)</label>
                         <input type="number" name="vip_price" class="form-control"
-                              required value="{{ $vipPrice }}">
+                              required value="{{ old('vip_price', $vipPrice) }}">
                       </div>
 
                       <div class="mb-3">
                         <label class="form-label">Ghi chú</label>
-                        <textarea name="note" class="form-control" rows="2">{{ $t->note }}</textarea>
+                        <textarea name="note" class="form-control" rows="2">{{ old('note', $t->note) }}</textarea>
                       </div>
 
                     </div>
