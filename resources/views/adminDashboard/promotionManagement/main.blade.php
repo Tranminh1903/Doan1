@@ -36,6 +36,10 @@ $types = ['percent' => 'Giảm %', 'fixed' => 'Giảm tiền cố định'];
         <h6>BÁO CÁO</h6>
           <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}"
             href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
+
+        <h6>TIN TỨC</h6>
+        <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+           href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>
       </nav>
   </aside>
 
@@ -178,7 +182,7 @@ $dateVN = $now->format('d/m/Y');
                     Sửa
                   </button>
 
-                  <form action="{{ route('promotion.delete', $p) }}"
+                  <form action="{{ route('admin.promotionManagement.delete', $p) }}"
                         method="POST"
                         onsubmit="return confirm('Xoá khuyến mãi này?')">
                     @csrf @method('DELETE')
@@ -204,7 +208,7 @@ $dateVN = $now->format('d/m/Y');
     </div>
 
     <div class="mt-3">
-      {{ $linkPage->links() }}
+      {{ $promotions->links('vendor.pagination.bootstrap-5') }}
     </div>
   </div>
 </main>
@@ -212,7 +216,7 @@ $dateVN = $now->format('d/m/Y');
 
 <div class="modal fade" id="modalCreate" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <form class="modal-content" method="POST" action="{{ route('promotion.store') }}">
+    <form class="modal-content" method="POST" action="{{ route('admin.promotionManagement.store') }}">
       @csrf
 
       <div class="modal-header">

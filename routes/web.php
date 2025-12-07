@@ -16,16 +16,28 @@ use App\Http\Controllers\UserController\PromotionController;
 use App\Http\Controllers\UserController\MovieTheaterController;
 use App\Http\Controllers\UserController\GoogleController;
 use App\Http\Controllers\UserController\ProfileController;
+use App\Http\Controllers\UserController\NewsController;
+use App\Http\Controllers\UserController\ContactController;
+use App\Http\Controllers\UserController\PolicyController;
+use App\Http\Controllers\UserController\AboutController;
 use Illuminate\Support\Facades\Route;
+
+
 // ==== Trang chủ ==== //
     Route::get('/', [HomeController::class,'index'])->name('home');
     // ==== Tìm kiếm phim ==== //
     Route::get('/movies/search', [MovieController::class, 'search'])->name('movies.search');
 
-// Trang chủ và chi tiết phim — công khai
+// Trang chủ và chi tiết phim — công khai và tin tức
     Route::get('/movies/{movieID}', [MovieController::class, 'show'])->name('movies.show');
     Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
+    Route::get('/news', [NewsController::class, 'index'])->name('news.news');
+    Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.news_detail');
 
+//footer
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact'); // Liên hệ
+    Route::get('/terms', [PolicyController::class, 'index'])->name('terms'); // Chính sách và quy định
+    Route::get('/about', [AboutController::class, 'index'])->name('about'); // Giới thiệu
 // ==== Guest only (chưa đăng nhập) ==== //
 Route::middleware('guest')->group(function () {
     // ==== Login ====//
@@ -45,6 +57,7 @@ Route::middleware('guest')->group(function () {
     // ==== Reset Password ==== //
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
+
 });
 
 // ==== Auth only (đã đăng nhập)  ==== //
@@ -68,7 +81,7 @@ Route::middleware('auth')->group(function () {
     
     // ==== Đồng bộ thanh toán từ Google Sheet  ==== //
     Route::get('/sync-payments', [OrderController::class, 'syncPayments'])->name('orders.sync');
-
+    
     // ==== Kiểm tra và đồng bộ thanh toán cho đơn hàng cụ thể ==== //
     Route::get('/orders/check-sync/{orderCode}', [OrderController::class, 'checkAndSyncPayment']);
 
@@ -79,8 +92,8 @@ Route::middleware('auth')->group(function () {
 
     // ==== Giữ ghế chỉ 1 người được chọn ==== //
     Route::post('/booking/hold', [BookingController::class, 'holdSeat'])->name('booking.hold');
-    // ==== Kiểm tra và giải phóng ghế hết hạn ==== //
 
+    // ==== Kiểm tra và giải phóng ghế hết hạn ==== //
     Route::get('/check-expired-seats/{showtimeID}', [BookingController::class, 'checkExpiredSeats']);
     // ==== Promotion  ==== //
     Route::prefix('promotion')->group(function () {
@@ -101,6 +114,11 @@ Route::middleware('auth', 'admin')->group(function () {
 
     // ==== Admin Dashboard - User Management ==== //
     Route::get('/adminDashboard/userManagement/main', [AdminController::class, 'showMainManagementUser'])->name('admin.userManagement_main.form');
+    
+    // ==== User CSV ==== //
+    Route::get('/adminDashboard/users/template/csv', [AdminController::class, 'userTemplateCsv'])->name('usersManage.template_csv');
+    Route::get('/adminDashboard/users/export/csv', [AdminController::class, 'userExportCsv'])->name('usersManage.export_csv');
+    Route::post('/adminDashboard/users/import/csv', [AdminController::class, 'userImportCsv'])->name('usersManage.import_csv');
     // ==== Admin Dashboard - Button for _updateUser  ==== //
     Route::put('/adminDashboard/users/{user}', [AdminController::class, 'update'])->name('users.update');
     Route::delete('/adminDashboard/users/{user}', [AdminController::class, 'delete'])->name('users.delete');
@@ -113,7 +131,7 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::post('/adminDashboard/movies', [AdminController::class, 'movieStore'])->name('moviesManage.store');
     Route::put('/adminDashboard/movies/{movie}', [AdminController::class, 'movieUpdate'])->name('moviesManage.update');
     Route::delete('/adminDashboard/movies/{movie}', [AdminController::class, 'movieDestroy'])->name('moviesManage.delete');
-    Route::post('/adminDashboard/movies/upload-poster', [MovieController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
+    Route::post('/adminDashboard/movies/upload-poster', [AdminController::class, 'uploadPoster'])->name('moviesManage.upload_poster');
 
     // ==== CSV ==== //
     Route::get('/adminDashboard/movies/export/csv',  [AdminController::class, 'movieExportCsv'])->name('moviesManage.export_csv');
@@ -133,18 +151,27 @@ Route::middleware('auth', 'admin')->group(function () {
 
     // ==== Promotion ==== //
     Route::get('adminDashboard/promotion', [AdminController::class, 'showPromotion'])->name('admin.promotionManagement.form');
-    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('promotion.store');
-    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('promotion.update');
-    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDestroy'])->name('promotion.delete');
+    Route::post('adminDashboard/promotion/store', [AdminController::class, 'PromotionStore'])->name('admin.promotionManagement.store');
+    Route::put('adminDashboard/promotion/update/{id}', [AdminController::class, 'PromotionUpdate'])->name('admin.promotionManagement.update');
+    Route::delete('adminDashboard/promotion/delete/{id}', [AdminController::class, 'PromotionDestroy'])->name('admin.promotionManagement.delete');
+
     // ==== Showtime ==== //
     Route::get('adminDashboard/showtime', [AdminController::class, 'showShowtime'])->name('admin.showtimeManagement.form');
-    Route::post('adminDashboard/showtime/store', [AdminController::class, 'showtimeStore'])->name('showtime.store');
-    Route::put('adminDashboard/showtime/update/{id}', [AdminController::class, 'showtimeUpdate'])->name('showtime.update');
-    Route::delete('adminDashboard/showtime/delete/{showtime}', [AdminController::class, 'showtimeDestroy'])->name('showtime.delete');
+    Route::post('adminDashboard/showtime/store', [AdminController::class, 'showtimeStore'])->name('admin.showtime.store');
+    Route::put('adminDashboard/showtime/update/{id}', [AdminController::class, 'showtimeUpdate'])->name('admin.showtime.update');
+    Route::delete('adminDashboard/showtime/delete/{showtime}', [AdminController::class, 'showtimeDestroy'])->name('admin.showtime.delete');
+
     // ==== Movie Theater ==== //
     Route::get('adminDashboard/movieTheater', [AdminController::class, 'showMovieTheater'])->name('admin.movietheaterManagement.form');
     Route::post('adminDashboard/movieTheater/store', [AdminController::class, 'theaterStore'])->name('admin.movietheaterManagement.store');
     Route::delete('adminDashboard/movieTheater/destroy/{movieTheater}', [AdminController::class, 'theaterDestroy'])->name('admin.movietheaterManagement.delete');
-    Route::put('adminDashboard/movieTheater/update/{id}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
-    Route::get('adminDashboard/movieTheater/{id}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
+    Route::put('adminDashboard/movieTheater/update/{movieTheater}', [AdminController::class, 'theaterUpdate'])->name('admin.movietheaterManagement.update');
+    Route::get('adminDashboard/movieTheater/{movieTheater}/seats', [AdminController::class, 'showSeats'])->name('admin.movietheaterManagement.seats');
+
+    // ==== News ==== //
+    Route::get('adminDashboard/news', [AdminController::class, 'showNews'])->name('admin.newsManagement.form');
+    Route::post('adminDashboard/news', [AdminController::class, 'newsStore'])->name('admin.newsManage.store');
+    Route::put('adminDashboard/news/{news}', [AdminController::class, 'newsUpdate'])->name('admin.newsManage.update');
+    Route::delete('adminDashboard/news/{news}', [AdminController::class, 'newsDestroy'])->name('admin.newsManage.delete');
+    Route::post('adminDashboard/news/upload-image', [AdminController::class, 'uploadImage'])->name('admin.newsManage.upload_image');
 });

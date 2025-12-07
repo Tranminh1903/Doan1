@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('seatType', 10)->default('normal'); // ['normal','vip','couple']
             
             // status có 3 trạng thái: available, held, unavailable
-            $table->enum('status', ['available', 'held', 'unavailable'])->default('available');
+            $table->string('status', 20)->default('available');
             $table->decimal('price', 10, 2);
             $table->timestamps();
 

@@ -19,9 +19,29 @@ class GoogleController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        if ($request->has('error')) {
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Bạn đã hủy đăng nhập bằng Google.');
+        }
+
+        if (!$request->has('code')) {
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Thiếu mã xác thực từ Google, vui lòng thử lại.');
+        }
+
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        } catch (\Exception $e) {
+            report($e);
+
+            return redirect()
+                ->route('login.form')
+                ->with('error', 'Không thể đăng nhập bằng Google, vui lòng thử lại sau.');
+        }
         $avatarUrl  = $googleUser->getAvatar();
         $savedImagePath = null;
 
@@ -31,7 +51,6 @@ class GoogleController extends Controller
                 $imgGoogle = Http::get($avatarUrl)->body();
 
                 if ($imgGoogle) {
-
                     // => Sẽ lưu vào storage\app\public\avatars
                     $imgName = 'avatars/' . Str::random(40) . '.jpg';
                     Storage::disk('public')->put($imgName,$imgGoogle);
@@ -44,16 +63,18 @@ class GoogleController extends Controller
         $user = User::where('email',$googleUser->getEmail())->first();
         if($user) { // Nếu user đã tồn tại thì update thêm google_id và cập nhật avatar 
 
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar'    => $user->avatar ?? $savedImagePath, //Nếu user đã có avatar rồi thì sử dụng savedImagePath
-            ]);
+            $user->google_id = $googleUser->getId();
+            if ($savedImagePath) {
+            $user->avatar = $savedImagePath;
+            }
+    $user->save();
         } else { //Nếu user không tồn tại
             $user = User::create([
                 'username'  => $googleUser->getName(),
                 'email'     => $googleUser->getEmail(),
-                'avatar'    => $googleUser->$savedImagePath,
+                'avatar'    => $savedImagePath,
                 'status'    => 'active',
+                'google_id' => $googleUser->getId(),
                 'role'      => 'customers',
                 'password'  => null,
             ]);

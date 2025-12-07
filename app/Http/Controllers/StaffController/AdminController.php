@@ -4,26 +4,27 @@ namespace App\Http\Controllers\StaffController;
 
 use Carbon\Carbon;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Models\UserModels\User;
 use Illuminate\Validation\Rule;
 use App\Models\UserModels\Admin;
 use App\Models\UserModels\Order;
-use App\Models\ProductModels\Seat;
-use Illuminate\Support\Facades\DB;
-use App\Models\ProductModels\Movie;
 use App\Models\UserModels\Customer;
-use App\Models\ProductModels\Ticket;
+use App\Models\UserModels\User;
 use App\Models\UserModels\Promotion;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
+use App\Models\ProductModels\Movie;
+use App\Models\ProductModels\Seat;
+use App\Models\ProductModels\Ticket;
 use App\Models\ProductModels\Showtime;
+use App\Models\ProductModels\MovieTheater;
+use App\Models\ProductModels\News;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
-use App\Models\ProductModels\MovieTheater;
 use App\Http\Controllers\UserController\Controller;
 
 class AdminController extends Controller
@@ -312,6 +313,8 @@ class AdminController extends Controller
     public function showMain(Request $request): View
     {
         $q = (string) $request->query('q', '');
+        $type = (string) $request->query('type', 'all'); 
+        $today = Carbon::today()->toDateString();
 
         // Query danh sách phim (có tìm kiếm)
         $moviesQuery = Movie::query();
@@ -322,19 +325,45 @@ class AdminController extends Controller
                     ->orWhere('rating', 'like', "%{$q}%");
             });
         }
+        switch ($type) {
+            case 'coming_soon': // phim sắp chiếu
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '>', $today);
+                break;
 
+            case 'now_showing': // phim đang chiếu
+                $moviesQuery
+                    ->where('status', 'active')
+                    ->whereDate('releaseDate', '<=', $today);
+                break;
+
+            case 'hidden': // phim đã ẩn
+                $moviesQuery
+                    ->where('status', 'unable');
+                break;
+
+            case 'all':
+            default:
+                break;
+        }
+        
         $movies = $moviesQuery
-            ->latest('movieID')
-            ->paginate(12)
+            ->orderBy('releaseDate', 'desc')
+            ->orderBy('movieID', 'desc')
+            ->paginate(10)
             ->withQueryString();
 
         // KPI
         $kpi = [
             'movies_active' => Movie::where('status', 'active')->count(),
             'movies_total'  => Movie::count(),
+            'movies_coming_soon' => Movie::where('status', 'active')
+                                     ->whereDate('releaseDate', '>', $today)
+                                     ->count(),
         ];
 
-        return view('adminDashboard.moviesManagement.main', compact('movies', 'q', 'kpi'));
+        return view('adminDashboard.moviesManagement.main', compact('movies', 'q', 'kpi','type'));
     }
 
     public function movieStore(Request $req): RedirectResponse
@@ -342,9 +371,10 @@ class AdminController extends Controller
         $data = $req->validate([
             'title'        => 'required|string|max:255',
             'poster'       => 'nullable|string|max:2000',
+            'background'   => 'nullable|string|max:2000',            
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
-            'rating'       => 'nullable|string|max:50',
+            'rating'       => 'nullable|string|in:P,K,T13,T16,T18',
             'releaseDate'  => 'nullable|date',
             'description'  => 'nullable|string',
             'status'       => 'nullable|in:active,unable',
@@ -363,9 +393,10 @@ class AdminController extends Controller
         $data = $req->validate([
             'title'        => 'required|string|max:255',
             'poster'       => 'nullable|string|max:2000',
+            'background'   => 'nullable|string|max:2000',
             'durationMin'  => 'required|integer|min:0|max:65535',
             'genre'        => 'nullable|string|max:255',
-            'rating'       => 'nullable|string|max:50',
+            'rating'       => 'nullable|string|in:P,K,T13,T16,T18',
             'releaseDate'  => 'nullable|date',
             'description'  => 'nullable|string',
             'status'       => 'required|in:active,unable',
@@ -384,15 +415,43 @@ class AdminController extends Controller
     public function uploadPoster(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'image', 'max:2048'],
+            'file' => 'required|image|max:4096',
         ]);
-        $path = $request->file('file')->store('pictures', 'public');
-        return response()->json(['path' => 'storage/' . $path]);
+
+        if (!$request->hasFile('file')) {
+            return response()->json([
+                'message' => 'Không tìm thấy file upload',
+            ], 400);
+        }
+
+        $file = $request->file('file');
+
+        $originalName = $file->getClientOriginalName();
+
+        $filename = $file->getClientOriginalName();
+
+        $path = $file->storeAs('pictures', $filename, 'public');
+
+        return response()->json([
+            'path' => 'storage/' . $path,
+        ]);
     }
     // =============== CSV ============= //
     public function movieTemplateCsv()
     {
-        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
+        $header = [
+            'movieID',
+            'title',
+            'poster',
+            'background',
+            'durationMin',
+            'genre',
+            'rating',
+            'releaseDate',
+            'description',
+            'status'
+        ];
+
         return response()->streamDownload(function () use ($header) {
             $out = fopen('php://output', 'w');
             fputcsv($out, $header);
@@ -410,7 +469,18 @@ class AdminController extends Controller
                 ->orWhere('rating', 'like', "%$q%");
         })->orderBy('movieID')->get();
 
-        $header = ['movieID', 'title', 'poster', 'durationMin', 'genre', 'rating', 'releaseDate', 'description', 'status'];
+        $header = [
+            'movieID', 
+            'title',
+            'poster',
+            'background',
+            'durationMin',
+            'genre',
+            'rating',
+            'releaseDate',
+            'description',
+            'status'
+        ];
 
         return response()->streamDownload(function () use ($rows, $header) {
             $out = fopen('php://output', 'w');
@@ -420,6 +490,7 @@ class AdminController extends Controller
                     $m->movieID,
                     $m->title,
                     $m->poster,
+                    $m->background,
                     $m->durationMin,
                     $m->genre,
                     $m->rating,
@@ -467,6 +538,7 @@ class AdminController extends Controller
             $payload = [
                 'title'        => $get($row, 'title', ''),
                 'poster'       => $get($row, 'poster'),
+                'background'   => $get($row, 'background'),
                 'durationMin'  => (int) $get($row, 'durationmin', 0),
                 'genre'        => $get($row, 'genre'),
                 'rating'       => $get($row, 'rating'),
@@ -509,27 +581,30 @@ class AdminController extends Controller
 
     // =============== PROMOTION ============= //
     public function showPromotion(Request $request): View
-    {
-        // Lấy tất cả khuyến mãi
-        $promotions = promotion::orderBy('created_at', 'desc')->get();
+{
+    $q = trim((string) $request->query('q', ''));
 
-        $q = $request->q ?? '';
-        $linkPage = promotion::when($q, function ($query) use ($q) {
-            $query->where('code', 'LIKE', "%$q%")
-                  ->orWhere('description', 'LIKE', "%$q%");
+    $promotions = Promotion::query()
+        ->when($q, function ($query) use ($q) {
+            $query->where(function($sub) use ($q) {
+                $sub->where('code', 'LIKE', "%{$q}%")
+                    ->orWhere('description', 'LIKE', "%{$q}%")
+                    ->orWhere('type', 'LIKE', "%{$q}%")   
+                    ->orWhere('value', 'LIKE', "%{$q}%"); 
+            });
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10)
-        ->appends(['q' => $q]);
-        $user = Auth::user();
+        ->withQueryString(); 
 
-        $kpi = [
-            'promotion_total'  => promotion::count(),
-            'promotion_active' => promotion::where('status', 'active')->count(),
-        ];
-        // Trả về view với dữ liệu
-        return view('adminDashboard.promotionManagement.main', compact('promotions', 'user','kpi','linkPage'));
-    }
+    $kpi = [
+        'promotion_total'  => Promotion::count(),
+        'promotion_active' => Promotion::where('status', 'active')->count(),
+    ];
+
+    $user = Auth::user();
+    return view('adminDashboard.promotionManagement.main', compact('promotions', 'user', 'kpi', 'q'));
+}
 
     // =============== Xử lý lưu khuyến mãi mớ ============= //
     public function PromotionStore(Request $request)
@@ -708,7 +783,6 @@ class AdminController extends Controller
             ->when($q, function ($qr) use ($q) {
                 $qr->where(function ($sub) use ($q) {
                     $sub->where('roomName', 'like', "%{$q}%")
-                        ->orWhere('note', 'like', "%{$q}%")
                         ->orWhere('status', 'like', "%{$q}%");
                 });
             })
@@ -779,9 +853,9 @@ class AdminController extends Controller
             'roomName' => ['required','string','max:255',Rule::unique('movie_theaters', 'roomName')->ignore($movieTheater->theaterID, 'theaterID'),],
             'rows'     => 'required|integer|min:1|max:26',
             'cols'     => 'required|integer|min:1|max:50',
-            'normal_price' => 'required|integer|min:0',
-            'vip_price'    => 'required|integer|min:0',
-            'status'   => ['required','in:active,unable'],
+            'normal_price' => 'required|numeric|min:0',
+            'vip_price'    => 'required|numeric|min:0',
+            'status'   => ['required','in:active,inactive'],
             'note'     => ['nullable','string','max:255'],
         ]);
 
@@ -835,5 +909,181 @@ class AdminController extends Controller
             ->groupBy('verticalRow');
 
         return view('adminDashboard.movietheaterManagement.seatmap', compact('theater', 'seats'));
+    }
+
+    // ====================== NEWS MANAGEMENT ======================
+    public function showNews(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+
+        $query = News::query();
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        $news = $query
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        // KPI đơn giản
+        $kpi = [
+            'news_total'       => News::count(),
+            'news_last_7_days' => News::where('created_at', '>=', now()->subDays(7))->count(),
+            'news_today'       => News::whereDate('created_at', now()->toDateString())->count(),
+        ];
+        return view('adminDashboard.newsManagement.main', compact('news', 'kpi', 'q'));
+    }
+    public function newsStore(Request $request) 
+    {
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|string|max:2000',
+        ]);
+
+        News::create($data);
+
+        return back()->with('status', 'Đã thêm tin tức.');
+    }
+    public function newsUpdate(Request $request, News $news)
+    {
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|string|max:2000',
+        ]);
+
+        $news->update($data);
+
+        return back()->with('status', 'Đã cập nhật tin tức.');
+    }
+
+    public function newsDestroy(News $news)
+    {
+        $news->delete();
+
+        return back()->with('status', 'Đã xoá tin tức.');
+    }
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|max:4096', // 4MB
+        ]);
+
+        $path = $request->file('file')->store('news', 'public');
+
+        return response()->json([
+            'path' => 'storage/' . $path,
+        ]);
+    }
+    // =============== USER CSV =============== //
+
+    // 1. Tải file mẫu (Template)
+    public function userTemplateCsv()
+    {
+        $header = ['username', 'email', 'password', 'phone', 'role', 'status', 'birthday'];
+
+        return response()->streamDownload(function () use ($header) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $header);
+            // Dữ liệu mẫu
+            fputcsv($out, ['nguoidung1', 'user1@example.com', '123456', '0909123456', 'customers', 'active', '2000-01-01']);
+            fclose($out);
+        }, 'users_template.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    // 2. Xuất danh sách người dùng (Export)
+    public function userExportCsv(Request $request)
+    {
+        $q = (string) $request->query('q', '');
+        
+        // Lọc dữ liệu giống hệt hàm hiển thị danh sách
+        $users = User::when($q, function ($qr) use ($q) {
+            $qr->where('username', 'like', "%$q%")
+                ->orWhere('email', 'like', "%$q%")
+                ->orWhere('role', 'like', "%$q%");
+        })->orderByDesc('id')->get();
+
+        $header = ['ID', 'Username', 'Email', 'Phone', 'Role', 'Status', 'Created At'];
+
+        return response()->streamDownload(function () use ($users, $header) {
+            $out = fopen('php://output', 'w');
+            // Bom để hỗ trợ tiếng Việt trong Excel
+            fputs($out, "\xEF\xBB\xBF"); 
+            fputcsv($out, $header);
+
+            foreach ($users as $u) {
+                fputcsv($out, [
+                    $u->id,
+                    $u->username,
+                    $u->email,
+                    $u->phone,
+                    $u->role,
+                    $u->status,
+                    $u->created_at
+                ]);
+            }
+            fclose($out);
+        }, 'users_export_' . date('Y-m-d') . '.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    // 3. Nhập danh sách người dùng (Import)
+    public function userImportCsv(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $file = $request->file('file');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        if (!$handle) return back()->with('error', 'Không mở được file.');
+
+        $header = fgetcsv($handle); // Bỏ qua dòng tiêu đề
+        $count = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            // Giả sử thứ tự cột là: username, email, password, phone, role, status, birthday
+            // Cần kiểm tra kỹ index mảng $row cho khớp với file mẫu
+            if (count($row) < 3) continue; 
+
+            $username = $row[0] ?? null;
+            $email    = $row[1] ?? null;
+            $password = $row[2] ?? '123456'; // Mặc định nếu thiếu
+            $phone    = $row[3] ?? null;
+            $role     = $row[4] ?? 'customers';
+            $status   = $row[5] ?? 'active';
+            $birthday = $row[6] ?? null;
+
+            // Kiểm tra email trùng
+            if (User::where('email', $email)->exists()) continue;
+
+            $user = User::create([
+                'username' => $username,
+                'email'    => $email,
+                'password' => Hash::make($password),
+                'phone'    => $phone,
+                'role'     => $role,
+                'status'   => $status,
+                'birthday' => $birthday,
+            ]);
+
+            // Tạo customer/admin tương ứng
+            if ($user->role === 'customers') {
+                Customer::create(['user_id' => $user->id, 'customer_name' => $user->username]);
+            } elseif ($user->role === 'admin') {
+                Admin::create(['user_id' => $user->id]);
+            }
+            $count++;
+        }
+
+        fclose($handle);
+
+        return back()->with('success', "Đã nhập thành công $count người dùng.");
     }
 }

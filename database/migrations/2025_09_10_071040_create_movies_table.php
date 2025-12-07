@@ -15,16 +15,16 @@ return new class extends Migration
             $table->id('movieID');                    
             $table->string('title');
             $table->string('poster')->nullable(); 
-            $table->unsignedSmallInteger('durationMin'); 
-            $table->string('genre')->nullable();      
-            $table->string('rating')->nullable();     
+            $table->string('background')->nullable(); 
+            $table->unsignedSmallInteger('durationMin');     
+            $table->string('rating')->nullable();   
+            $table->string('genre')->nullable();
             $table->date('releaseDate')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_banner')->default(false)->index(); 
             $table->string('status')->default('active');
-            $table->timestamps();
-            // Full-text index on title for search functionality
             $table->fullText('title');
+            $table->timestamps();
         });
     }
 

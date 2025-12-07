@@ -56,7 +56,7 @@
 <p style="text-align:center;">
     <strong>Rạp:</strong> {{ $cinema->roomName ?? 'Rạp ẩn danh' }}<br>
     <strong>Thời gian chiếu:</strong> {{ $startTime }}<br>
-    <strong>Giá vé:</strong> {{ number_format($showtime->price ?? 0, 0, ',', '.') }} VND
+    <strong>Giá vé:</strong> {{ number_format($order-> amount ?? 0, 0, ',', '.') }} VND
 </p>
 
         </div>

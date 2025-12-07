@@ -32,6 +32,10 @@
       <h6>BÁO CÁO</h6>
       <a class="ad-link {{request()->routeIs('admin.reports.revenue') ? 'active' : '' }}" 
         href="{{ route('admin.reports.revenue')}}">Doanh thu</a>
+
+      <h6>TIN TỨC</h6>
+      <a class="ad-link {{ request()->routeIs('admin.newsManagement.form') ? 'active' : '' }}"
+        href="{{ route('admin.newsManagement.form') }}">Quản lý tin tức</a>        
     </nav>
   </aside>
 
@@ -214,7 +218,7 @@
       <div class="ad-card p-3 mt-3" style="max-width: 1040px;">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <h6 class="m-0">Phòng chiếu phim</h6>
-          <a href="" class="small">Quản lý</a>
+          <a href="{{ route('admin.movietheaterManagement.form') }}" class="small">Quản lý</a>
         </div>
 
         <div class="table-responsive">
@@ -249,7 +253,6 @@
 
 @push('styles')
 <style>
-  /* --- KPI Grid --- */
   .kpi-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);

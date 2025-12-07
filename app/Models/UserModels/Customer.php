@@ -17,7 +17,6 @@ class Customer extends Model
         'user_id',
         'customer_name',
         'customer_point',
-        'tier',
         'total_order_amount',
         'total_promotions_unused'
     ];
@@ -36,7 +35,8 @@ class Customer extends Model
     }
     public function orders()
     {
-        return $this->hasMany(Order::class, 'customer_name', 'username');
+        return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
+
     
 }

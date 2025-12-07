@@ -26,7 +26,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'username'  => ['required','string','max:20','unique:users,username'],
             'email'     => ['required','email','max:60','unique:users,email'],
-            'password'  => ['required', Password::min(5)->numbers()],
+            'password'  => ['required','confirmed', Password::min(5)->numbers()],
         ], [
             'username.unique' => 'Tên đăng nhập đã tồn tại.',
             'email.unique'    => 'Email này đã được sử dụng.',

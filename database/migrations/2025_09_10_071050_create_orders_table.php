@@ -11,7 +11,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('showtimeID')->nullable();
-            $table->string('username')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')
+                ->references('user_id')   
+                ->on('customers')
+                ->nullOnDelete();
             $table->string('order_code')->unique();
             $table->string('promotion_code')->nullable();
             $table->foreign('promotion_code')

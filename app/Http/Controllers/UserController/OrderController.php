@@ -39,13 +39,12 @@ class OrderController extends Controller
             $order = Order::create([
                 'showtimeID' => $request->showtimeID,
                 'order_code' => strtoupper(uniqid('MB')),
-                'username'   => $user->username ?? $user->name ?? 'unknown',
+                'user_id'    => $user->id,
                 'seats'      => json_encode($request->seats),
                 'amount'     => $request->amount,
                 'status'     => 'pending',
+                'promotion_code' => $request->promotion_code ?? null,
             ]);
-
-
 
             $userId = auth()->id();
             $customer = Customer::firstOrCreate(
@@ -250,9 +249,9 @@ if ($showtimeID) {
                                 try {
                                     $seatIDs = json_decode($order->seats, true);
                                     $seatsFormatted = \App\Models\ProductModels\Seat::whereIn('seatID', $seatIDs)
-                                        ->select('verticalRow', 'seatID')
+                                        ->select('verticalRow', 'horizontalRow')
                                         ->get()
-                                        ->map(fn($s) => $s->verticalRow . $s->seatID)
+                                        ->map(fn($s) => $s->verticalRow . $s->horizontalRow)
                                         ->toArray();
 
                                     Mail::to(auth()->user()->email)->send(new TicketPaidMail(
@@ -293,6 +292,7 @@ public function checkAndSyncPayment($orderCode)
 
     return response()->json(['status' => $order->status]);
 }
+
 
 
 }

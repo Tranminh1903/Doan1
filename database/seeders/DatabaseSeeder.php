@@ -12,10 +12,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            MovieSeeder::class,   
-            TheaterSeeder::class,  
-            SeatSeeder::class,     
-            ShowtimeSeeder::class, 
+            MovieSeeder::class,
+            CustomerSeeder::class,
+            MovieTheatersSeeder::class,
+            SeatsSeeder::class,
+            PromotionSeeder::class,
+            ShowtimeSeeder::class,
+            OrderSeeder::class,
+            NewsSeeder::class,
+            TicketSeeder::class,
         ]);
     }
 }

@@ -16,19 +16,27 @@ class ForgetPasswordController extends Controller
 
     public function sendResetLink(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'email' => 'required|email'
+        ], [], [], 'forgot'); 
 
         $status = Password::sendResetLink($request->only('email'));
-        $generic = 'Đã gửi liên kết mật khẩu, xin hãy kiểm tra email của bạn!';
 
-        // Throttle notification
+        $generic = 'Đã gửi liên kết đặt lại mật khẩu, vui lòng kiểm tra email!';
+
         if (in_array($status, [
             Password::RESET_LINK_SENT,
             Password::INVALID_USER,
             Password::RESET_THROTTLED,
         ], true)) {
-            return back()->with('status', $generic);
+
+            return back()
+                ->with('status', $generic)
+                ->with('open_forgot_modal', true);
         }
-        return back()->withErrors(['email' => 'Hiện không thể gửi email, xin vui lòng hãy chờ đợi!']);
+
+        return back()
+            ->withErrors(['email' => 'Hiện không thể gửi email, vui lòng thử lại sau!'], 'forgot')
+            ->with('open_forgot_modal', true);
     }
 }
