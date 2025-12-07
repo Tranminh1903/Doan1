@@ -33,6 +33,11 @@ use Illuminate\Support\Facades\Route;
     Route::post('/movies/{movieID}/rate', [MovieController::class, 'rate'])->name('movies.rate');
     Route::get('/news', [NewsController::class, 'index'])->name('news.news');
     Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.news_detail');
+
+//footer
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact'); // Liên hệ
+    Route::get('/terms', [PolicyController::class, 'index'])->name('terms'); // Chính sách và quy định
+    Route::get('/about', [AboutController::class, 'index'])->name('about'); // Giới thiệu
 // ==== Guest only (chưa đăng nhập) ==== //
 Route::middleware('guest')->group(function () {
     // ==== Login ====//
@@ -53,10 +58,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset_password', action: [ResetPasswordController::class, 'resetPassword'])->name('password.update');
     Route::get('/reset_password/{token}', [ResetPasswordController::class, 'showReset_Password'])->name('password.reset');
 
-    //footer
-    Route::get('/contact', [ContactController::class, 'index'])->name('contact'); // Liên hệ
-    Route::get('/terms', [PolicyController::class, 'index'])->name('terms'); // Chính sách và quy định
-    Route::get('/about', [AboutController::class, 'index'])->name('about'); // Giới thiệu
 });
 
 // ==== Auth only (đã đăng nhập)  ==== //
